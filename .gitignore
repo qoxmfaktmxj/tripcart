@@ -1,0 +1,80 @@
+# ============================================================
+# TripCart .gitignore
+# ============================================================
+
+# ── Node / pnpm ─────────────────────────────────────────────
+node_modules/
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# ── Next.js ─────────────────────────────────────────────────
+.next/
+out/
+build/
+dist/
+
+# ── Turbo ───────────────────────────────────────────────────
+.turbo/
+
+# ── Expo / React Native ─────────────────────────────────────
+apps/mobile/.expo/
+apps/mobile/dist/
+apps/mobile/ios/
+apps/mobile/android/
+*.apk
+*.aab
+*.ipa
+*.xcworkspace
+*.xcodeproj
+Pods/
+
+# ── Python / optimizer ──────────────────────────────────────
+services/optimizer/.venv/
+services/optimizer/__pycache__/
+services/optimizer/**/__pycache__/
+services/optimizer/**/*.pyc
+services/optimizer/**/*.pyo
+services/optimizer/.python-version
+*.egg-info/
+dist/
+.uv/
+
+# ── Environment variables ────────────────────────────────────
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.staging
+# .env.example 은 커밋 대상 (템플릿)
+
+# ── Supabase 로컬 데이터 ────────────────────────────────────
+infra/supabase/.branches/
+infra/supabase/.temp/
+supabase/.branches/
+supabase/.temp/
+
+# ── OS / Editor ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/settings.json
+.idea/
+
+# ── 로그 ────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── 테스트 캐시 ─────────────────────────────────────────────
+coverage/
+.vitest/
+playwright-report/
+test-results/
+
+# ── 기타 ────────────────────────────────────────────────────
+*.tsbuildinfo

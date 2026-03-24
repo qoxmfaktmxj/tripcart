@@ -1,0 +1,79 @@
+/**
+ * TripCart Design Tokens — Tailwind CSS v4 @theme block
+ *
+ * 사용법 (apps/web/src/app/globals.css):
+ *   @import "tailwindcss";
+ *   @import "@tripcart/design-tokens/tokens.css";
+ *
+ * Tailwind v4에서는 tailwind.config.js 없이 이 파일만으로 토큰이 등록된다.
+ */
+
+@theme {
+  /* ── Primary: Sunset Teal ── */
+  --color-primary-50: #D5F2EE;
+  --color-primary-100: #A8E0D6;
+  --color-primary-300: #4DBFAD;
+  --color-primary-500: #2A9D8F;
+  --color-primary-700: #1F7A6F;
+  --color-primary-900: #264653;
+
+  /* ── Plum Accent ── */
+  --color-plum-50: #F5EFF3;
+  --color-plum-100: #E5D5DF;
+  --color-plum-300: #D4A5C7;
+  --color-plum-500: #9B2D6B;
+  --color-plum-700: #641A41;
+  --color-plum-900: #3D0F28;
+
+  /* ── Coral: Warning Accent ── */
+  --color-coral-50: #FEF2F2;
+  --color-coral-300: #F4A261;
+  --color-coral-500: #E76F51;
+  --color-coral-700: #C4563D;
+  --color-coral-900: #9A3412;
+
+  /* ── Gold: Risk ── */
+  --color-gold-50: #FEF9E7;
+  --color-gold-300: #F0D78C;
+  --color-gold-500: #E9C46A;
+  --color-gold-700: #B8963A;
+  --color-gold-900: #78571E;
+
+  /* ── Neutral ── */
+  --color-neutral-0: #FFFFFF;
+  --color-neutral-50: #F8FAFB;
+  --color-neutral-100: #EEF1F3;
+  --color-neutral-300: #CBD5E1;
+  --color-neutral-500: #64748B;
+  --color-neutral-700: #374151;
+  --color-neutral-900: #264653;
+
+  /* ── Semantic ── */
+  --color-success: #16A34A;
+  --color-success-light: #F0FDF4;
+  --color-success-dark: #166534;
+  --color-danger: #DC2626;
+  --color-danger-light: #FEE2E2;
+  --color-danger-dark: #991B1B;
+  --color-info: #2563EB;
+  --color-info-light: #EFF6FF;
+  --color-info-dark: #1E40AF;
+
+  /* ── Typography ── */
+  --font-sans: 'Pretendard', 'SUIT', 'Apple SD Gothic Neo', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+}
+
+/* ── Dark Mode ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-neutral-0: #2D3548;
+    --color-neutral-50: #242B3A;
+    --color-neutral-100: #1A1F2E;
+    --color-neutral-300: #3D4A5C;
+    --color-neutral-500: #94A3B8;
+    --color-neutral-900: #F0F4F8;
+    --color-plum-50: #2E1F28;
+    --color-plum-700: #D4A5C7;
+  }
+}
