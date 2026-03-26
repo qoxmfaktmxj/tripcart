@@ -2,10 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   // Turbopack is default in Next.js 16 for both dev and build
-  experimental: {
-    // React Compiler is built-in and stable in Next.js 16
-    reactCompiler: true,
-  },
+  // React Compiler is built-in in Next.js 16; no experimental flag needed
   images: {
     remotePatterns: [
       {

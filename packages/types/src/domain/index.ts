@@ -3,6 +3,8 @@
  * API Contract v0.2 / Schema v0.3 기반
  */
 
+export * from './user.js'
+
 // ── 공통 ─────────────────────────────────────────────────────
 
 export type UUID = string
@@ -13,6 +15,7 @@ export type PlaceCategory =
   | 'cafe'
   | 'attraction'
   | 'accommodation'
+  | 'activity'
   | 'shopping'
   | 'other'
 
@@ -27,9 +30,9 @@ export type WarningType =
   | 'travel_time_tight'
   | 'overnight'
 
-export type PlanStatus = 'draft' | 'optimized' | 'confirmed' | 'archived'
+export type PlanStatus = 'draft' | 'optimized' | 'confirmed' | 'in_progress' | 'completed' | 'cancelled'
 
-export type ExecutionStatus = 'active' | 'completed' | 'abandoned'
+export type ExecutionStatus = 'active' | 'paused' | 'completed' | 'abandoned'
 
 export type StopVisitStatus = 'pending' | 'visited' | 'skipped'
 
@@ -97,12 +100,17 @@ export interface TripPlan {
   id: UUID
   user_id: UUID
   title: string
-  travel_date: string | null // YYYY-MM-DD
+  start_at: ISODateString | null
   region: string | null
-  travel_mode: TravelMode
+  transport_mode: TravelMode
   status: PlanStatus
   origin_lat: number | null
   origin_lng: number | null
+  origin_name: string | null
+  version: number
+  optimization_meta: Record<string, unknown> | null
+  has_active_execution: boolean
+  alternatives_count: number
   stops: PlanStop[]
   warning_count: number
   created_at: ISODateString
@@ -115,12 +123,14 @@ export interface PlanStop {
   place: PlaceSummary
   stop_order: number
   locked: boolean
+  locked_position: number | null
   dwell_minutes: number
   arrive_at: ISODateString | null
   leave_at: ISODateString | null
   travel_from_prev_minutes: number | null
   travel_from_prev_meters: number | null
-  warnings: Warning[]
+  warnings: string[]
+  user_note: string | null
 }
 
 // ── Warning ───────────────────────────────────────────────────
@@ -223,6 +233,10 @@ export const ERROR_CODES = {
   DUPLICATE_TOKEN: 'DUPLICATE_TOKEN',
   RECEIPT_PARSE_FAILED: 'RECEIPT_PARSE_FAILED',
   STORAGE_UPLOAD_FAILED: 'STORAGE_UPLOAD_FAILED',
+  ALREADY_SAVED: 'ALREADY_SAVED',
+  UNAUTHORIZED: 'UNAUTHORIZED',
+  INTERNAL_ERROR: 'INTERNAL_ERROR',
+  NOT_FOUND: 'NOT_FOUND',
 } as const
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]

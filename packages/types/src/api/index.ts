@@ -18,6 +18,7 @@ export interface GetPlacesParams {
   region?: string
   category?: PlaceCategory
   q?: string
+  tags?: string
   cursor?: string
   limit?: number
 }
@@ -38,19 +39,21 @@ export interface UpdateSavedPlaceRequest {
 
 export interface CreatePlanRequest {
   title: string
-  travel_date?: string // YYYY-MM-DD
-  region?: string
-  travel_mode?: TravelMode
+  start_at?: string // ISO 8601
+  region: string
+  transport_mode?: TravelMode
   origin_lat?: number
   origin_lng?: number
+  origin_name?: string
 }
 
 export interface UpdatePlanRequest {
   title?: string
-  travel_date?: string
-  travel_mode?: TravelMode
+  start_at?: string | null // ISO 8601
+  transport_mode?: TravelMode
   origin_lat?: number
   origin_lng?: number
+  origin_name?: string
 }
 
 export interface AddStopRequest {
@@ -60,8 +63,14 @@ export interface AddStopRequest {
   locked?: boolean
 }
 
+export interface UpdateStopRequest {
+  dwell_minutes?: number
+  locked?: boolean
+  user_note?: string | null
+}
+
 export interface ReorderStopsRequest {
-  stop_ids: UUID[] // 새로운 순서
+  ordered_stop_ids: UUID[] // 새로운 순서
 }
 
 // ── Optimize API ──────────────────────────────────────────────

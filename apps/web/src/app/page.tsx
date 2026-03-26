@@ -3,7 +3,7 @@
  * @tripcart/design-tokens 연결 확인용
  */
 
-export default function HomePage() {
+export default function HomePage(): React.JSX.Element {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center gap-8 p-8">
       {/* 헤더 — primary-500 (#2A9D8F) */}

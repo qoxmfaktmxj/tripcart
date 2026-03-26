@@ -76,5 +76,8 @@ coverage/
 playwright-report/
 test-results/
 
+# ── OMC / Claude 런타임 상태 ────────────────────────────────
+.omc/
+
 # ── 기타 ────────────────────────────────────────────────────
 *.tsbuildinfo

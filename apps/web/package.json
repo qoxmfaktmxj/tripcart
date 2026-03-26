@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.9.0",
     "@supabase/supabase-js": "^2.80.0",
     "@tripcart/design-tokens": "workspace:*",
     "@tripcart/types": "workspace:*",
@@ -20,14 +21,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.0.0",
+    "@tailwindcss/postcss": "^4.1.0",
     "@tripcart/config": "workspace:*",
     "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "eslint": "^9.0.0",
     "eslint-config-next": "^16.0.0",
-    "typescript": "^5.8.0",
     "tailwindcss": "^4.1.0",
-    "@tailwindcss/postcss": "^4.1.0"
+    "typescript": "^5.8.0"
   }
 }
