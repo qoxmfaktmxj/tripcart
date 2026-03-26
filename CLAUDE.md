@@ -32,9 +32,10 @@ Claude의 역할은 **분석/설계/리뷰**다. 구현은 Codex가 한다.
 - **R2**: API endpoint, optimizer API, CI/CD → Claude 분석 필요
 - **R3**: migration, RLS, auth, secret, prod → 사용자 승인 필수
 
-## 현재 품질 Band: D (6/15)
+## 현재 품질 Band: D (8/15, 상향 경계)
 
 자동화 범위: R0/R1만. R2+ 분석 필수. R3 사용자 승인 필수.
+Phase 0+1 완료. 다음: Phase 2 (optimizer integration) 또는 테스트 작성으로 Band C 진입.
 
 ## Claude 슬래시 커맨드
 
