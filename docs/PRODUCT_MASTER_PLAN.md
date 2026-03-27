@@ -114,7 +114,7 @@ TripCart는 “여행 콘텐츠 플랫폼”보다 “여행 운영 도구”에
 | Web | Next.js | **16.x** | 공유 페이지, 웹앱, 운영/관리도구 |
 | Web Runtime | React | **19.2.x** | Next.js 16 내장 |
 | Web Styling | Tailwind CSS | **4.1.x** | CSS-first @theme 방식 |
-| Mobile | Expo (React Native) | **SDK 54** (RN 0.81) | iOS/Android 동시 대응, 빠른 반복 |
+| Mobile | Expo (React Native) | **SDK 54** (RN 0.76) | iOS/Android 동시 대응, 빠른 반복 |
 | DB/Auth/Storage | Supabase | PostgreSQL **17** | Auth + RLS + Storage + local stack 일체화 |
 | Supabase JS | @supabase/supabase-js | **2.80.x** | 공식 JS 클라이언트 |
 | Optimizer | Python FastAPI + OR-Tools | FastAPI **0.115.x+** / OR-Tools **9.12.x+** | time-window routing / scheduling 핵심 |

@@ -96,7 +96,7 @@ pnpm create next-app apps/web --ts --app --eslint --tailwind --src-dir --import-
 > **Tailwind CSS v4 주의**: v4는 `tailwind.config.js`가 없다. `globals.css`에서 `@import "tailwindcss"` + `@theme { ... }` 블록으로 토큰을 직접 정의한다.
 > **ESLint 9 주의**: Next.js 16은 `eslint.config.js` (flat config)를 기본으로 사용한다. `.eslintrc.*` 파일은 생성하지 않는다.
 
-### 6.3 Mobile (Expo SDK 54, RN 0.81)
+### 6.3 Mobile (Expo SDK 54, RN 0.76)
 ```bash
 pnpm create expo-app apps/mobile --template blank-typescript
 ```

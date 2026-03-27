@@ -232,7 +232,7 @@ AGENTS.md의 규칙을 따르며, `.codex/skills/`에 도메인 스킬을 선별
 
 | 스킬 | 용도 |
 |---|---|
-| `expo-rn` | Expo SDK 54 + RN 0.81 best practices |
+| `expo-rn` | Expo SDK 54 + RN 0.76 best practices |
 | `supabase` | Supabase client, RLS, Edge Functions |
 | `fastapi` | FastAPI + OR-Tools 패턴 |
 | `nextjs` | Next.js 16 App Router 패턴 |

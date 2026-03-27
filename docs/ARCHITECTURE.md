@@ -26,7 +26,7 @@ packages/
   ui/                 공유 UI 컴포넌트
   design-tokens/      색상/타입/spacing
   types/              도메인 타입 / 계약 타입
-  config/             lint/tsconfig/env helpers
+  config/             lint/tsconfig/prettier 공유 설정
 
 infra/
   supabase/           migrations / seeds / policies / edge helpers
@@ -211,7 +211,7 @@ TripCart는 다음을 초반부터 같이 맞춰야 한다.
 | @supabase/supabase-js | **2.80.x** | |
 | Supabase CLI | **2.83.x** | 로컬 PostgreSQL 17 기본 제공 |
 | PostgreSQL | **17** | Supabase CLI 기본값; 스키마 `PostgreSQL 17+` 기준 |
-| Expo | **SDK 54** (RN 0.81) | Dev Client 기준, Expo Go 아님 |
+| Expo | **SDK 54** (RN 0.76) | Dev Client 기준, Expo Go 아님 |
 | Python | **3.14.x** | optimizer 전용 |
 | uv | 최신 stable | Python 패키지 매니저 |
 | FastAPI | **0.115.x+** | `fastapi[standard]` 설치 |
