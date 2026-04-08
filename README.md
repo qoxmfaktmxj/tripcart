@@ -24,6 +24,15 @@ The product principle is simple: planning and execution are not the same thing.
 | Phase 3 | Execution, spends, media | Planned |
 | Phase 4 | Receipt OCR, gap suggest, smart alert | Planned |
 
+## Latest verified state
+
+- `2026-04-08`
+- web home responds with HTTP `200`
+- `pnpm lint` passes
+- `pnpm typecheck` passes
+- `pnpm build` passes in the pre-push gate
+- Phase 0 bootstrap docs have been normalized for clean local rendering
+
 ## Tech stack
 
 | Area | Stack | Version |
@@ -123,4 +132,5 @@ pnpm build
 | [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) | UI tokens and component rules |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Phase roadmap |
 | [docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md) | Test expectations |
+| [todo/PHASE_0_CHECKLIST.md](todo/PHASE_0_CHECKLIST.md) | Bootstrap exit checklist |
 | [CLAUDE.md](CLAUDE.md) | Agent workflow rules |

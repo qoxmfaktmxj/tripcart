@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.1.2] - 2026-04-08
+
+### Fixed
+- Rebuilt `docs/00_READ_THIS_FIRST.md` into clean UTF-8 text so the canonical entry doc is readable again.
+- Updated the README with the latest verified repository state and linked the Phase 0 bootstrap checklist.
+
 ## [0.0.1.1] - 2026-04-08
 
 ### Fixed
