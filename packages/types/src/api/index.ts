@@ -1,18 +1,16 @@
 /**
- * API Request/Response DTO 타입
- * API Contract v0.2 기반
+ * Shared API DTOs
+ * Canonical source: API_CONTRACT_v0.2.md
  */
 
 import type {
-  UUID,
-  TravelMode,
   PlaceCategory,
-  StopVisitStatus,
+  ShareVisibility,
   SpendCategory,
-  SharedAccessLevel,
+  StopVisitStatus,
+  TransportMode,
+  UUID,
 } from '../domain/index.js'
-
-// ── Places API ────────────────────────────────────────────────
 
 export interface GetPlacesParams {
   region?: string
@@ -23,8 +21,6 @@ export interface GetPlacesParams {
   limit?: number
 }
 
-// ── Saved Places API ──────────────────────────────────────────
-
 export interface CreateSavedPlaceRequest {
   place_id: UUID
   note?: string
@@ -32,28 +28,33 @@ export interface CreateSavedPlaceRequest {
 
 export interface UpdateSavedPlaceRequest {
   note?: string
-  visited?: boolean
 }
 
-// ── Trip Plans API ────────────────────────────────────────────
-
 export interface CreatePlanRequest {
-  title: string
-  start_at?: string // ISO 8601
+  title?: string
   region: string
-  transport_mode?: TravelMode
+  start_at?: string
+  end_at?: string
+  transport_mode?: TransportMode
   origin_lat?: number
   origin_lng?: number
   origin_name?: string
+  dest_lat?: number
+  dest_lng?: number
+  dest_name?: string
 }
 
 export interface UpdatePlanRequest {
   title?: string
-  start_at?: string | null // ISO 8601
-  transport_mode?: TravelMode
+  start_at?: string
+  end_at?: string
+  transport_mode?: TransportMode
   origin_lat?: number
   origin_lng?: number
   origin_name?: string
+  dest_lat?: number
+  dest_lng?: number
+  dest_name?: string
 }
 
 export interface AddStopRequest {
@@ -63,25 +64,13 @@ export interface AddStopRequest {
   locked?: boolean
 }
 
-export interface UpdateStopRequest {
-  dwell_minutes?: number
-  locked?: boolean
-  user_note?: string | null
-}
-
 export interface ReorderStopsRequest {
-  ordered_stop_ids: UUID[] // 새로운 순서
+  ordered_stop_ids: UUID[]
 }
 
-// ── Optimize API ──────────────────────────────────────────────
-
-export interface OptimizeRequest {
+export interface OptimizePlanRequest {
   plan_id: UUID
-  travel_date: string // YYYY-MM-DD
-  start_time: string // HH:MM
 }
-
-// ── Execution API ─────────────────────────────────────────────
 
 export interface StartExecutionRequest {
   plan_id: UUID
@@ -89,38 +78,33 @@ export interface StartExecutionRequest {
 
 export interface UpdateStopVisitRequest {
   visit_status: StopVisitStatus
-  arrived_at?: string // ISO 8601
-  departed_at?: string // ISO 8601
+  arrived_at?: string
+  departed_at?: string
   note?: string
 }
-
-// ── Spend API ─────────────────────────────────────────────────
 
 export interface CreateSpendRequest {
   execution_id: UUID
   execution_stop_id?: UUID
   category: SpendCategory
-  amount: number
+  total_amount: number
   note?: string
-  spent_at?: string // ISO 8601
+  spent_at?: string
 }
-
-// ── Shared Itinerary API ──────────────────────────────────────
 
 export interface CreateShareRequest {
   plan_id: UUID
-  access_level?: SharedAccessLevel
+  visibility?: ShareVisibility
   expires_in_days?: number
 }
 
 export interface ImportSharedRequest {
-  share_token: string
-  travel_date?: string // YYYY-MM-DD
+  share_code: string
+  start_at?: string
 }
 
-// ── Push API ──────────────────────────────────────────────────
-
 export interface RegisterPushTokenRequest {
-  push_token: string // ExponentPushToken[xxxx]
+  push_token: string
   platform: 'ios' | 'android'
+  device_name?: string
 }

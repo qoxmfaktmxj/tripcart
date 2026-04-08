@@ -1,38 +1,40 @@
-/**
- * TripCart — Phase 0 Hello World
- * @tripcart/design-tokens 연결 확인용
- */
-
 export default function HomePage(): React.JSX.Element {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center gap-8 p-8">
-      {/* 헤더 — primary-500 (#2A9D8F) */}
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-primary-900 mb-2">🛒 TripCart</h1>
-        <p className="text-neutral-500 text-lg">여행 일정 최적화 & 실행 도구</p>
-      </div>
-
-      {/* Phase 0 상태 배지 */}
-      <div className="bg-primary-50 border border-primary-300 rounded-lg px-6 py-4 text-center">
-        <p className="text-primary-700 font-semibold">Phase 0 — 인프라 부트스트랩 완료</p>
-        <p className="text-primary-500 text-sm mt-1">
-          design-tokens ✅ | types ✅ | monorepo ✅
+    <main className="flex min-h-screen w-full flex-col items-center justify-center gap-8 px-6 py-10 sm:px-8">
+      <div className="max-w-md text-center">
+        <h1 className="mb-2 text-4xl font-bold text-primary-900 sm:text-5xl">
+          TripCart
+        </h1>
+        <p className="text-base text-neutral-500 sm:text-lg">
+          Travel planning and execution, optimized.
         </p>
       </div>
 
-      {/* 컬러 팔레트 확인 */}
-      <div className="grid grid-cols-4 gap-3">
-        <div className="bg-primary-500 rounded-md h-12 w-24 flex items-center justify-center">
-          <span className="text-white text-xs font-mono">primary</span>
+      <div className="w-full max-w-full rounded-lg border border-primary-300 bg-primary-50 px-5 py-4 text-center sm:max-w-md sm:px-6">
+        <p className="font-semibold text-primary-700">
+          Phase 0 bootstrap complete
+        </p>
+        <p className="mt-1 text-sm text-primary-500">
+          design-tokens{' '}
+          <span aria-hidden="true">|</span>{' '}
+          types{' '}
+          <span aria-hidden="true">|</span>{' '}
+          monorepo
+        </p>
+      </div>
+
+      <div className="grid w-full max-w-full grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex h-12 w-full items-center justify-center rounded-md bg-primary-500">
+          <span className="text-xs font-mono text-white">primary</span>
         </div>
-        <div className="bg-plum-700 rounded-md h-12 w-24 flex items-center justify-center">
-          <span className="text-white text-xs font-mono">plum</span>
+        <div className="flex h-12 w-full items-center justify-center rounded-md bg-plum-700">
+          <span className="text-xs font-mono text-white">plum</span>
         </div>
-        <div className="bg-coral-500 rounded-md h-12 w-24 flex items-center justify-center">
-          <span className="text-white text-xs font-mono">coral</span>
+        <div className="flex h-12 w-full items-center justify-center rounded-md bg-coral-500">
+          <span className="text-xs font-mono text-white">coral</span>
         </div>
-        <div className="bg-gold-500 rounded-md h-12 w-24 flex items-center justify-center">
-          <span className="text-neutral-900 text-xs font-mono">gold</span>
+        <div className="flex h-12 w-full items-center justify-center rounded-md bg-gold-500">
+          <span className="text-xs font-mono text-neutral-900">gold</span>
         </div>
       </div>
     </main>

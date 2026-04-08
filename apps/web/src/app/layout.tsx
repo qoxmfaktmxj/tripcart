@@ -3,7 +3,7 @@ import './globals.css'
 
 export const metadata: Metadata = {
   title: 'TripCart',
-  description: '여행 일정을 최적화하고 실행하세요',
+  description: 'Optimize travel plans and execution.',
 }
 
 export default function RootLayout({
@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>): React.JSX.Element {
   return (
-    <html lang="ko">
+    <html lang="en">
       <body>{children}</body>
     </html>
   )

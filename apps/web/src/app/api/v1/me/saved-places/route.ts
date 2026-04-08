@@ -1,21 +1,18 @@
 /**
- * GET  /api/v1/me/saved-places — 내 저장 장소 목록
- * POST /api/v1/me/saved-places — 장소 저장 추가
+ * GET  /api/v1/me/saved-places: 내 저장 장소 목록
+ * POST /api/v1/me/saved-places: 장소 저장 추가
  *
- * 인증 필수 (/me/ prefix는 middleware에서 보호).
- * RLS + 명시적 user_id 필터 (defense in depth).
+ * 인증은 /me prefix를 보호하는 proxy에서 선행된다.
+ * 여기서는 RLS와 명시적 user_id 필터로 한 번 더 방어한다.
  */
 
 import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { getSavedPlaces, addSavedPlace } from '@/lib/supabase/queries/saved-places'
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-// ── GET ──────────────────────────────────────────────────────────
-
-export async function GET(_request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient()
     const {
@@ -55,9 +52,7 @@ export async function GET(_request: NextRequest) {
   }
 }
 
-// ── POST ─────────────────────────────────────────────────────────
-
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     const {
@@ -77,7 +72,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // body 파싱
     let body: unknown
     try {
       body = await request.json()
@@ -112,7 +106,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: savedPlace }, { status: 201 })
   } catch (err) {
-    // unique constraint violation (이미 저장된 place) -> 409
     const pgError = err as { code?: string }
     if (pgError.code === '23505') {
       return NextResponse.json(
@@ -126,7 +119,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // FK violation (존재하지 않는 place_id) -> 400
     if (pgError.code === '23503') {
       return NextResponse.json(
         {
