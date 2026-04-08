@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.1.1] - 2026-04-08
+
+### Fixed
+- Fixed the Phase 0 checklist document so Korean text renders cleanly in the local Windows editing flow.
+- Tightened checklist wording for the current local Supabase, web, mobile, optimizer, and CI bootstrap steps.
+
 ## [0.0.1.0] - 2026-04-08
 
 ### Added
