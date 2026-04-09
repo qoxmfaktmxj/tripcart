@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.1.6] - 2026-04-09
+
+### Added
+- Added a `/plans/[id]` web detail screen that consumes the existing authenticated plan detail API and exposes minimal draft edit and delete actions.
+- Added direct navigation from the plans list into the new web detail screen.
+
+### Changed
+- Allowed `127.0.0.1` as a local Next.js dev origin so browser QA can use either localhost form consistently during development.
+
+### Verified
+- Verified the plans create, detail, edit, delete, and unauthenticated redirect flow against the local web server and authenticated plans API.
+
 ## [0.0.1.5] - 2026-04-09
 
 ### Fixed
