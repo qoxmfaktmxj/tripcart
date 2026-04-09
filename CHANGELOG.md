@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.1.8] - 2026-04-09
+
+### Added
+- Added a guest-first public landing flow so `/`, `/places`, `/saved-places`, and `/plans` can be used before authentication.
+- Added browser-backed guest state for saved places and draft plans using localStorage.
+- Added authenticated migration from guest saved places and guest draft plans into the existing saved places and plans APIs after login or signup.
+- Added Playwright E2E coverage for the guest save -> guest plan -> auth migration flow and for guest-state persistence across reloads.
+
+### Changed
+- Updated the canonical docs and roadmap to describe the guest-first trial model, client-side migration boundary, and public landing direction.
+- Updated the web README status to reflect the guest-first surface and current E2E verification.
+- Simplified the saved places client hook to use a view model instead of pretending guest-local items are full server records.
+
+### Fixed
+- Fixed broken Korean text and metadata around the new landing and guest migration surfaces.
+- Fixed guest plan creation so whitespace-only titles are rejected before writing browser draft data.
+- Fixed auth `next` propagation across login and signup pages, and wrapped search-param reads in Suspense so production builds succeed.
+- Fixed guest migration locking so aborted renders do not leave a stale session lock behind.
+
+### Verified
+- Verified guest save, guest draft creation, reload persistence, login/signup migration, saved places, and plan detail flows in browser E2E.
+- Verified `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm --filter @tripcart/web e2e`, and `pnpm build`.
+
 ## [0.0.1.7] - 2026-04-09
 
 ### Changed
