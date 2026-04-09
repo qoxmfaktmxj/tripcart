@@ -15,13 +15,19 @@
 - 기본 인증: `Authorization: Bearer <supabase_jwt>`
 - public preview endpoint 는 예외적으로 anonymous 접근 허용 가능
 
-### 1.2 포맷
+### 1.2 게스트 트라이얼
+- 비로그인 사용자는 공개 탐색에서 장소 담기, 임시 draft plan 조작이 가능하다.
+- 게스트 상태는 브라우저 localStorage에서 관리한다.
+- 로그인 후 웹 클라이언트가 기존 authenticated endpoint를 순서대로 호출해 계정 데이터로 이관한다.
+- 저장 장소 이관은 `POST /me/saved-places`, 초안 플랜 이관은 `POST /plans`를 사용한다.
+- 이관은 완전/부분 성공 모두 허용하며, 실패한 항목은 브라우저 guest 상태에 남겨 재시도 가능하게 유지한다.
+### 1.3 포맷
 - 모든 요청/응답은 JSON
 - 시간은 ISO 8601 + timezone 포함
 - 통화는 기본 KRW
 - pagination 은 cursor 기반
 
-### 1.3 에러 형식
+### 1.4 에러 형식
 ```json
 {
   "error": {
@@ -32,7 +38,7 @@
 }
 ```
 
-### 1.4 공통 응답 메타
+### 1.5 공통 응답 메타
 필요 시 아래 메타를 함께 반환한다.
 ```json
 {
@@ -114,6 +120,9 @@
 | DUPLICATE_TOKEN | 이미 등록된 push token |
 | RECEIPT_PARSE_FAILED | OCR/파싱 실패 |
 | STORAGE_UPLOAD_FAILED | 업로드 실패 |
+| GUEST_MIGRATION_PARTIAL | 일부 게스트 항목 이관 성공 |
+| GUEST_MIGRATION_FAILED | 게스트 데이터 이관 실패 |
+| DUPLICATE_PLAN_TITLE | 동일 제목 계획 병합 충돌 |
 
 ## 4. Places API
 
@@ -205,13 +214,16 @@ Request:
 { "place_id": "uuid" }
 ```
 
+Notes:
+- 로그인 후 guest 상태에서 들고 온 장소를 계정으로 옮길 때도 같은 endpoint를 사용한다.
+- 중복 저장은 `409 Conflict` 또는 멱등 성공으로 처리해도 된다.
 ### 5.3 `DELETE /me/saved-places/:place_id`
 저장 해제.
 
 ## 6. Plans API
 
 ### 6.1 `POST /plans`
-draft plan 생성.
+계획 생성.
 
 Request:
 ```json
@@ -220,21 +232,31 @@ Request:
   "region": "busan",
   "transport_mode": "car",
   "start_at": "2026-05-02T09:00:00+09:00",
-  "origin_lat": 35.1152,
-  "origin_lng": 129.0422,
   "origin_name": "부산역"
 }
 ```
 
+Notes:
+- 로그인 직후 guest 상태에서 만든 초안 플랜을 계정으로 이관할 때도 같은 endpoint를 사용한다.
+- 중복 생성은 client-side dedupe 또는 `409 Conflict` 기반 멱등 처리로 다룬다.
+
 Response:
 ```json
 {
-  "id": "uuid",
-  "status": "draft",
-  "version": 1
+  "data": {
+    "id": "uuid",
+    "title": "부산 당일치기",
+    "region": "busan",
+    "transport_mode": "car",
+    "start_at": "2026-05-02T09:00:00+09:00",
+    "origin_name": "부산역",
+    "visibility": "private",
+    "status": "draft",
+    "version": 1,
+    "created_at": "2026-04-21T12:34:56+09:00"
+  }
 }
 ```
-
 ### 6.2 `GET /plans`
 내 계획 목록.
 

@@ -1,200 +1,128 @@
-# TripCart Roadmap v1.1
-업데이트: 2026-03-24  
+﻿# TripCart Roadmap v1.3
+업데이트: 2026-04-09  
 상태: **Canonical Execution Plan**
 
-## 1. 로드맵 목적
+## 1. 배경
 
-이 문서는 “무엇을 먼저 만들고, 무엇을 뒤로 미루는가”를 고정한다.  
-MVP 범위를 지키고, Codex/에이전트가 우선순위를 흔들지 않도록 만드는 것이 목적이다.
+TripCart는 장소 목록 기반 탐색 앱이 아니라, 저장한 후보를 실제 일정과 실행 흐름으로 연결하는 제품이다.
+공개 랜딩은 제품 가치를 설명하고, 운영형 화면은 계획과 실행에 필요한 작업을 담당한다.
 
-## 2. 개발 방식
+## 2. 실행 원칙
 
-- 개발 모드: **solo founder + Codex pair development**
-- 코드베이스: **monorepo**
-- 정본 문서 우선 순서:
-  - Product Master Plan
-  - Architecture
-  - API Contract
-  - Schema
-  - Design System
+- solo founder + Codex pair development
+- monorepo + local Supabase 우선
+- 정본은 `docs/` 1군 문서로 유지
+- 기능 변경은 문서와 코드 동기화를 같이 한다
+- 로그인은 시작 장벽이 아니라 동기화 시점이다
 
-## 3. 전체 단계
+## 3. 단계 계획
 
-| Phase | 목표 | 결과물 | 상태 |
+| Phase | 범위 | 목표 | 상태 |
 |---|---|---|---|
-| Phase 0 | 인프라/정본 고정 | repo, local supabase, canonical schema, AGENTS, CI | **완료** |
-| Phase 1 | 도메인 기반 구축 | auth, places, saved places, plans CRUD | **완료** (API only, FE UI 미구현) |
-| Phase 2 | 일정 최적화 | optimizer integration, alternatives, share/import | MVP 핵심 |
-| Phase 3 | 실행/기록 | execution, spend, media, summary | MVP 후반 |
-| Phase 4 | 운영 고도화 | alerts, share polish, admin correction flow | V1.5 |
-| Phase 5 | AI 보강 | gap suggest, OCR, personalization | V2 |
+| Phase 0 | 부트스트랩 | Repo, local Supabase, schema, auth, docs 체계 | 완료 |
+| Phase 1 | 제품 코어 | auth, places, saved places, plans CRUD | 진행 중 |
+| Phase 1.5 | guest-first trial | 공개 랜딩, guest 저장/초안, 로그인 이관 | 진행 중 |
+| Phase 2 | 최적화 연동 | optimizer, alternatives, share/import | 계획 |
+| Phase 3 | 실행/기록 | execution, spend, media | 계획 |
+| Phase 4 | 고도화 | smart alert, correction flow, polish | 계획 |
+| Phase 5 | V2 | gap suggest, OCR, personalization | 계획 |
 
-## 4. Phase 0 — 인프라 및 정본 고정
+## 4. Phase 0 - 기초 완료
 
 ### 목표
-- 코드 생성 전에 정본 문서와 개발 구조를 고정한다
-- local Supabase / optimizer / monorepo skeleton 을 만든다
-
-### 작업
-- monorepo 초기화
-- pnpm workspace + turbo 설정
-- Next.js app 생성
-- Expo app 생성
-- FastAPI optimizer service 생성
-- local Supabase CLI 세팅
+- local Supabase, optimizer, monorepo 기본 동작 보장
 - canonical schema 적용
-- `.env.example` 정리
-- lint/typecheck/test CI 기본선 구축
-- AGENTS.md, TEST_STRATEGY.md, SECURITY.md repo 반영
+- 문서와 개발 진입점 정리
 
-### 종료 조건
-- `supabase start` 성공
-- schema 적용 성공
-- web/mobile/optimizer 최소 hello world + shared package import 성공
-- CI에서 lint/typecheck가 돈다
+### 핵심 산출물
+- monorepo skeleton
+- Next.js / Expo / FastAPI 부트스트랩
+- local Supabase reset 가능한 개발 흐름
+- README, architecture, design, API contract 정리
 
-## 5. Phase 1 — 도메인 기반 구축
+### 완료 기준
+- `pnpm lint`, `pnpm typecheck`, `pnpm build` 통과
+- local Supabase 재기동과 seed 확인 가능
+- canonical docs 읽기 순서와 정본 경계가 명확함
 
-### 목표
-TripCart의 핵심 도메인 구조를 실제 코드로 만든다.
-
-### 작업 순서
-1. Auth 연동
-2. users bootstrap / profile
-3. places / place_hours / break_windows read path
-4. user_saved_places CRUD
-5. trip_plans CRUD
-6. trip_plan_stops reorder/lock
-7. basic plan detail UI
-8. admin 없이도 seed data browse 가능하도록 정리
-
-### 종료 조건
-- 사용자가 장소를 저장할 수 있다
-- draft plan 을 생성/수정/조회할 수 있다
-- stop reorder 가 동작한다
-- golden scenario plan 을 FE에서 열 수 있다
-
-## 6. Phase 2 — 일정 최적화 (MVP 핵심)
+## 5. Phase 1 - 제품 코어
 
 ### 목표
-장바구니 -> 실제 일정안 생성 -> 공유/복제를 완성한다.
+- 인증, 장소 조회, 저장, 플랜 CRUD를 사용자 흐름으로 연결
 
-### 작업 순서
-1. optimizer `/matrix`, `/optimize` skeleton
-2. route matrix cache 연동
-3. optimize endpoint wiring
-4. alternatives 저장 / 조회 / 선택
-5. warning 구조 일관화
-6. 공유 링크 생성
-7. 공유 preview 페이지
-8. 공유 import
-9. one-region / car-first 품질 점검
+### 우선순위
+1. Auth entry와 세션 기반 운영
+2. Places read path
+3. Saved places CRUD
+4. Plans CRUD
+5. Plan detail/edit/delete
 
-### 종료 조건
-- plan optimize 성공
-- 2-3개 alternatives 반환
-- break_time_conflict warning 이 보인다
-- 공유 링크에서 미리보기 가능
-- import 후 내 일정으로 복제 가능
+### 완료 기준
+- 로그인 사용자 기준으로 장소 저장과 플랜 생성/수정/삭제가 가능
+- `/places`, `/saved-places`, `/plans`, `/plans/[id]` 흐름이 브라우저에서 재현 가능
+- 문서와 실제 API shape가 일치함
 
-## 7. Phase 3 — 실행/기록
+## 6. Phase 1.5 - 게스트 트라이얼 + 이관
 
 ### 목표
-계획 앱이 아니라 “실행 가능한 앱”으로 만든다.
+- 로그인 없이 먼저 써보고, 로그인 후 그대로 이어서 관리하게 만든다
 
-### 작업 순서
-1. start execution
-2. execution detail 조회
-3. stop actual state update
-4. spend entry
-5. spend summary
-6. media upload
-7. execution summary card
-8. plan vs actual 비교 기본선
+### 작업 항목
+1. 공개 앱스토어형 홈 랜딩
+2. guest saved places (`localStorage`)
+3. guest draft plans (`localStorage`)
+4. 로그인/회원가입 후 client-side migration
+5. migration banner, guest 안내 문구, CTA 정렬
 
-### 종료 조건
-- confirmed plan 을 execution 으로 시작 가능
-- stop visit/skipped 처리 가능
-- spend 기록 가능
-- execution summary 표시 가능
+### 완료 기준
+- 비로그인 사용자가 `/places`, `/saved-places`, `/plans`를 바로 쓸 수 있음
+- guest 상태가 로그인 후 `POST /me/saved-places`, `POST /plans`를 통해 계정으로 이관됨
+- 성공 항목만 제거되고 실패 항목은 guest 상태에 남음
+- 홈 랜딩, auth 화면, 운영 화면 문구가 guest-first 정책과 일치함
 
-## 8. Phase 4 — 운영 고도화 (V1.5)
+## 7. Phase 2 - 최적화 연동
 
 ### 목표
-실제 여행 사용성을 올린다.
+- 최적화 결과, 대안 일정, 공유/가져오기 흐름 연결
 
-### 작업
-- local / push token registration
-- smart alert rules
-- execution reoptimize
-- admin correction queue
-- share polish
-- stats polish
+### 범위
+1. optimizer `/matrix`, `/optimize` 연동
+2. warning / alternative 생성
+3. plan sharing + import
+4. region 1곳, 자동차 모드 기준 우선 완성
 
-### 종료 조건
-- leave_now / break_time_risk / closing_soon 알림 동작
-- execution 재최적화 가능
-- correction submit 흐름 가능
+### 완료 기준
+- 플랜에서 최적화 요청이 가능
+- alternative 선택과 공유 링크 생성이 가능
+- import 후 사용자 플랜으로 복제 가능
 
-## 9. Phase 5 — AI 보강 (V2)
+## 8. Phase 3 - 실행/기록
 
 ### 목표
-차별화 기능을 기존 도메인 위에 얹는다.
+- 계획을 실제 실행 흐름으로 전환하고 방문/지출을 기록
 
-### 작업
-- gap suggest
-- receipt OCR draft
-- receipt confirm
-- structured spend auto-fill
-- personalization seed
-- acceptance logging
+### 범위
+1. execution 시작
+2. stop 완료/건너뛰기
+3. spend 입력과 요약
+4. media 기초 저장
 
-### 종료 조건
-- gap suggestion 카드 + 삽입 가능
-- receipt draft -> review -> confirm 동작
-- OCR 실패 시 수동 보정 UX 존재
+### 완료 기준
+- active execution 생성/종료가 명확함
+- 실행 상태가 계획과 분리되어 유지됨
+- 기본 spend/media 기록이 동작함
 
-## 10. 이번 버전에서 명시적으로 제외
+## 9. 위험 항목
 
-- 전국 동시 대응
-- 대중교통 정교 최적화
-- 네이버 자동 크롤링
-- 내장 turn-by-turn navigation
-- 실시간 공동편집
-- full content marketplace
+- guest 이관과 RLS 경계는 중복/부분 실패 처리가 가장 취약하다
+- public landing과 operational surface가 다시 섞이면 제품 메시지가 약해진다
+- 로컬 환경과 canonical docs가 어긋나면 이후 optimizer/share 작업에서 다시 비용이 커진다
+- mobile 실제 QA는 Android SDK/에뮬레이터 환경이 갖춰져야 한다
 
-## 11. 개발 순서에서 절대 지키는 규칙
+## 10. 기준 테스트 항목
 
-- schema 없는 화면 구현 금지
-- API 계약 없이 mock endpoint 확정 금지
-- optimizer 없는 “가짜 결과 화면” 장기 유지 금지
-- design tokens 이전에 arbitrary color 사용 금지
-- seed data 품질 없는 상태에서 추천 품질 판단 금지
-
-## 12. 첫 2주 실행안
-
-### Week 1
-- monorepo/bootstrap
-- local Supabase
-- canonical schema 적용
-- shared packages 구조
-- auth + places read + saved places
-
-### Week 2
-- plan CRUD
-- stop reorder
-- optimizer skeleton
-- golden scenarios read page
-- basic timeline UI
-
-## 13. MVP 출하 게이트
-
-아래 조건을 모두 만족할 때만 MVP로 본다.
-
-- GS1 정상 통과
-- GS2 warning/alternative 통과
-- GS3 자정 넘김 통과
-- 공유/복제 통과
-- execution 시작/종료 통과
-- 기본 지출 기록 통과
-- 한 지역 / 자동차 기준에서 사용자가 실제로 쓸 수 있다
+- 문서와 코드의 guest-first 정책 일치
+- Places / Saved Places / Plans 기본 흐름 보존
+- guest save -> guest plan -> login migration 브라우저 검증
+- 한국어 UI 깨짐 없음
+- 모바일/데스크톱 랜딩 레이아웃 정상

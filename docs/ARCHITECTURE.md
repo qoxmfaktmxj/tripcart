@@ -1,4 +1,4 @@
-# TripCart Architecture
+﻿# TripCart Architecture
 
 Updated: 2026-04-08
 Status: Canonical
@@ -43,6 +43,7 @@ infra/
 - management UI
 - public preview and shared links
 - server-side orchestration for privileged operations
+- public landing page surfaces (anonymous-first onboarding)
 
 ### Mobile
 
@@ -100,6 +101,15 @@ Plain PostgreSQL still has value for optimizer-only experiments and SQL sandboxi
 - `packages/ui` should stay presentational
 - optimizer logic stays in Python and does not get re-implemented in TypeScript
 
+### Guest trial + migration boundary
+
+- 비로그인 상태에서는 브라우저 로컬 상태(`localStorage`)를 기준으로 장소 담기와 초안 플랜 생성이 가능해야 한다.
+- `/`는 공개 랜딩이고, `/places`, `/saved-places`, `/plans`는 guest-first 체험 surface다.
+- 로그인 성공 후에는 웹 클라이언트가 기존 authenticated API를 사용해 guest 상태를 계정으로 이관한다.
+  - 저장 장소: `POST /api/v1/me/saved-places`
+  - 초안 플랜: `POST /api/v1/plans`
+- 별도의 `guest-migrate` 서버 엔드포인트는 두지 않는다. 이관 오케스트레이션은 웹 클라이언트가 담당한다.
+- 이관 성공 후에는 성공한 항목만 브라우저 로컬 상태에서 제거하고, 실패한 항목은 남겨 재시도 가능하게 유지한다.
 ## Deployment shape
 
 - web: Vercel

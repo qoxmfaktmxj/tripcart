@@ -1,50 +1,62 @@
-# TripCart
+﻿# TripCart
 
-TripCart turns destination candidates into travel plans you can actually run.
-It is built around realistic planning constraints, then carried through to execution.
+TripCart는 여행 장소를 장바구니처럼 담고, 실행 가능한 일정으로 정리하는 guest-first 여행 계획 제품입니다.
+
+The product principle is simple: planning and execution are not the same thing.
 
 ## What it is
 
-TripCart is a Korea-first travel planning product with a split architecture:
-
-- `web` for auth, management, public preview, and shared links
-- `mobile` for real trip usage and execution flows
-- `optimizer` for route planning and alternatives generation
-- `Supabase` for auth, Postgres, RLS, and storage
-
-The product principle is simple: planning and execution are not the same thing.
+- 여행 장소 후보를 먼저 모읍니다.
+- 저장한 후보를 초안 플랜으로 정리합니다.
+- 필요할 때 로그인해 브라우저에 담아둔 데이터를 계정으로 이어서 관리합니다.
 
 ## Current status
 
 | Phase | Scope | Status |
 |---|---|---|
 | Phase 0 | Monorepo, local Supabase, shared packages, web/mobile bootstrap | Complete |
-| Phase 1 | Auth, Places, Saved Places, Plans CRUD | Places read, saved places flow, and initial plans list/detail/edit surface are in place |
+| Phase 1 | Auth, Places, Saved Places, Plans CRUD | In progress |
+| Phase 1.5 | Guest-first trial, login migration, public landing | In progress |
 | Phase 2 | Optimizer integration, share/import, alternatives | Next |
 | Phase 3 | Execution, spends, media | Planned |
 | Phase 4 | Receipt OCR, gap suggest, smart alert | Planned |
 
-## Latest verified state
+### Product interaction model
+
+- `/`는 공개 앱스토어형 랜딩입니다.
+- `/places`, `/saved-places`, `/plans`는 비로그인에서도 먼저 써볼 수 있는 guest-first surface입니다.
+- 로그인 후에는 브라우저 guest 상태를 기존 authenticated API를 통해 계정으로 이관합니다.
+- `/plans/[id]` 같은 운영형 상세 화면은 로그인 이후의 planning surface로 유지합니다.
+
+## Guest-first trial state
+
+### 2026-04-09
+
+- 홈 랜딩을 공개 앱스토어형 메시지로 정렬
+- 비로그인 상태에서 장소 담기, 저장한 장소 확인, 초안 플랜 생성 가능
+- 로그인/회원가입 후 guest saved places, guest draft plans를 계정으로 이관
+- 문서 기준도 client-side migration + existing authenticated APIs로 정렬
+
+### Previously verified state
 
 - `2026-04-09`
 - web home responds with HTTP `200`
 - web `/places` responds with HTTP `200`
-- web `/plans` responds with HTTP `200` for authenticated users
+- web `/saved-places` responds with HTTP `200` for guest users
+- web `/plans` responds with HTTP `200` for guest users
 - web `/plans/[id]` responds with HTTP `200` for authenticated users
-- web `/saved-places` redirects unauthenticated users to `/login`
-- web places API and detail API respond from the local seed set
-- saved places API returns `401` JSON when unauthenticated
-- saved places add and remove flow passes with an authenticated local Supabase session
-- plans API returns `401` JSON when unauthenticated, and draft create/list/detail/edit/delete pass with an authenticated local Supabase session
-- webpack dev server accepts `127.0.0.1` through `allowedDevOrigins`
+- guest save -> guest plan create -> login migration flow passes in browser QA
+- `pnpm --filter @tripcart/web e2e` passes
 - `pnpm lint` passes
 - `pnpm typecheck` passes
 - `pnpm build` passes
-- Phase 0 bootstrap docs have been normalized for clean local rendering
 
 ## Current implemented slice
 
-- home screen with links into the current local development surface
+- 공개 랜딩과 운영 화면 분리
+- 홈 화면을 공개 앱스토어형 랜딩으로 전환
+- guest saved places and guest draft plans backed by browser localStorage
+- login/signup migration orchestrated on the web client
 - `GET /api/v1/places`
 - `GET /api/v1/places/[id]`
 - `GET /api/v1/me/saved-places`
@@ -72,38 +84,25 @@ The product principle is simple: planning and execution are not the same thing.
 | Optimizer | FastAPI + OR-Tools | Python 3.14 |
 | Monorepo | pnpm workspaces + Turborepo | 10.x / 2.x |
 | Language | TypeScript | 5.9.x |
-| Node.js | Node.js LTS | 22.x |
 
 ## Repository layout
 
-```text
-tripcart/
-  apps/
-    web/
-    mobile/
-  services/
-    optimizer/
-  packages/
-    design-tokens/
-    types/
-    ui/
-    config/
-  infra/
-    supabase/
-  docs/
-  todo/
-```
+- `apps/web`: public landing and authenticated planning web surface
+- `apps/mobile`: Expo mobile app
+- `services/optimizer`: FastAPI optimizer service
+- `packages/types`: shared domain and API contracts
+- `packages/design-tokens`: design token source of truth
+- `infra/supabase`: local Supabase config and migrations
+- `docs`: canonical product, architecture, API, schema, design docs
 
 ## Local development
 
 ### Prerequisites
 
-- Node.js 22.x
-- pnpm 10.x
-- Docker Desktop
-- Python 3.14.x
-- uv
-- Android Studio with Android SDK, Platform-Tools, Emulator, and at least one AVD if you want mobile emulator QA on Windows
+- `Node.js 24.x`
+- `pnpm 10.x`
+- `Supabase CLI`
+- `Python 3.14`
 
 ### Install
 
@@ -113,44 +112,36 @@ pnpm install
 
 ### Environment
 
-```bash
-cp .env.example .env.local
-```
-
-Fill the Supabase and optimizer values in `.env.local`.
+- `apps/web/.env.local`
+- `apps/mobile/.env`
+- local Supabase credentials from `supabase status`
 
 ### Start local Supabase
 
 ```bash
-supabase start --workdir infra/supabase
-psql "$SUPABASE_DB_URL" -f docs/tripcart_schema_canonical_v0.3.sql
+supabase start
+supabase db reset
 ```
 
 ### Start the apps
 
 ```bash
-pnpm --filter @tripcart/web dev
-pnpm --filter @tripcart/mobile start
+pnpm dev
 ```
 
 ### Current local URLs
 
-```text
-http://localhost:3000/
-http://localhost:3000/places
-http://localhost:3000/plans
-http://localhost:3000/saved-places
-http://localhost:3000/api/v1/places?region=busan&limit=12
-```
-
-Windows note: iOS Simulator is not available on Windows. Mobile runtime QA on this machine requires Android Studio plus a configured Android Virtual Device.
+- web: [http://localhost:3000](http://localhost:3000)
+- mobile Metro: [http://localhost:8082](http://localhost:8082)
+- Supabase Studio: [http://127.0.0.1:54323](http://127.0.0.1:54323)
+- Supabase API: [http://127.0.0.1:54321](http://127.0.0.1:54321)
 
 ### Start the optimizer
 
 ```bash
 cd services/optimizer
 uv sync
-uv run uvicorn main:app --reload --port 8000
+uv run uvicorn main:app --reload --port 8100
 ```
 
 ## Common commands
@@ -158,20 +149,19 @@ uv run uvicorn main:app --reload --port 8000
 ```bash
 pnpm lint
 pnpm typecheck
-pnpm test
 pnpm build
+pnpm --filter @tripcart/web test
+pnpm --filter @tripcart/web e2e
+pnpm --filter @tripcart/web dev
+pnpm --filter @tripcart/mobile dev
 ```
 
 ## Key documents
 
-| File | Purpose |
-|---|---|
-| [docs/00_READ_THIS_FIRST.md](docs/00_READ_THIS_FIRST.md) | Entry point |
-| [docs/PRODUCT_MASTER_PLAN.md](docs/PRODUCT_MASTER_PLAN.md) | Product scope and milestones |
-| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture |
-| [docs/API_CONTRACT_v0.2.md](docs/API_CONTRACT_v0.2.md) | API contract |
-| [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) | UI tokens and component rules |
-| [docs/ROADMAP.md](docs/ROADMAP.md) | Phase roadmap |
-| [docs/TEST_STRATEGY.md](docs/TEST_STRATEGY.md) | Test expectations |
-| [todo/PHASE_0_CHECKLIST.md](todo/PHASE_0_CHECKLIST.md) | Bootstrap exit checklist |
-| [CLAUDE.md](CLAUDE.md) | Agent workflow rules |
+- [docs/00_READ_THIS_FIRST.md](docs/00_READ_THIS_FIRST.md)
+- [docs/PRODUCT_MASTER_PLAN.md](docs/PRODUCT_MASTER_PLAN.md)
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- [docs/API_CONTRACT_v0.2.md](docs/API_CONTRACT_v0.2.md)
+- [docs/tripcart_schema_canonical_v0.3.sql](docs/tripcart_schema_canonical_v0.3.sql)
+- [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)
+- [docs/ROADMAP.md](docs/ROADMAP.md)
