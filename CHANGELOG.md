@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.1.7] - 2026-04-09
+
+### Changed
+- Localized the current web and mobile placeholder UI copy into Korean across the home, auth, places, saved places, and plans flows.
+- Mapped raw region and transport values into Korean labels so the interface no longer exposes internal codes such as `busan` and `car`.
+- Updated the plans create surface to use a Korean region selector instead of raw text entry.
+
+### Fixed
+- Cleaned broken Korean text rendering and mojibake in the places detail, saved places, plans, and mobile placeholder screens.
+
+### Verified
+- Verified the signup, places browse, save/remove, saved places, plans create, and plan detail flows in the local browser on both desktop and mobile-sized viewports.
+
 ## [0.0.1.6] - 2026-04-09
 
 ### Added
