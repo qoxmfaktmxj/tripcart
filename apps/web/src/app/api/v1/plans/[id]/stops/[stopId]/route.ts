@@ -151,7 +151,7 @@ export async function PATCH(
     }
 
     // plan status → draft, version++
-    await resetPlanToDraft(supabase, planId)
+    await resetPlanToDraft(supabase, user.id, planId)
 
     return NextResponse.json({ data: stop })
   } catch (err) {
@@ -244,7 +244,7 @@ export async function DELETE(
     }
 
     // plan status → draft, version++
-    await resetPlanToDraft(supabase, planId)
+    await resetPlanToDraft(supabase, user.id, planId)
 
     return new NextResponse(null, { status: 204 })
   } catch (err) {

@@ -9,7 +9,13 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getPlanById, updatePlan, softDeletePlan, hasActiveExecution } from '@/lib/supabase/queries/plans'
+import {
+  getPlanById,
+  updatePlan,
+  softDeletePlan,
+  hasActiveExecution,
+  verifyPlanOwnership,
+} from '@/lib/supabase/queries/plans'
 import { UUID_RE } from '@/lib/utils/validation'
 import type { TravelMode } from '@tripcart/types'
 
@@ -223,7 +229,20 @@ export async function DELETE(
       )
     }
 
-    // active execution 체크
+    const ownership = await verifyPlanOwnership(supabase, user.id, id)
+    if (!ownership.exists) {
+      return NextResponse.json(
+        { error: { code: 'PLAN_NOT_FOUND', message: 'Plan not found' } },
+        { status: 404 },
+      )
+    }
+    if (!ownership.owned) {
+      return NextResponse.json(
+        { error: { code: 'NOT_OWNER', message: 'Not the plan owner' } },
+        { status: 403 },
+      )
+    }
+
     if (await hasActiveExecution(supabase, id)) {
       return NextResponse.json(
         { error: { code: 'PLAN_IN_PROGRESS', message: 'Cannot delete plan with active execution' } },
@@ -231,14 +250,7 @@ export async function DELETE(
       )
     }
 
-    const deleted = await softDeletePlan(supabase, user.id, id)
-
-    if (!deleted) {
-      return NextResponse.json(
-        { error: { code: 'PLAN_NOT_FOUND', message: 'Plan not found' } },
-        { status: 404 },
-      )
-    }
+    await softDeletePlan(supabase, user.id, id)
 
     return new NextResponse(null, { status: 204 })
   } catch (err) {

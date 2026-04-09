@@ -118,7 +118,7 @@ export async function POST(
     const stop = await addStop(supabase, planId, addInput)
 
     // plan status → draft, version++
-    await resetPlanToDraft(supabase, planId)
+    await resetPlanToDraft(supabase, user.id, planId)
 
     return NextResponse.json({ data: stop }, { status: 201 })
   } catch (err) {

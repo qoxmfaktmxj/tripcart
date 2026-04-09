@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 
 export default function HomePage(): React.JSX.Element {
   return (
@@ -60,7 +60,14 @@ export default function HomePage(): React.JSX.Element {
         >
           Saved places
         </Link>
+        <Link
+          href="/plans"
+          className="inline-flex h-11 w-full items-center justify-center rounded-md border border-gold-500 bg-gold-50 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-gold-100"
+        >
+          Plans
+        </Link>
       </div>
     </main>
   )
 }
+

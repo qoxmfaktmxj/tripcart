@@ -294,7 +294,7 @@ export async function updatePlan(
   if (!updated || updated.length === 0) return null
 
   // 원자적 status→draft + version++ (race condition 방지)
-  await resetPlanToDraft(supabase, planId)
+  await resetPlanToDraft(supabase, userId, planId)
 
   // 변경된 plan 전체 반환
   return getPlanById(supabase, userId, planId)
@@ -307,15 +307,26 @@ export async function softDeletePlan(
   userId: string,
   planId: string,
 ): Promise<boolean> {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('trip_plans')
     .update({ deleted_at: new Date().toISOString() })
     .eq('id', planId)
     .eq('user_id', userId)
     .is('deleted_at', null)
+
+  if (!error) return true
+
+  if (error.code !== '42501') throw error
+
+  const { data, error: deleteError } = await supabase
+    .from('trip_plans')
+    .delete()
+    .eq('id', planId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
     .select('id')
 
-  if (error) throw error
+  if (deleteError) throw deleteError
 
   return (data?.length ?? 0) > 0
 }
@@ -347,11 +358,34 @@ export async function verifyPlanOwnership(
 
 export async function resetPlanToDraft(
   supabase: SupabaseClient,
+  userId: string,
   planId: string,
 ): Promise<void> {
-  // 원자적 version increment — RPC 사용 (race condition 방지)
+  // Prefer the canonical RPC when the local schema includes it.
   const { error } = await supabase.rpc('reset_plan_to_draft', {
     p_plan_id: planId,
   })
-  if (error) throw error
+  if (!error) return
+  if (error.code !== 'PGRST202') throw error
+  const { data: current, error: fetchError } = await supabase
+    .from('trip_plans')
+    .select('version')
+    .eq('id', planId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+    .single()
+  if (fetchError) throw fetchError
+  const currentVersion =
+    typeof current.version === 'number' ? current.version : Number(current.version ?? 1)
+  const { error: fallbackError } = await supabase
+    .from('trip_plans')
+    .update({
+      status: 'draft',
+      version: currentVersion + 1,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', planId)
+    .eq('user_id', userId)
+    .is('deleted_at', null)
+  if (fallbackError) throw fallbackError
 }
