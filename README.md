@@ -19,7 +19,7 @@ The product principle is simple: planning and execution are not the same thing.
 | Phase | Scope | Status |
 |---|---|---|
 | Phase 0 | Monorepo, local Supabase, shared packages, web/mobile bootstrap | Complete |
-| Phase 1 | Auth, Places, Saved Places, Plans CRUD | Places read path started, broader CRUD in progress |
+| Phase 1 | Auth, Places, Saved Places, Plans CRUD | Places read plus saved places flow started, broader CRUD in progress |
 | Phase 2 | Optimizer integration, share/import, alternatives | Next |
 | Phase 3 | Execution, spends, media | Planned |
 | Phase 4 | Receipt OCR, gap suggest, smart alert | Planned |
@@ -29,7 +29,10 @@ The product principle is simple: planning and execution are not the same thing.
 - `2026-04-09`
 - web home responds with HTTP `200`
 - web `/places` responds with HTTP `200`
+- web `/saved-places` redirects unauthenticated users to `/login`
 - web places API and detail API respond from the local seed set
+- saved places API returns `401` JSON when unauthenticated
+- saved places add and remove flow passes with an authenticated local Supabase session
 - `pnpm lint` passes
 - `pnpm typecheck` passes
 - `pnpm build` passes
@@ -40,8 +43,12 @@ The product principle is simple: planning and execution are not the same thing.
 - home screen with links into the current local development surface
 - `GET /api/v1/places`
 - `GET /api/v1/places/[id]`
+- `GET /api/v1/me/saved-places`
+- `POST /api/v1/me/saved-places`
+- `DELETE /api/v1/me/saved-places/[placeId]`
 - web browse page at `/places`
 - web detail page at `/places/[id]`
+- web saved places page at `/saved-places`
 
 ## Tech stack
 
@@ -119,6 +126,7 @@ pnpm --filter @tripcart/mobile start
 ```text
 http://localhost:3000/
 http://localhost:3000/places
+http://localhost:3000/saved-places
 http://localhost:3000/api/v1/places?region=busan&limit=12
 ```
 

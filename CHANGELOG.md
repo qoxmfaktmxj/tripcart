@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.1.4] - 2026-04-09
+
+### Added
+- Added authenticated saved places UI flow on web, including save and remove actions from the places list and detail pages.
+- Added a `/saved-places` page backed by the existing saved places API.
+
+### Fixed
+- Fixed auth proxy behavior so protected API routes return `401` JSON instead of redirecting to the login page.
+- Cleaned up the login and signup pages so their user-facing text renders correctly.
+- Updated the README to reflect the saved places slice and the latest verified QA state.
+
 ## [0.0.1.3] - 2026-04-09
 
 ### Added

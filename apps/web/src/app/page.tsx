@@ -40,7 +40,7 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </div>
 
-      <div className="flex w-full max-w-full flex-col gap-3 sm:max-w-md sm:flex-row">
+      <div className="flex w-full max-w-full flex-col gap-3 sm:max-w-2xl sm:flex-row sm:flex-wrap">
         <Link
           href="/places"
           className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary-500 px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
@@ -53,6 +53,12 @@ export default function HomePage(): React.JSX.Element {
           className="inline-flex h-11 w-full items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
         >
           View places API
+        </Link>
+        <Link
+          href="/saved-places"
+          className="inline-flex h-11 w-full items-center justify-center rounded-md border border-plum-300 bg-plum-50 px-4 text-sm font-semibold text-plum-700 transition hover:bg-plum-100"
+        >
+          Saved places
         </Link>
       </div>
     </main>

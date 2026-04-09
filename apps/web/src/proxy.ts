@@ -16,6 +16,10 @@ function isPublicPath(pathname: string): boolean {
   )
 }
 
+function isApiPath(pathname: string): boolean {
+  return pathname === '/api' || pathname.startsWith('/api/')
+}
+
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request })
 
@@ -45,6 +49,10 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  if (!user && isApiPath(request.nextUrl.pathname)) {
+    return response
+  }
 
   if (!user && !isPublicPath(request.nextUrl.pathname)) {
     const loginUrl = new URL('/login', request.url)

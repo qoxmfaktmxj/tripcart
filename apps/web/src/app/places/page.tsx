@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
+import { useSavedPlaces } from '@/hooks/use-saved-places'
 
 type PlaceListItem = {
   id: string
@@ -25,11 +27,14 @@ type PlacesResponse = {
 const DEFAULT_REGION = 'busan'
 
 export default function PlacesPage(): React.JSX.Element {
+  const router = useRouter()
   const [items, setItems] = useState<PlaceListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [submittedQuery, setSubmittedQuery] = useState('')
+  const [actionError, setActionError] = useState<string | null>(null)
+  const { user, authLoading, isSaved, isMutating, save, remove } = useSavedPlaces()
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams({
@@ -78,6 +83,20 @@ export default function PlacesPage(): React.JSX.Element {
       cancelled = true
     }
   }, [endpoint])
+
+  const handleSaveToggle = async (placeId: string) => {
+    setActionError(null)
+
+    if (!user) {
+      router.push('/login?next=%2Fplaces')
+      return
+    }
+
+    const result = isSaved(placeId) ? await remove(placeId) : await save(placeId)
+    if (!result.ok && result.reason === 'REQUEST_FAILED') {
+      setActionError(result.message ?? 'Failed to update saved places')
+    }
+  }
 
   return (
     <main className="min-h-screen bg-neutral-50 px-6 py-10 sm:px-8">
@@ -134,6 +153,12 @@ export default function PlacesPage(): React.JSX.Element {
             </button>
           </div>
         </form>
+
+        {actionError ? (
+          <section className="rounded-2xl border border-coral-500 bg-white p-5 text-sm text-coral-500">
+            {actionError}
+          </section>
+        ) : null}
 
         {loading ? (
           <section className="rounded-2xl border border-primary-300 bg-primary-50 p-5 text-sm text-primary-700">
@@ -195,6 +220,22 @@ export default function PlacesPage(): React.JSX.Element {
                   >
                     View detail
                   </Link>
+                  <button
+                    type="button"
+                    onClick={() => void handleSaveToggle(item.id)}
+                    disabled={authLoading || isMutating(item.id)}
+                    className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {authLoading
+                      ? 'Checking...'
+                      : isMutating(item.id)
+                        ? 'Saving...'
+                        : !user
+                          ? 'Sign in to save'
+                          : isSaved(item.id)
+                            ? 'Saved'
+                            : 'Save'}
+                  </button>
                   <Link
                     href={`/api/v1/places/${item.id}`}
                     prefetch={false}

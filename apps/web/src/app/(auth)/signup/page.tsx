@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage(): React.JSX.Element {
   const router = useRouter()
@@ -13,8 +13,8 @@ export default function SignupPage(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  async function handleSignup(e: React.FormEvent) {
-    e.preventDefault()
+  async function handleSignup(event: React.FormEvent) {
+    event.preventDefault()
     setLoading(true)
     setError(null)
 
@@ -30,62 +30,60 @@ export default function SignupPage(): React.JSX.Element {
       return
     }
 
-    // 이메일 확인이 필요한 경우 (session이 없음)
     if (data.user && !data.session) {
-      setError('가입 확인 이메일을 확인해주세요.')
+      setError('Check your email to complete sign up.')
       setLoading(false)
       return
     }
 
-    // handle_new_user() 트리거가 public.users 자동 생성
     router.push('/')
     router.refresh()
   }
 
   return (
     <form onSubmit={handleSignup} className="space-y-4">
-      <div className="text-center mb-6">
+      <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-primary-900">TripCart</h1>
-        <p className="text-neutral-500 text-sm mt-1">회원가입</p>
+        <p className="mt-1 text-sm text-neutral-500">Create your account</p>
       </div>
 
-      {error && (
-        <div className="bg-coral-50 text-coral-500 text-sm px-4 py-2 rounded-md">
+      {error ? (
+        <div className="rounded-md bg-coral-50 px-4 py-2 text-sm text-coral-500">
           {error}
         </div>
-      )}
+      ) : null}
 
       <input
         type="email"
-        placeholder="이메일"
+        placeholder="Email"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={(event) => setEmail(event.target.value)}
         required
-        className="w-full px-4 py-3 rounded-md border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+        className="w-full rounded-md border border-neutral-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
       />
 
       <input
         type="password"
-        placeholder="비밀번호 (6자 이상)"
+        placeholder="Password (min 6 chars)"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={(event) => setPassword(event.target.value)}
         required
         minLength={6}
-        className="w-full px-4 py-3 rounded-md border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+        className="w-full rounded-md border border-neutral-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
       />
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full bg-primary-500 text-white py-3 rounded-md font-semibold text-sm hover:bg-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500 transition-colors"
+        className="w-full rounded-md bg-primary-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500"
       >
-        {loading ? '가입 중...' : '회원가입'}
+        {loading ? 'Creating account...' : 'Create account'}
       </button>
 
       <p className="text-center text-sm text-neutral-500">
-        이미 계정이 있나요?{' '}
+        Already have an account?{' '}
         <Link href="/login" className="text-primary-500 hover:underline">
-          로그인
+          Sign in
         </Link>
       </p>
     </form>

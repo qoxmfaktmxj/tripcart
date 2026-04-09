@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useSavedPlaces } from '@/hooks/use-saved-places'
 
 type PlaceDetail = {
   id: string
@@ -34,12 +35,15 @@ type PlaceDetailResponse = {
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
 export default function PlaceDetailPage(): React.JSX.Element {
+  const router = useRouter()
   const params = useParams<{ id: string }>()
   const placeId = typeof params.id === 'string' ? params.id : ''
 
   const [place, setPlace] = useState<PlaceDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
+  const { user, authLoading, isSaved, isMutating, save, remove } = useSavedPlaces()
 
   useEffect(() => {
     if (!placeId) {
@@ -84,6 +88,22 @@ export default function PlaceDetailPage(): React.JSX.Element {
     }
   }, [placeId])
 
+  const handleSaveToggle = async () => {
+    if (!placeId) return
+
+    setActionError(null)
+
+    if (!user) {
+      router.push(`/login?next=${encodeURIComponent(`/places/${placeId}`)}`)
+      return
+    }
+
+    const result = isSaved(placeId) ? await remove(placeId) : await save(placeId)
+    if (!result.ok && result.reason === 'REQUEST_FAILED') {
+      setActionError(result.message ?? 'Failed to update saved places')
+    }
+  }
+
   return (
     <main className="min-h-screen bg-neutral-50 px-6 py-10 sm:px-8">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
@@ -110,8 +130,30 @@ export default function PlaceDetailPage(): React.JSX.Element {
                 API
               </Link>
             ) : null}
+            <button
+              type="button"
+              onClick={() => void handleSaveToggle()}
+              disabled={!placeId || authLoading || isMutating(placeId)}
+              className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {authLoading
+                ? 'Checking...'
+                : placeId && isMutating(placeId)
+                  ? 'Saving...'
+                  : !user
+                    ? 'Sign in to save'
+                    : isSaved(placeId)
+                      ? 'Saved'
+                      : 'Save'}
+            </button>
           </div>
         </div>
+
+        {actionError ? (
+          <section className="rounded-2xl border border-coral-500 bg-white p-5 text-sm text-coral-500">
+            {actionError}
+          </section>
+        ) : null}
 
         {loading ? (
           <section className="rounded-2xl border border-primary-300 bg-primary-50 p-5 text-sm text-primary-700">
