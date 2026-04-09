@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.1.9] - 2026-04-09
+
+### Changed
+- Updated the canonical design guide to reflect the 2026-04 visual refresh direction, separating the public app-store-style landing from the logged-in operational planning surfaces.
+- Added explicit visual rules for the landing hero, browse split view, plans dashboard, and plan detail screens so the redesign work has a stable source of truth.
+
+### Noted
+- Recorded that the landing and browse surfaces are close enough to keep, while the plans dashboard and plan detail surfaces still need one more polish pass before they should be treated as fully reference-aligned.
+
 ## [0.0.1.8] - 2026-04-09
 
 ### Added
