@@ -5,8 +5,8 @@ import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
 /**
- * 클라이언트 컴포넌트용 auth 상태 hook
- * onAuthStateChange로 실시간 상태를 추적한다.
+ * Client component auth state hook.
+ * Tracks auth state changes through onAuthStateChange.
  */
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -15,13 +15,13 @@ export function useAuth() {
   useEffect(() => {
     const supabase = createClient()
 
-    // 초기 세션 확인
+    // Check initial session state.
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUser(user)
       setLoading(false)
     })
 
-    // 실시간 상태 변경 구독
+    // Subscribe to realtime auth state changes.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {

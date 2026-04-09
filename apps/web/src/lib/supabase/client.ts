@@ -1,6 +1,6 @@
 /**
- * Supabase Client — 브라우저 전용 (anon key)
- * 컴포넌트에서 직접 CRUD 시 사용
+ * Supabase browser client using the anon key.
+ * Used directly inside client components for authenticated CRUD.
  */
 import { createBrowserClient } from '@supabase/ssr'
 

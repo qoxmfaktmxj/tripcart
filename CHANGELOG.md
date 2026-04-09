@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.1.5] - 2026-04-09
+
+### Fixed
+- Stabilized the login and signup submit paths so Playwright and browser clicks both reach the Supabase auth flow reliably.
+- Fixed the web auth proxy matcher so `/_next` dev resources are no longer intercepted by the application proxy.
+- Added a web favicon and cleaned the remaining broken auth-related code comments in the web client layer.
+
+### Verified
+- Re-ran the saved places flow in a real browser on a production `next start` server and on the local dev server via `http://localhost:3000`.
+- Confirmed login, save, saved list render, remove, and unauthenticated redirect behavior all work in the browser.
+
 ## [0.0.1.4] - 2026-04-09
 
 ### Added

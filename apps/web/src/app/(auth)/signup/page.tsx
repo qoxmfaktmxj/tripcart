@@ -13,8 +13,7 @@ export default function SignupPage(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  async function handleSignup(event: React.FormEvent) {
-    event.preventDefault()
+  async function handleSignup() {
     setLoading(true)
     setError(null)
 
@@ -40,8 +39,13 @@ export default function SignupPage(): React.JSX.Element {
     router.refresh()
   }
 
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault()
+    void handleSignup()
+  }
+
   return (
-    <form onSubmit={handleSignup} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-primary-900">TripCart</h1>
         <p className="mt-1 text-sm text-neutral-500">Create your account</p>
@@ -56,6 +60,7 @@ export default function SignupPage(): React.JSX.Element {
       <input
         type="email"
         placeholder="Email"
+        autoComplete="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         required
@@ -65,6 +70,7 @@ export default function SignupPage(): React.JSX.Element {
       <input
         type="password"
         placeholder="Password (min 6 chars)"
+        autoComplete="new-password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
         required
@@ -73,7 +79,8 @@ export default function SignupPage(): React.JSX.Element {
       />
 
       <button
-        type="submit"
+        type="button"
+        onClick={() => void handleSignup()}
         disabled={loading}
         className="w-full rounded-md bg-primary-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500"
       >
