@@ -19,19 +19,29 @@ The product principle is simple: planning and execution are not the same thing.
 | Phase | Scope | Status |
 |---|---|---|
 | Phase 0 | Monorepo, local Supabase, shared packages, web/mobile bootstrap | Complete |
-| Phase 1 | Auth, Places, Saved Places, Plans CRUD | API scaffold in progress |
+| Phase 1 | Auth, Places, Saved Places, Plans CRUD | Places read path started, broader CRUD in progress |
 | Phase 2 | Optimizer integration, share/import, alternatives | Next |
 | Phase 3 | Execution, spends, media | Planned |
 | Phase 4 | Receipt OCR, gap suggest, smart alert | Planned |
 
 ## Latest verified state
 
-- `2026-04-08`
+- `2026-04-09`
 - web home responds with HTTP `200`
+- web `/places` responds with HTTP `200`
+- web places API and detail API respond from the local seed set
 - `pnpm lint` passes
 - `pnpm typecheck` passes
-- `pnpm build` passes in the pre-push gate
+- `pnpm build` passes
 - Phase 0 bootstrap docs have been normalized for clean local rendering
+
+## Current implemented slice
+
+- home screen with links into the current local development surface
+- `GET /api/v1/places`
+- `GET /api/v1/places/[id]`
+- web browse page at `/places`
+- web detail page at `/places/[id]`
 
 ## Tech stack
 
@@ -102,6 +112,14 @@ psql "$SUPABASE_DB_URL" -f docs/tripcart_schema_canonical_v0.3.sql
 ```bash
 pnpm --filter @tripcart/web dev
 pnpm --filter @tripcart/mobile start
+```
+
+### Current local URLs
+
+```text
+http://localhost:3000/
+http://localhost:3000/places
+http://localhost:3000/api/v1/places?region=busan&limit=12
 ```
 
 ### Start the optimizer

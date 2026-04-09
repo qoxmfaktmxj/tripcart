@@ -1,4 +1,4 @@
-# TripCart API Contract v0.2
+﻿# TripCart API Contract v0.2
 업데이트: 2026-03-24  
 상태: **Canonical**
 

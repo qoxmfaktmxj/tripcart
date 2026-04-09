@@ -1,4 +1,4 @@
-# TripCart Product Master Plan v1.1
+﻿# TripCart Product Master Plan v1.1
 업데이트: 2026-03-24  
 상태: **Canonical**
 

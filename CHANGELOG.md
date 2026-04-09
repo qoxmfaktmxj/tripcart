@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.1.3] - 2026-04-09
+
+### Added
+- Added a first Phase 1 web slice with `/places` browse and `/places/[id]` detail pages backed by the existing places read API.
+- Added home page entry points for the places browse surface and the local places API.
+
+### Fixed
+- Re-saved the canonical Korean docs with Windows-friendly UTF-8 BOM so local PowerShell reads them cleanly.
+- Updated the README to reflect the current verified local routes and Phase 1 progress.
+
 ## [0.0.1.2] - 2026-04-08
 
 ### Fixed

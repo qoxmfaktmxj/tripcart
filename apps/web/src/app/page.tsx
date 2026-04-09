@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function HomePage(): React.JSX.Element {
   return (
     <main className="flex min-h-screen w-full flex-col items-center justify-center gap-8 px-6 py-10 sm:px-8">
@@ -36,6 +38,22 @@ export default function HomePage(): React.JSX.Element {
         <div className="flex h-12 w-full items-center justify-center rounded-md bg-gold-500">
           <span className="text-xs font-mono text-neutral-900">gold</span>
         </div>
+      </div>
+
+      <div className="flex w-full max-w-full flex-col gap-3 sm:max-w-md sm:flex-row">
+        <Link
+          href="/places"
+          className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary-500 px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
+        >
+          Browse places
+        </Link>
+        <Link
+          href="/api/v1/places?region=busan&limit=12"
+          prefetch={false}
+          className="inline-flex h-11 w-full items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
+        >
+          View places API
+        </Link>
       </div>
     </main>
   )
