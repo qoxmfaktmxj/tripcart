@@ -1,27 +1,38 @@
-'use client'
+﻿'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
+import { useGuestState } from '@/hooks/use-guest-state'
+import {
+  GUEST_MIGRATION_EVENT,
+  type GuestSavedPlaceInput,
+} from '@/lib/guest-state'
 
-type SavedPlaceItem = {
+type SavedPlaceViewItem = {
   id: string
-  user_id: string
+  source: 'account' | 'guest'
   place: {
     id: string
     name: string
     category: string
-    lat: number
-    lng: number
     region: string
     thumbnail_url: string | null
   }
   note: string | null
-  visited: boolean
-  created_at: string
 }
 
 type SavedPlacesResponse = {
-  data: SavedPlaceItem[]
+  data: Array<{
+    id: string
+    place: {
+      id: string
+      name: string
+      category: string
+      region: string
+      thumbnail_url: string | null
+    }
+    note: string | null
+  }>
   meta: {
     cursor: string | null
     has_more: boolean
@@ -34,14 +45,37 @@ type SaveResult =
 
 export function useSavedPlaces() {
   const { user, loading: authLoading } = useAuth()
-  const [items, setItems] = useState<SavedPlaceItem[]>([])
+  const {
+    loading: guestLoading,
+    savedPlaces: guestSavedPlaces,
+    savePlace,
+    removePlace,
+  } = useGuestState()
+  const [items, setItems] = useState<SavedPlaceViewItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [mutatingIds, setMutatingIds] = useState<string[]>([])
 
+  const guestItems = useMemo<SavedPlaceViewItem[]>(
+    () =>
+      guestSavedPlaces.map((place) => ({
+        id: `guest-${place.id}`,
+        source: 'guest',
+        place: {
+          id: place.id,
+          name: place.name,
+          category: place.category,
+          region: place.region,
+          thumbnail_url: place.thumbnail_url,
+        },
+        note: place.address,
+      })),
+    [guestSavedPlaces],
+  )
+
   const load = useCallback(async () => {
     if (!user) {
-      setItems([])
+      setItems(guestItems)
       setError(null)
       setLoading(false)
       return
@@ -53,25 +87,45 @@ export function useSavedPlaces() {
     try {
       const response = await fetch('/api/v1/me/saved-places', { cache: 'no-store' })
       if (!response.ok) {
-        throw new Error(`Failed to load saved places (${response.status})`)
+        throw new Error(`저장한 장소를 불러오지 못했습니다. (${response.status})`)
       }
 
       const payload = (await response.json()) as SavedPlacesResponse
-      setItems(payload.data ?? [])
+      setItems(
+        (payload.data ?? []).map((item) => ({
+          id: item.id,
+          source: 'account',
+          place: item.place,
+          note: item.note,
+        })),
+      )
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Failed to load saved places'
+        err instanceof Error ? err.message : '저장한 장소를 불러오지 못했습니다.'
       setError(message)
       setItems([])
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [guestItems, user])
 
   useEffect(() => {
     if (authLoading) return
     void load()
   }, [authLoading, load])
+
+  useEffect(() => {
+    if (!user) return
+
+    const handleMigration = () => {
+      void load()
+    }
+
+    window.addEventListener(GUEST_MIGRATION_EVENT, handleMigration)
+    return () => {
+      window.removeEventListener(GUEST_MIGRATION_EVENT, handleMigration)
+    }
+  }, [load, user])
 
   const savedIds = useMemo(
     () => new Set(items.map((item) => item.place.id)),
@@ -88,9 +142,12 @@ export function useSavedPlaces() {
   }
 
   const save = useCallback(
-    async (placeId: string): Promise<SaveResult> => {
+    async (place: GuestSavedPlaceInput): Promise<SaveResult> => {
+      const placeId = place.id
+
       if (!user) {
-        return { ok: false, reason: 'AUTH_REQUIRED' }
+        savePlace(place)
+        return { ok: true }
       }
 
       setMutating(placeId, true)
@@ -110,14 +167,34 @@ export function useSavedPlaces() {
           return {
             ok: false,
             reason: 'REQUEST_FAILED',
-            message: payload?.error?.message ?? `Failed to save place (${response.status})`,
+            message: payload?.error?.message ?? `장소를 저장하지 못했습니다. (${response.status})`,
           }
         }
 
-        const payload = (await response.json()) as { data: SavedPlaceItem }
+        const payload = (await response.json()) as {
+          data: {
+            id: string
+            place: {
+              id: string
+              name: string
+              category: string
+              region: string
+              thumbnail_url: string | null
+            }
+            note: string | null
+          }
+        }
         setItems((current) => {
           const next = current.filter((item) => item.place.id !== placeId)
-          return [payload.data, ...next]
+          return [
+            {
+              id: payload.data.id,
+              source: 'account',
+              place: payload.data.place,
+              note: payload.data.note,
+            },
+            ...next,
+          ]
         })
 
         return { ok: true }
@@ -125,19 +202,20 @@ export function useSavedPlaces() {
         return {
           ok: false,
           reason: 'REQUEST_FAILED',
-          message: err instanceof Error ? err.message : 'Failed to save place',
+          message: err instanceof Error ? err.message : '장소를 저장하지 못했습니다.',
         }
       } finally {
         setMutating(placeId, false)
       }
     },
-    [user],
+    [savePlace, user],
   )
 
   const remove = useCallback(
     async (placeId: string): Promise<SaveResult> => {
       if (!user) {
-        return { ok: false, reason: 'AUTH_REQUIRED' }
+        removePlace(placeId)
+        return { ok: true }
       }
 
       setMutating(placeId, true)
@@ -156,7 +234,7 @@ export function useSavedPlaces() {
             ok: false,
             reason: 'REQUEST_FAILED',
             message:
-              payload?.error?.message ?? `Failed to remove saved place (${response.status})`,
+              payload?.error?.message ?? `저장한 장소를 해제하지 못했습니다. (${response.status})`,
           }
         }
 
@@ -166,21 +244,22 @@ export function useSavedPlaces() {
         return {
           ok: false,
           reason: 'REQUEST_FAILED',
-          message: err instanceof Error ? err.message : 'Failed to remove saved place',
+          message: err instanceof Error ? err.message : '저장한 장소를 해제하지 못했습니다.',
         }
       } finally {
         setMutating(placeId, false)
       }
     },
-    [user],
+    [removePlace, user],
   )
 
   return {
     user,
     authLoading,
-    loading,
+    loading: user ? loading : guestLoading,
     error,
     items,
+    storageMode: user ? 'account' : 'guest',
     savedIds,
     isSaved: (placeId: string) => savedIds.has(placeId),
     isMutating: (placeId: string) => mutatingIds.includes(placeId),

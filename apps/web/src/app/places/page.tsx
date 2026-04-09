@@ -1,7 +1,6 @@
 ﻿'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import { useSavedPlaces } from '@/hooks/use-saved-places'
 
@@ -38,14 +37,14 @@ const REGION_LABELS: Record<string, string> = {
 }
 
 export default function PlacesPage(): React.JSX.Element {
-  const router = useRouter()
   const [items, setItems] = useState<PlaceListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [submittedQuery, setSubmittedQuery] = useState('')
   const [actionError, setActionError] = useState<string | null>(null)
-  const { user, authLoading, isSaved, isMutating, save, remove } = useSavedPlaces()
+  const { user, authLoading, isSaved, isMutating, save, remove, storageMode } =
+    useSavedPlaces()
 
   const endpoint = useMemo(() => {
     const params = new URLSearchParams({
@@ -95,15 +94,22 @@ export default function PlacesPage(): React.JSX.Element {
     }
   }, [endpoint])
 
-  const handleSaveToggle = async (placeId: string) => {
+  const handleSaveToggle = async (place: PlaceListItem) => {
     setActionError(null)
 
-    if (!user) {
-      router.push('/login?next=%2Fplaces')
-      return
-    }
+    const result = isSaved(place.id)
+      ? await remove(place.id)
+      : await save({
+          id: place.id,
+          name: place.name,
+          category: place.category,
+          region: place.region,
+          address: place.address,
+          thumbnail_url: place.thumbnail_url,
+          data_quality_score: place.data_quality_score,
+          tags: place.tags,
+        })
 
-    const result = isSaved(placeId) ? await remove(placeId) : await save(placeId)
     if (!result.ok && result.reason === 'REQUEST_FAILED') {
       setActionError(result.message ?? '저장 상태를 업데이트하지 못했습니다')
     }
@@ -114,11 +120,11 @@ export default function PlacesPage(): React.JSX.Element {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-primary-700">1단계 시작점</p>
+            <p className="text-sm font-medium text-primary-700">탐색 시작점</p>
             <h1 className="text-3xl font-bold text-primary-900 sm:text-4xl">장소 둘러보기</h1>
             <p className="mt-2 max-w-2xl text-sm text-neutral-500 sm:text-base">
-              현재 장소 조회 API를 사용해 부산 시드 데이터를 간단한 목록 흐름으로
-              보여줍니다.
+              로그인 없이 먼저 장소를 담아보고, 필요할 때 계정으로 이어서 관리할 수
+              있습니다.
             </p>
           </div>
           <Link
@@ -164,6 +170,13 @@ export default function PlacesPage(): React.JSX.Element {
             </button>
           </div>
         </form>
+
+        {!user && !authLoading ? (
+          <section className="rounded-2xl border border-plum-300 bg-plum-50 p-5 text-sm text-plum-700">
+            비로그인 상태에서는 장소가 이 브라우저에 임시 저장됩니다. 로그인하면 계정으로
+            가져옵니다.
+          </section>
+        ) : null}
 
         {actionError ? (
           <section className="rounded-2xl border border-coral-500 bg-white p-5 text-sm text-coral-500">
@@ -233,16 +246,20 @@ export default function PlacesPage(): React.JSX.Element {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => void handleSaveToggle(item.id)}
+                    onClick={() => void handleSaveToggle(item)}
                     disabled={authLoading || isMutating(item.id)}
                     className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     {authLoading
                       ? '확인 중...'
                       : isMutating(item.id)
-                        ? '저장 중...'
+                        ? storageMode === 'guest'
+                          ? '담는 중...'
+                          : '저장 중...'
                         : !user
-                          ? '로그인 후 저장'
+                          ? isSaved(item.id)
+                            ? '담음'
+                            : '장바구니 담기'
                           : isSaved(item.id)
                             ? '저장됨'
                             : '저장'}
@@ -263,5 +280,3 @@ export default function PlacesPage(): React.JSX.Element {
     </main>
   )
 }
-
-

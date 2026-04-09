@@ -1,7 +1,10 @@
 ﻿'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useAuth } from '@/hooks/use-auth'
+import { useGuestState } from '@/hooks/use-guest-state'
+import { GUEST_MIGRATION_EVENT, type GuestPlan } from '@/lib/guest-state'
 import type { TravelMode } from '@tripcart/types'
 
 type PlanListItem = {
@@ -54,6 +57,14 @@ function formatDate(value: string | null): string {
 }
 
 export default function PlansPage(): React.JSX.Element {
+  const { user, loading: authLoading } = useAuth()
+  const {
+    loading: guestLoading,
+    plans: guestPlans,
+    savedPlaces: guestSavedPlaces,
+    addPlan: addGuestPlan,
+    deletePlan: deleteGuestPlan,
+  } = useGuestState()
   const [items, setItems] = useState<PlanListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -63,7 +74,7 @@ export default function PlansPage(): React.JSX.Element {
   const [region, setRegion] = useState(DEFAULT_REGION)
   const [transportMode, setTransportMode] = useState<TravelMode>('car')
 
-  async function loadPlans() {
+  const loadPlans = useCallback(async () => {
     setLoading(true)
     setError(null)
 
@@ -82,11 +93,31 @@ export default function PlansPage(): React.JSX.Element {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
+    if (authLoading) return
+    if (!user) {
+      setLoading(false)
+      setError(null)
+      setItems([])
+      return
+    }
     void loadPlans()
-  }, [])
+  }, [authLoading, loadPlans, user])
+
+  useEffect(() => {
+    if (!user) return
+
+    const handleMigration = () => {
+      void loadPlans()
+    }
+
+    window.addEventListener(GUEST_MIGRATION_EVENT, handleMigration)
+    return () => {
+      window.removeEventListener(GUEST_MIGRATION_EVENT, handleMigration)
+    }
+  }, [loadPlans, user])
 
   const handleCreate = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -94,14 +125,31 @@ export default function PlansPage(): React.JSX.Element {
     setSubmitError(null)
 
     try {
+      const normalizedTitle = title.trim()
+      const normalizedRegion = region.trim()
+
+      if (!normalizedTitle) {
+        throw new Error('플랜 제목을 입력해 주세요.')
+      }
+
+      if (!user) {
+        addGuestPlan({
+          title: normalizedTitle,
+          region: normalizedRegion,
+          transport_mode: transportMode,
+        })
+        setTitle('')
+        return
+      }
+
       const response = await fetch('/api/v1/plans', {
         method: 'POST',
         headers: {
           'content-type': 'application/json',
         },
         body: JSON.stringify({
-          title: title.trim(),
-          region: region.trim(),
+          title: normalizedTitle,
+          region: normalizedRegion,
           transport_mode: transportMode,
         }),
       })
@@ -123,18 +171,22 @@ export default function PlansPage(): React.JSX.Element {
     }
   }
 
+  const showLoading = authLoading || (user ? loading : guestLoading)
+  const showEmptyState = user ? items.length === 0 : guestPlans.length === 0
+
   return (
     <main className="min-h-screen bg-neutral-50 px-6 py-10 sm:px-8">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-gold-700">1단계 초안 일정</p>
+            <p className="text-sm font-medium text-gold-700">초안 일정</p>
             <h1 className="text-3xl font-bold text-primary-900 sm:text-4xl">
               플랜 목록과 생성
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-neutral-500 sm:text-base">
-              로그인한 사용자의 플랜 API를 사용해 초안 목록을 보여주고,
-              최소 입력값으로 새 플랜을 만들 수 있습니다.
+              {user
+                ? '계정 플랜 API를 사용해 초안 목록을 보여주고, 새 플랜을 만들 수 있습니다.'
+                : '로그인 없이 브라우저에 초안 플랜을 저장할 수 있습니다. 로그인하면 그대로 계정으로 가져옵니다.'}
             </p>
           </div>
           <div className="flex gap-3">
@@ -157,7 +209,9 @@ export default function PlansPage(): React.JSX.Element {
           <div className="mb-4">
             <h2 className="text-xl font-bold text-primary-900">초안 플랜 만들기</h2>
             <p className="mt-1 text-sm text-neutral-500">
-              현재 플랜 생성 API 계약에 맞춘 최소 생성 흐름입니다.
+              {user
+                ? '현재 플랜 생성 API 계약에 맞춘 최소 생성 흐름입니다.'
+                : `브라우저에 임시 저장됩니다. 현재 담아둔 장소 ${guestSavedPlaces.length}개와 함께 나중에 계정으로 이어서 관리할 수 있습니다.`}
             </p>
           </div>
 
@@ -206,18 +260,33 @@ export default function PlansPage(): React.JSX.Element {
                 disabled={submitting}
                 className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary-500 px-4 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {submitting ? '생성 중...' : '초안 만들기'}
+                {submitting
+                  ? user
+                    ? '생성 중...'
+                    : '저장 중...'
+                  : user
+                    ? '초안 만들기'
+                    : '브라우저에 초안 저장'}
               </button>
             </div>
 
             <div className="flex items-end">
-              <Link
-                href="/api/v1/plans"
-                prefetch={false}
-                className="inline-flex h-11 w-full items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
-              >
-                플랜 API 보기
-              </Link>
+              {user ? (
+                <Link
+                  href="/api/v1/plans"
+                  prefetch={false}
+                  className="inline-flex h-11 w-full items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
+                >
+                  플랜 API 보기
+                </Link>
+              ) : (
+                <Link
+                  href="/login?next=/plans"
+                  className="inline-flex h-11 w-full items-center justify-center rounded-md border border-plum-300 bg-plum-50 px-4 text-sm font-semibold text-plum-700 transition hover:bg-plum-100"
+                >
+                  로그인 후 계정에 가져오기
+                </Link>
+              )}
             </div>
           </form>
 
@@ -233,19 +302,23 @@ export default function PlansPage(): React.JSX.Element {
             <div>
               <h2 className="text-xl font-bold text-primary-900">내 플랜</h2>
               <p className="mt-1 text-sm text-neutral-500">
-                현재 플랜 목록 API 응답을 그대로 사용합니다.
+                {user
+                  ? '현재 플랜 목록 API 응답을 그대로 사용합니다.'
+                  : '비로그인 상태 초안은 현재 브라우저에만 저장됩니다.'}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => void loadPlans()}
-              className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
-            >
-              새로고침
-            </button>
+            {user ? (
+              <button
+                type="button"
+                onClick={() => void loadPlans()}
+                className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
+              >
+                새로고침
+              </button>
+            ) : null}
           </div>
 
-          {loading ? (
+          {showLoading ? (
             <div className="rounded-xl border border-primary-300 bg-primary-50 px-4 py-3 text-sm text-primary-700">
               플랜을 불러오는 중입니다...
             </div>
@@ -253,13 +326,13 @@ export default function PlansPage(): React.JSX.Element {
             <div className="rounded-xl border border-coral-500 bg-coral-50 px-4 py-3 text-sm text-coral-500">
               {error}
             </div>
-          ) : items.length === 0 ? (
+          ) : showEmptyState ? (
             <div className="rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm text-neutral-500">
               아직 플랜이 없습니다. 위에서 첫 초안을 만들어 보세요.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              {items.map((item) => (
+              {(user ? items : guestPlans).map((item) => (
                 <article
                   key={item.id}
                   className="flex flex-col gap-4 rounded-2xl border border-neutral-300 bg-neutral-0 p-5"
@@ -267,7 +340,7 @@ export default function PlansPage(): React.JSX.Element {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wide text-gold-700">
-                        {STATUS_LABELS[item.status]}
+                        {user ? STATUS_LABELS[item.status] : '브라우저 초안'}
                       </p>
                       <h3 className="mt-1 text-lg font-bold text-primary-900">{item.title}</h3>
                     </div>
@@ -284,19 +357,39 @@ export default function PlansPage(): React.JSX.Element {
                   </div>
 
                   <div className="mt-auto flex flex-wrap gap-3 pt-2">
-                    <Link
-                      href={`/plans/${item.id}`}
-                      className="inline-flex h-10 items-center justify-center rounded-md bg-primary-500 px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
-                    >
-                      플랜 열기
-                    </Link>
-                    <Link
-                      href={`/api/v1/plans/${item.id}`}
-                      prefetch={false}
-                      className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
-                    >
-                      API 상세 보기
-                    </Link>
+                    {user ? (
+                      <>
+                        <Link
+                          href={`/plans/${item.id}`}
+                          className="inline-flex h-10 items-center justify-center rounded-md bg-primary-500 px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
+                        >
+                          플랜 열기
+                        </Link>
+                        <Link
+                          href={`/api/v1/plans/${item.id}`}
+                          prefetch={false}
+                          className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
+                        >
+                          API 상세 보기
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <Link
+                          href="/login?next=/plans"
+                          className="inline-flex h-10 items-center justify-center rounded-md bg-primary-500 px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
+                        >
+                          로그인 후 이어서 보기
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => deleteGuestPlan((item as GuestPlan).id)}
+                          className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
+                        >
+                          삭제
+                        </button>
+                      </>
+                    )}
                   </div>
                 </article>
               ))}
@@ -307,4 +400,3 @@ export default function PlansPage(): React.JSX.Element {
     </main>
   )
 }
-

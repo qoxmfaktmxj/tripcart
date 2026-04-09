@@ -1,7 +1,7 @@
 ﻿'use client'
 
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useSavedPlaces } from '@/hooks/use-saved-places'
 
@@ -47,7 +47,6 @@ const REGION_LABELS: Record<string, string> = {
 }
 
 export default function PlaceDetailPage(): React.JSX.Element {
-  const router = useRouter()
   const params = useParams<{ id: string }>()
   const placeId = typeof params.id === 'string' ? params.id : ''
 
@@ -55,7 +54,8 @@ export default function PlaceDetailPage(): React.JSX.Element {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
-  const { user, authLoading, isSaved, isMutating, save, remove } = useSavedPlaces()
+  const { user, authLoading, isSaved, isMutating, save, remove, storageMode } =
+    useSavedPlaces()
 
   useEffect(() => {
     if (!placeId) {
@@ -101,16 +101,23 @@ export default function PlaceDetailPage(): React.JSX.Element {
   }, [placeId])
 
   const handleSaveToggle = async () => {
-    if (!placeId) return
+    if (!placeId || !place) return
 
     setActionError(null)
 
-    if (!user) {
-      router.push(`/login?next=${encodeURIComponent(`/places/${placeId}`)}`)
-      return
-    }
+    const result = isSaved(placeId)
+      ? await remove(placeId)
+      : await save({
+          id: place.id,
+          name: place.name,
+          category: place.category,
+          region: place.region,
+          address: place.address,
+          thumbnail_url: null,
+          data_quality_score: place.data_quality_score,
+          tags: [],
+        })
 
-    const result = isSaved(placeId) ? await remove(placeId) : await save(placeId)
     if (!result.ok && result.reason === 'REQUEST_FAILED') {
       setActionError(result.message ?? '저장 상태를 업데이트하지 못했습니다.')
     }
@@ -151,15 +158,26 @@ export default function PlaceDetailPage(): React.JSX.Element {
               {authLoading
                 ? '확인 중...'
                 : placeId && isMutating(placeId)
-                  ? '저장 중...'
+                  ? storageMode === 'guest'
+                    ? '담는 중...'
+                    : '저장 중...'
                   : !user
-                    ? '로그인 후 저장'
+                    ? isSaved(placeId)
+                      ? '담음'
+                      : '장바구니 담기'
                     : isSaved(placeId)
                       ? '저장됨'
                       : '저장'}
             </button>
           </div>
         </div>
+
+        {!user && !authLoading ? (
+          <section className="rounded-2xl border border-plum-300 bg-plum-50 p-5 text-sm text-plum-700">
+            비로그인 상태에서는 이 장소가 브라우저에 임시 저장됩니다. 로그인하면 계정으로
+            가져옵니다.
+          </section>
+        ) : null}
 
         {actionError ? (
           <section className="rounded-2xl border border-coral-500 bg-white p-5 text-sm text-coral-500">

@@ -1,17 +1,14 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-export default function LoginPage(): React.JSX.Element {
+function LoginForm(): React.JSX.Element {
   const router = useRouter()
-
-  const rawNext =
-    typeof window !== 'undefined'
-      ? new URLSearchParams(window.location.search).get('next') ?? '/'
-      : '/'
+  const searchParams = useSearchParams()
+  const rawNext = searchParams.get('next') ?? '/'
   const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/'
 
   const [email, setEmail] = useState('')
@@ -48,7 +45,9 @@ export default function LoginPage(): React.JSX.Element {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-primary-900">TripCart</h1>
-        <p className="mt-1 text-sm text-neutral-500">로그인 후 계속할 수 있습니다</p>
+        <p className="mt-1 text-sm text-neutral-500">
+          로그인하면 비로그인 상태에서 담아둔 장소와 초안 플랜을 이어서 관리할 수 있습니다.
+        </p>
       </div>
 
       {error ? (
@@ -88,10 +87,18 @@ export default function LoginPage(): React.JSX.Element {
 
       <p className="text-center text-sm text-neutral-500">
         계정이 없나요?{' '}
-        <Link href="/signup" className="text-primary-500 hover:underline">
+        <Link href={`/signup?next=${encodeURIComponent(next)}`} className="text-primary-500 hover:underline">
           회원가입
         </Link>
       </p>
     </form>
+  )
+}
+
+export default function LoginPage(): React.JSX.Element {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   )
 }
