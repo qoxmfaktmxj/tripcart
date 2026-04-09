@@ -8,35 +8,33 @@ export default function HomePage(): React.JSX.Element {
           TripCart
         </h1>
         <p className="text-base text-neutral-500 sm:text-lg">
-          Travel planning and execution, optimized.
+          여행 계획과 실행을 한 흐름으로 관리합니다.
         </p>
       </div>
 
       <div className="w-full max-w-full rounded-lg border border-primary-300 bg-primary-50 px-5 py-4 text-center sm:max-w-md sm:px-6">
-        <p className="font-semibold text-primary-700">
-          Phase 0 bootstrap complete
-        </p>
+        <p className="font-semibold text-primary-700">0단계 부트스트랩 완료</p>
         <p className="mt-1 text-sm text-primary-500">
-          design-tokens{' '}
+          디자인 토큰{' '}
           <span aria-hidden="true">|</span>{' '}
-          types{' '}
+          타입{' '}
           <span aria-hidden="true">|</span>{' '}
-          monorepo
+          모노레포
         </p>
       </div>
 
       <div className="grid w-full max-w-full grid-cols-1 gap-3 sm:max-w-md sm:grid-cols-2 lg:grid-cols-4">
         <div className="flex h-12 w-full items-center justify-center rounded-md bg-primary-500">
-          <span className="text-xs font-mono text-white">primary</span>
+          <span className="text-xs font-mono text-white">주요색</span>
         </div>
         <div className="flex h-12 w-full items-center justify-center rounded-md bg-plum-700">
-          <span className="text-xs font-mono text-white">plum</span>
+          <span className="text-xs font-mono text-white">포인트</span>
         </div>
         <div className="flex h-12 w-full items-center justify-center rounded-md bg-coral-500">
-          <span className="text-xs font-mono text-white">coral</span>
+          <span className="text-xs font-mono text-white">경고</span>
         </div>
         <div className="flex h-12 w-full items-center justify-center rounded-md bg-gold-500">
-          <span className="text-xs font-mono text-neutral-900">gold</span>
+          <span className="text-xs font-mono text-neutral-900">강조</span>
         </div>
       </div>
 
@@ -45,26 +43,26 @@ export default function HomePage(): React.JSX.Element {
           href="/places"
           className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary-500 px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
         >
-          Browse places
+          장소 둘러보기
         </Link>
         <Link
           href="/api/v1/places?region=busan&limit=12"
           prefetch={false}
           className="inline-flex h-11 w-full items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
         >
-          View places API
+          장소 API 보기
         </Link>
         <Link
           href="/saved-places"
           className="inline-flex h-11 w-full items-center justify-center rounded-md border border-plum-300 bg-plum-50 px-4 text-sm font-semibold text-plum-700 transition hover:bg-plum-100"
         >
-          Saved places
+          저장한 장소
         </Link>
         <Link
           href="/plans"
           className="inline-flex h-11 w-full items-center justify-center rounded-md border border-gold-500 bg-gold-50 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-gold-100"
         >
-          Plans
+          플랜
         </Link>
       </div>
     </main>

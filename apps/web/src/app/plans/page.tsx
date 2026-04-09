@@ -26,9 +26,23 @@ type PlansResponse = {
 
 const DEFAULT_REGION = 'busan'
 const TRANSPORT_MODES: TravelMode[] = ['car', 'transit', 'walk', 'bicycle']
+const TRANSPORT_LABELS: Record<TravelMode, string> = {
+  car: '자동차',
+  transit: '대중교통',
+  walk: '도보',
+  bicycle: '자전거',
+}
+const STATUS_LABELS: Record<PlanListItem['status'], string> = {
+  draft: '초안',
+  ready: '준비됨',
+  archived: '보관됨',
+}
+const REGION_LABELS: Record<string, string> = {
+  busan: '부산',
+}
 
 function formatDate(value: string | null): string {
-  if (!value) return 'Not scheduled yet'
+  if (!value) return '미정'
 
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
@@ -56,13 +70,13 @@ export default function PlansPage(): React.JSX.Element {
     try {
       const response = await fetch('/api/v1/plans?limit=20', { cache: 'no-store' })
       if (!response.ok) {
-        throw new Error(`Failed to load plans (${response.status})`)
+        throw new Error(`플랜을 불러오지 못했습니다. (${response.status})`)
       }
 
       const payload = (await response.json()) as PlansResponse
       setItems(payload.data ?? [])
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load plans'
+      const message = err instanceof Error ? err.message : '플랜을 불러오지 못했습니다'
       setError(message)
       setItems([])
     } finally {
@@ -96,13 +110,13 @@ export default function PlansPage(): React.JSX.Element {
         const payload = (await response.json().catch(() => null)) as
           | { error?: { message?: string } }
           | null
-        throw new Error(payload?.error?.message ?? `Failed to create plan (${response.status})`)
+        throw new Error(payload?.error?.message ?? `플랜을 만들지 못했습니다. (${response.status})`)
       }
 
       setTitle('')
       await loadPlans()
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to create plan'
+      const message = err instanceof Error ? err.message : '플랜을 만들지 못했습니다'
       setSubmitError(message)
     } finally {
       setSubmitting(false)
@@ -114,13 +128,13 @@ export default function PlansPage(): React.JSX.Element {
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-gold-700">Phase 1 draft planning</p>
+            <p className="text-sm font-medium text-gold-700">1단계 초안 일정</p>
             <h1 className="text-3xl font-bold text-primary-900 sm:text-4xl">
-              Plans list and create
+              플랜 목록과 생성
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-neutral-500 sm:text-base">
-              This screen consumes the authenticated plans API, lists the user&apos;s drafts,
-              and creates a new draft plan with the minimal contract fields.
+              로그인한 사용자의 플랜 API를 사용해 초안 목록을 보여주고,
+              최소 입력값으로 새 플랜을 만들 수 있습니다.
             </p>
           </div>
           <div className="flex gap-3">
@@ -128,50 +142,51 @@ export default function PlansPage(): React.JSX.Element {
               href="/saved-places"
               className="inline-flex h-10 items-center justify-center rounded-md border border-plum-300 px-4 text-sm font-semibold text-plum-700 transition hover:bg-plum-50"
             >
-              Saved places
+              저장한 장소
             </Link>
             <Link
               href="/"
               className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-white"
             >
-              Back home
+              홈으로
             </Link>
           </div>
         </div>
 
         <section className="rounded-2xl border border-neutral-300 bg-white p-5 shadow-sm">
           <div className="mb-4">
-            <h2 className="text-xl font-bold text-primary-900">Create a draft plan</h2>
+            <h2 className="text-xl font-bold text-primary-900">초안 플랜 만들기</h2>
             <p className="mt-1 text-sm text-neutral-500">
-              Minimal create flow for the existing POST /api/v1/plans contract.
+              현재 플랜 생성 API 계약에 맞춘 최소 생성 흐름입니다.
             </p>
           </div>
 
           <form className="grid grid-cols-1 gap-4 md:grid-cols-3" onSubmit={handleCreate}>
             <label className="md:col-span-2">
-              <span className="mb-2 block text-sm font-medium text-primary-900">Title</span>
+              <span className="mb-2 block text-sm font-medium text-primary-900">제목</span>
               <input
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="e.g. 부산 주말 드라이브"
+                placeholder="예: 부산 주말 드라이브"
                 required
                 className="h-11 w-full rounded-md border border-neutral-300 bg-neutral-0 px-3 text-sm text-primary-900 outline-none transition focus:border-primary-500"
               />
             </label>
 
             <label>
-              <span className="mb-2 block text-sm font-medium text-primary-900">Region</span>
-              <input
+              <span className="mb-2 block text-sm font-medium text-primary-900">지역</span>
+              <select
                 value={region}
                 onChange={(event) => setRegion(event.target.value)}
-                placeholder="busan"
                 required
                 className="h-11 w-full rounded-md border border-neutral-300 bg-neutral-0 px-3 text-sm text-primary-900 outline-none transition focus:border-primary-500"
-              />
+              >
+                <option value={DEFAULT_REGION}>부산</option>
+              </select>
             </label>
 
             <label>
-              <span className="mb-2 block text-sm font-medium text-primary-900">Transport mode</span>
+              <span className="mb-2 block text-sm font-medium text-primary-900">이동 수단</span>
               <select
                 value={transportMode}
                 onChange={(event) => setTransportMode(event.target.value as TravelMode)}
@@ -179,7 +194,7 @@ export default function PlansPage(): React.JSX.Element {
               >
                 {TRANSPORT_MODES.map((mode) => (
                   <option key={mode} value={mode}>
-                    {mode}
+                    {TRANSPORT_LABELS[mode]}
                   </option>
                 ))}
               </select>
@@ -191,7 +206,7 @@ export default function PlansPage(): React.JSX.Element {
                 disabled={submitting}
                 className="inline-flex h-11 w-full items-center justify-center rounded-md bg-primary-500 px-4 text-sm font-semibold text-white transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {submitting ? 'Creating...' : 'Create draft plan'}
+                {submitting ? '생성 중...' : '초안 만들기'}
               </button>
             </div>
 
@@ -201,7 +216,7 @@ export default function PlansPage(): React.JSX.Element {
                 prefetch={false}
                 className="inline-flex h-11 w-full items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
               >
-                View plans API
+                플랜 API 보기
               </Link>
             </div>
           </form>
@@ -216,9 +231,9 @@ export default function PlansPage(): React.JSX.Element {
         <section className="rounded-2xl border border-neutral-300 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-xl font-bold text-primary-900">Your plans</h2>
+              <h2 className="text-xl font-bold text-primary-900">내 플랜</h2>
               <p className="mt-1 text-sm text-neutral-500">
-                Backed by GET /api/v1/plans with the current lightweight list response.
+                현재 플랜 목록 API 응답을 그대로 사용합니다.
               </p>
             </div>
             <button
@@ -226,13 +241,13 @@ export default function PlansPage(): React.JSX.Element {
               onClick={() => void loadPlans()}
               className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
             >
-              Refresh
+              새로고침
             </button>
           </div>
 
           {loading ? (
             <div className="rounded-xl border border-primary-300 bg-primary-50 px-4 py-3 text-sm text-primary-700">
-              Loading plans...
+              플랜을 불러오는 중입니다...
             </div>
           ) : error ? (
             <div className="rounded-xl border border-coral-500 bg-coral-50 px-4 py-3 text-sm text-coral-500">
@@ -240,7 +255,7 @@ export default function PlansPage(): React.JSX.Element {
             </div>
           ) : items.length === 0 ? (
             <div className="rounded-xl border border-neutral-300 bg-neutral-50 px-4 py-3 text-sm text-neutral-500">
-              No plans yet. Create your first draft plan above.
+              아직 플랜이 없습니다. 위에서 첫 초안을 만들어 보세요.
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -252,7 +267,7 @@ export default function PlansPage(): React.JSX.Element {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <p className="text-xs font-semibold uppercase tracking-wide text-gold-700">
-                        {item.status}
+                        {STATUS_LABELS[item.status]}
                       </p>
                       <h3 className="mt-1 text-lg font-bold text-primary-900">{item.title}</h3>
                     </div>
@@ -262,10 +277,10 @@ export default function PlansPage(): React.JSX.Element {
                   </div>
 
                   <div className="grid grid-cols-1 gap-2 text-sm text-neutral-500 sm:grid-cols-2">
-                    <p>Region: {item.region ?? 'n/a'}</p>
-                    <p>Transport: {item.transport_mode}</p>
-                    <p>Start: {formatDate(item.start_at)}</p>
-                    <p>Updated: {formatDate(item.updated_at)}</p>
+                    <p>지역: {item.region ? (REGION_LABELS[item.region] ?? item.region) : '없음'}</p>
+                    <p>이동 수단: {TRANSPORT_LABELS[item.transport_mode]}</p>
+                    <p>시작 시각: {formatDate(item.start_at)}</p>
+                    <p>업데이트: {formatDate(item.updated_at)}</p>
                   </div>
 
                   <div className="mt-auto flex flex-wrap gap-3 pt-2">
@@ -273,14 +288,14 @@ export default function PlansPage(): React.JSX.Element {
                       href={`/plans/${item.id}`}
                       className="inline-flex h-10 items-center justify-center rounded-md bg-primary-500 px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
                     >
-                      Open plan
+                      플랜 열기
                     </Link>
                     <Link
                       href={`/api/v1/plans/${item.id}`}
                       prefetch={false}
                       className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-neutral-50"
                     >
-                      View API detail
+                      API 상세 보기
                     </Link>
                   </div>
                 </article>

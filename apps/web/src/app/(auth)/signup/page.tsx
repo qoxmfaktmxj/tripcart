@@ -30,7 +30,7 @@ export default function SignupPage(): React.JSX.Element {
     }
 
     if (data.user && !data.session) {
-      setError('Check your email to complete sign up.')
+      setError('회원가입을 완료하려면 이메일을 확인해 주세요.')
       setLoading(false)
       return
     }
@@ -48,7 +48,7 @@ export default function SignupPage(): React.JSX.Element {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-primary-900">TripCart</h1>
-        <p className="mt-1 text-sm text-neutral-500">Create your account</p>
+        <p className="mt-1 text-sm text-neutral-500">계정을 만들고 시작하세요</p>
       </div>
 
       {error ? (
@@ -59,7 +59,7 @@ export default function SignupPage(): React.JSX.Element {
 
       <input
         type="email"
-        placeholder="Email"
+        placeholder="이메일"
         autoComplete="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
@@ -69,7 +69,7 @@ export default function SignupPage(): React.JSX.Element {
 
       <input
         type="password"
-        placeholder="Password (min 6 chars)"
+        placeholder="비밀번호 (6자 이상)"
         autoComplete="new-password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
@@ -84,13 +84,13 @@ export default function SignupPage(): React.JSX.Element {
         disabled={loading}
         className="w-full rounded-md bg-primary-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500"
       >
-        {loading ? 'Creating account...' : 'Create account'}
+        {loading ? '계정 생성 중...' : '계정 만들기'}
       </button>
 
       <p className="text-center text-sm text-neutral-500">
-        Already have an account?{' '}
+        이미 계정이 있나요?{' '}
         <Link href="/login" className="text-primary-500 hover:underline">
-          Sign in
+          로그인
         </Link>
       </p>
     </form>

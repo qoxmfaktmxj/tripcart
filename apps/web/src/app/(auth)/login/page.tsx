@@ -48,7 +48,7 @@ export default function LoginPage(): React.JSX.Element {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-primary-900">TripCart</h1>
-        <p className="mt-1 text-sm text-neutral-500">Sign in to continue</p>
+        <p className="mt-1 text-sm text-neutral-500">로그인 후 계속할 수 있습니다</p>
       </div>
 
       {error ? (
@@ -59,7 +59,7 @@ export default function LoginPage(): React.JSX.Element {
 
       <input
         type="email"
-        placeholder="Email"
+        placeholder="이메일"
         autoComplete="email"
         value={email}
         onChange={(event) => setEmail(event.target.value)}
@@ -69,7 +69,7 @@ export default function LoginPage(): React.JSX.Element {
 
       <input
         type="password"
-        placeholder="Password"
+        placeholder="비밀번호"
         autoComplete="current-password"
         value={password}
         onChange={(event) => setPassword(event.target.value)}
@@ -83,13 +83,13 @@ export default function LoginPage(): React.JSX.Element {
         disabled={loading}
         className="w-full rounded-md bg-primary-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500"
       >
-        {loading ? 'Signing in...' : 'Sign in'}
+        {loading ? '로그인 중...' : '로그인'}
       </button>
 
       <p className="text-center text-sm text-neutral-500">
-        Need an account?{' '}
+        계정이 없나요?{' '}
         <Link href="/signup" className="text-primary-500 hover:underline">
-          Create one
+          회원가입
         </Link>
       </p>
     </form>

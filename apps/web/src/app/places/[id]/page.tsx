@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
@@ -33,6 +33,18 @@ type PlaceDetailResponse = {
 }
 
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const KOREAN_DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
+const CATEGORY_LABELS: Record<string, string> = {
+  restaurant: '식당',
+  cafe: '카페',
+  attraction: '관광지',
+  lodging: '숙소',
+  shopping: '쇼핑',
+  activity: '체험',
+}
+const REGION_LABELS: Record<string, string> = {
+  busan: '부산',
+}
 
 export default function PlaceDetailPage(): React.JSX.Element {
   const router = useRouter()
@@ -47,7 +59,7 @@ export default function PlaceDetailPage(): React.JSX.Element {
 
   useEffect(() => {
     if (!placeId) {
-      setError('Missing place id')
+      setError('장소 ID가 없습니다.')
       setLoading(false)
       return
     }
@@ -61,7 +73,7 @@ export default function PlaceDetailPage(): React.JSX.Element {
       try {
         const response = await fetch(`/api/v1/places/${placeId}`, { cache: 'no-store' })
         if (!response.ok) {
-          throw new Error(`Failed to load place (${response.status})`)
+          throw new Error(`장소를 불러오지 못했습니다. (${response.status})`)
         }
 
         const payload = (await response.json()) as PlaceDetailResponse
@@ -70,7 +82,7 @@ export default function PlaceDetailPage(): React.JSX.Element {
         }
       } catch (err) {
         if (!cancelled) {
-          const message = err instanceof Error ? err.message : 'Failed to load place'
+          const message = err instanceof Error ? err.message : '장소 정보를 불러오지 못했습니다.'
           setError(message)
           setPlace(null)
         }
@@ -100,7 +112,7 @@ export default function PlaceDetailPage(): React.JSX.Element {
 
     const result = isSaved(placeId) ? await remove(placeId) : await save(placeId)
     if (!result.ok && result.reason === 'REQUEST_FAILED') {
-      setActionError(result.message ?? 'Failed to update saved places')
+      setActionError(result.message ?? '저장 상태를 업데이트하지 못했습니다.')
     }
   }
 
@@ -109,9 +121,9 @@ export default function PlaceDetailPage(): React.JSX.Element {
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-medium text-primary-700">Places detail</p>
+            <p className="text-sm font-medium text-primary-700">장소 상세</p>
             <h1 className="text-3xl font-bold text-primary-900 sm:text-4xl">
-              {loading ? 'Loading...' : place?.name ?? 'Place detail'}
+              {loading ? '불러오는 중...' : place?.name ?? '장소 상세'}
             </h1>
           </div>
           <div className="flex gap-3">
@@ -119,7 +131,7 @@ export default function PlaceDetailPage(): React.JSX.Element {
               href="/places"
               className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-white"
             >
-              Back to list
+              목록으로
             </Link>
             {placeId ? (
               <Link
@@ -137,14 +149,14 @@ export default function PlaceDetailPage(): React.JSX.Element {
               className="inline-flex h-10 items-center justify-center rounded-md border border-neutral-300 px-4 text-sm font-semibold text-neutral-900 transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
             >
               {authLoading
-                ? 'Checking...'
+                ? '확인 중...'
                 : placeId && isMutating(placeId)
-                  ? 'Saving...'
+                  ? '저장 중...'
                   : !user
-                    ? 'Sign in to save'
+                    ? '로그인 후 저장'
                     : isSaved(placeId)
-                      ? 'Saved'
-                      : 'Save'}
+                      ? '저장됨'
+                      : '저장'}
             </button>
           </div>
         </div>
@@ -157,7 +169,7 @@ export default function PlaceDetailPage(): React.JSX.Element {
 
         {loading ? (
           <section className="rounded-2xl border border-primary-300 bg-primary-50 p-5 text-sm text-primary-700">
-            Loading place detail...
+            장소 상세를 불러오는 중입니다...
           </section>
         ) : error ? (
           <section className="rounded-2xl border border-coral-500 bg-white p-5 text-sm text-coral-500">
@@ -165,22 +177,22 @@ export default function PlaceDetailPage(): React.JSX.Element {
           </section>
         ) : !place ? (
           <section className="rounded-2xl border border-neutral-300 bg-white p-5 text-sm text-neutral-500">
-            Place detail is not available.
+            장소 정보를 찾을 수 없습니다.
           </section>
         ) : (
           <>
             <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <article className="rounded-2xl border border-neutral-300 bg-white p-5 shadow-sm md:col-span-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-primary-700">
-                  {place.category}
+                  {CATEGORY_LABELS[place.category] ?? place.category}
                 </p>
                 <h2 className="mt-1 text-2xl font-bold text-primary-900">{place.name}</h2>
                 <div className="mt-4 space-y-2 text-sm text-neutral-500">
-                  <p>Region: {place.region}</p>
-                  <p>Address: {place.address ?? 'Address not provided yet'}</p>
-                  <p>Phone: {place.phone ?? 'Not provided yet'}</p>
+                  <p>지역: {REGION_LABELS[place.region] ?? place.region}</p>
+                  <p>주소: {place.address ?? '주소 정보 없음'}</p>
+                  <p>전화: {place.phone ?? '정보 없음'}</p>
                   <p>
-                    Website:{' '}
+                    웹사이트:{' '}
                     {place.website_url ? (
                       <a
                         href={place.website_url}
@@ -191,25 +203,25 @@ export default function PlaceDetailPage(): React.JSX.Element {
                         {place.website_url}
                       </a>
                     ) : (
-                      'Not provided yet'
+                      '정보 없음'
                     )}
                   </p>
                 </div>
               </article>
 
               <article className="rounded-2xl border border-neutral-300 bg-white p-5 shadow-sm">
-                <p className="text-sm font-medium text-neutral-500">Data quality score</p>
+                <p className="text-sm font-medium text-neutral-500">데이터 품질 점수</p>
                 <p className="mt-2 text-4xl font-bold text-primary-900">{place.data_quality_score}</p>
                 <p className="mt-4 text-sm text-neutral-500">
-                  Typical dwell:{' '}
-                  {place.typical_dwell_minutes ? `${place.typical_dwell_minutes} min` : 'Not set yet'}
+                  권장 체류 시간:{' '}
+                  {place.typical_dwell_minutes ? `${place.typical_dwell_minutes}분` : '미설정'}
                 </p>
               </article>
             </section>
 
             <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
               <article className="rounded-2xl border border-neutral-300 bg-white p-5 shadow-sm">
-                <h3 className="text-lg font-bold text-primary-900">Open hours</h3>
+                <h3 className="text-lg font-bold text-primary-900">운영 시간</h3>
                 <div className="mt-4 space-y-3">
                   {place.open_hours.length > 0 ? (
                     place.open_hours.map((item) => (
@@ -218,7 +230,9 @@ export default function PlaceDetailPage(): React.JSX.Element {
                         className="flex items-center justify-between rounded-md bg-neutral-50 px-4 py-3 text-sm"
                       >
                         <span className="font-medium text-primary-900">
-                          {DAY_LABELS[item.day_of_week] ?? item.day_of_week}
+                          {KOREAN_DAY_LABELS[item.day_of_week] ??
+                            DAY_LABELS[item.day_of_week] ??
+                            item.day_of_week}
                         </span>
                         <span className="font-mono text-neutral-500">
                           {item.open_time} - {item.close_time}
@@ -226,13 +240,13 @@ export default function PlaceDetailPage(): React.JSX.Element {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-neutral-500">No open hours registered yet.</p>
+                    <p className="text-sm text-neutral-500">등록된 운영 시간이 없습니다.</p>
                   )}
                 </div>
               </article>
 
               <article className="rounded-2xl border border-neutral-300 bg-white p-5 shadow-sm">
-                <h3 className="text-lg font-bold text-primary-900">Break windows</h3>
+                <h3 className="text-lg font-bold text-primary-900">브레이크 타임</h3>
                 <div className="mt-4 space-y-3">
                   {place.break_windows.length > 0 ? (
                     place.break_windows.map((item) => (
@@ -241,7 +255,9 @@ export default function PlaceDetailPage(): React.JSX.Element {
                         className="flex items-center justify-between rounded-md bg-neutral-50 px-4 py-3 text-sm"
                       >
                         <span className="font-medium text-primary-900">
-                          {DAY_LABELS[item.day_of_week] ?? item.day_of_week}
+                          {KOREAN_DAY_LABELS[item.day_of_week] ??
+                            DAY_LABELS[item.day_of_week] ??
+                            item.day_of_week}
                         </span>
                         <span className="font-mono text-coral-500">
                           {item.start_time} - {item.end_time}
@@ -249,7 +265,7 @@ export default function PlaceDetailPage(): React.JSX.Element {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-neutral-500">No break windows registered yet.</p>
+                    <p className="text-sm text-neutral-500">등록된 브레이크 타임이 없습니다.</p>
                   )}
                 </div>
               </article>

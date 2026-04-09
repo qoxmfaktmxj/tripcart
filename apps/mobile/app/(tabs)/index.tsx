@@ -1,4 +1,4 @@
-/**
+﻿/**
  * TripCart Mobile Phase 0 placeholder screen.
  */
 import { StatusBar } from 'expo-status-bar'
@@ -7,6 +7,12 @@ import { tripcartColors } from '@tripcart/design-tokens'
 import type { TransportMode } from '@tripcart/types'
 
 const defaultTransportMode: TransportMode = 'car'
+const TRANSPORT_LABELS: Record<TransportMode, string> = {
+  car: '자동차',
+  transit: '대중교통',
+  walk: '도보',
+  bicycle: '자전거',
+}
 
 const COLORS = {
   primary50: tripcartColors.primary[50],
@@ -21,11 +27,11 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>TripCart</Text>
-      <Text style={styles.subtitle}>Optimized travel planning and execution</Text>
+      <Text style={styles.subtitle}>여행 계획과 실행을 한 흐름으로 관리합니다</Text>
       <View style={styles.badge}>
-        <Text style={styles.badgeText}>Phase 0 mobile dev client ready</Text>
+        <Text style={styles.badgeText}>0단계 모바일 개발 클라이언트 준비 완료</Text>
       </View>
-      <Text style={styles.meta}>default transport: {defaultTransportMode}</Text>
+      <Text style={styles.meta}>기본 이동 수단: {TRANSPORT_LABELS[defaultTransportMode]}</Text>
       <StatusBar style="auto" />
     </View>
   )
