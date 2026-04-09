@@ -19,7 +19,7 @@ The product principle is simple: planning and execution are not the same thing.
 | Phase | Scope | Status |
 |---|---|---|
 | Phase 0 | Monorepo, local Supabase, shared packages, web/mobile bootstrap | Complete |
-| Phase 1 | Auth, Places, Saved Places, Plans CRUD | Places read plus saved places flow started, broader CRUD in progress |
+| Phase 1 | Auth, Places, Saved Places, Plans CRUD | Places read, saved places flow, and initial plans list/detail/edit surface are in place |
 | Phase 2 | Optimizer integration, share/import, alternatives | Next |
 | Phase 3 | Execution, spends, media | Planned |
 | Phase 4 | Receipt OCR, gap suggest, smart alert | Planned |
@@ -29,10 +29,14 @@ The product principle is simple: planning and execution are not the same thing.
 - `2026-04-09`
 - web home responds with HTTP `200`
 - web `/places` responds with HTTP `200`
+- web `/plans` responds with HTTP `200` for authenticated users
+- web `/plans/[id]` responds with HTTP `200` for authenticated users
 - web `/saved-places` redirects unauthenticated users to `/login`
 - web places API and detail API respond from the local seed set
 - saved places API returns `401` JSON when unauthenticated
 - saved places add and remove flow passes with an authenticated local Supabase session
+- plans API returns `401` JSON when unauthenticated, and draft create/list/detail/edit/delete pass with an authenticated local Supabase session
+- webpack dev server accepts `127.0.0.1` through `allowedDevOrigins`
 - `pnpm lint` passes
 - `pnpm typecheck` passes
 - `pnpm build` passes
@@ -46,9 +50,16 @@ The product principle is simple: planning and execution are not the same thing.
 - `GET /api/v1/me/saved-places`
 - `POST /api/v1/me/saved-places`
 - `DELETE /api/v1/me/saved-places/[placeId]`
+- `GET /api/v1/plans`
+- `POST /api/v1/plans`
+- `GET /api/v1/plans/[id]`
+- `PATCH /api/v1/plans/[id]`
+- `DELETE /api/v1/plans/[id]`
 - web browse page at `/places`
 - web detail page at `/places/[id]`
 - web saved places page at `/saved-places`
+- web plans page at `/plans`
+- web plan detail page at `/plans/[id]`
 
 ## Tech stack
 
@@ -92,6 +103,7 @@ tripcart/
 - Docker Desktop
 - Python 3.14.x
 - uv
+- Android Studio with Android SDK, Platform-Tools, Emulator, and at least one AVD if you want mobile emulator QA on Windows
 
 ### Install
 
@@ -126,9 +138,12 @@ pnpm --filter @tripcart/mobile start
 ```text
 http://localhost:3000/
 http://localhost:3000/places
+http://localhost:3000/plans
 http://localhost:3000/saved-places
 http://localhost:3000/api/v1/places?region=busan&limit=12
 ```
+
+Windows note: iOS Simulator is not available on Windows. Mobile runtime QA on this machine requires Android Studio plus a configured Android Virtual Device.
 
 ### Start the optimizer
 
