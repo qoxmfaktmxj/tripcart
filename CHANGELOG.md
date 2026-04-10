@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.2.0] - 2026-04-10
+
+### Added
+- Added shared home-view and auth-form helpers so the refreshed guest landing and auth flows keep one source of truth for card formatting, category routing, and validation messaging.
+
+### Changed
+- Refreshed the guest-first `/`, `/places`, `/saved-places`, `/plans`, and `/plans/[id]` surfaces so home categories route into live filters, guest trip cards show real start times, and saved-place and plan screens read cleanly on both desktop and mobile.
+- Updated the guest-first Playwright flow to match the new landing, place save, draft plan creation, and guest migration UI.
+- Extended the design system guidance with the current home hero cart entry, category bar behavior, and mobile rail rules.
+
+### Fixed
+- Fixed stale home CTA duplication and fake date ranges on guest trip cards.
+- Fixed empty login and signup submits so the browser stops them before raw Supabase auth errors leak through, and upgraded the auth desktop layout from a stub into a real entry surface.
+- Fixed guest draft creation so a start date and time is required before the plan is saved.
+
+### Verified
+- Verified `pnpm --filter @tripcart/web test`, `pnpm --filter @tripcart/web typecheck`, `pnpm --filter @tripcart/web lint`, `pnpm --filter @tripcart/web build`, and `pnpm --filter @tripcart/web e2e`.
+- Re-ran manual browser QA on `/`, `/places`, `/places?category=accommodation`, `/saved-places`, `/plans`, `/login`, and `/signup` in desktop and mobile-sized viewports.
+
 ## [0.0.1.9] - 2026-04-09
 
 ### Changed
