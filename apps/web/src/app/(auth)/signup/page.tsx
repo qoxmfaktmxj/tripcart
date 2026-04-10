@@ -3,6 +3,10 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
+import {
+  getFriendlyAuthErrorMessage,
+  validateSignupInput,
+} from '@/lib/auth-form'
 import { createClient } from '@/lib/supabase/client'
 
 function SignupForm(): React.JSX.Element {
@@ -17,6 +21,12 @@ function SignupForm(): React.JSX.Element {
   const [loading, setLoading] = useState(false)
 
   async function handleSignup() {
+    const validationError = validateSignupInput({ email, password })
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -27,7 +37,7 @@ function SignupForm(): React.JSX.Element {
     })
 
     if (error) {
-      setError(error.message)
+      setError(getFriendlyAuthErrorMessage(error.message))
       setLoading(false)
       return
     }
@@ -84,8 +94,7 @@ function SignupForm(): React.JSX.Element {
       />
 
       <button
-        type="button"
-        onClick={() => void handleSignup()}
+        type="submit"
         disabled={loading}
         className="w-full rounded-md bg-primary-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500"
       >

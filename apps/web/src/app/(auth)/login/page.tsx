@@ -3,6 +3,10 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
+import {
+  getFriendlyAuthErrorMessage,
+  validateLoginInput,
+} from '@/lib/auth-form'
 import { createClient } from '@/lib/supabase/client'
 
 function LoginForm(): React.JSX.Element {
@@ -17,6 +21,12 @@ function LoginForm(): React.JSX.Element {
   const [loading, setLoading] = useState(false)
 
   async function handleLogin() {
+    const validationError = validateLoginInput({ email, password })
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -27,7 +37,7 @@ function LoginForm(): React.JSX.Element {
     })
 
     if (error) {
-      setError(error.message)
+      setError(getFriendlyAuthErrorMessage(error.message))
       setLoading(false)
       return
     }
@@ -77,8 +87,7 @@ function LoginForm(): React.JSX.Element {
       />
 
       <button
-        type="button"
-        onClick={() => void handleLogin()}
+        type="submit"
         disabled={loading}
         className="w-full rounded-md bg-primary-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500"
       >
