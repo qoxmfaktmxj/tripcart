@@ -250,6 +250,39 @@ export function createGuestPlan(
   }
 }
 
+export function updateGuestPlan(
+  state: GuestState,
+  planId: string,
+  input: GuestPlanInput,
+): { state: GuestState; plan: GuestPlan | null } {
+  const timestamp = nowIso()
+  let updatedPlan: GuestPlan | null = null
+
+  const plans = state.plans.map((plan) => {
+    if (plan.id !== planId) return plan
+
+    updatedPlan = {
+      ...plan,
+      title: input.title.trim(),
+      region: input.region.trim(),
+      transport_mode: input.transport_mode,
+      start_at: input.start_at ?? null,
+      origin_name: input.origin_name?.trim() || null,
+      updated_at: timestamp,
+    }
+
+    return updatedPlan
+  })
+
+  return {
+    plan: updatedPlan,
+    state: {
+      ...state,
+      plans,
+    },
+  }
+}
+
 export function removeGuestPlan(state: GuestState, planId: string): GuestState {
   return {
     ...state,
