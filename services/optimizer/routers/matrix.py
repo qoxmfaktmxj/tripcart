@@ -1,43 +1,43 @@
-"""
-Matrix Router — Phase 0 골격
-Phase 2에서 TMAP API 연동 및 캐시 로직 구현 예정
-"""
+"""Route matrix endpoint contract stub."""
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from __future__ import annotations
 
-router = APIRouter()
+from typing import Literal
+
+from fastapi import APIRouter, Depends
+from pydantic import BaseModel, Field
+
+from auth import optimizer_error, require_internal_token
+
+router = APIRouter(dependencies=[Depends(require_internal_token)])
+
+
+class MatrixPoint(BaseModel):
+    id: str = Field(min_length=1)
+    lat: float = Field(ge=-90, le=90)
+    lng: float = Field(ge=-180, le=180)
 
 
 class MatrixRequest(BaseModel):
-    """경로 행렬 계산 요청 (Phase 2에서 확장)"""
+    provider: Literal["tmap", "naver", "kakao"]
+    transport_mode: Literal["car", "transit", "walk", "bicycle"]
+    points: list[MatrixPoint] = Field(min_length=2)
 
-    place_ids: list[str]
-    travel_mode: str = "car"
-    travel_date: str  # YYYY-MM-DD
+
+class MatrixLeg(BaseModel):
+    minutes: int
+    meters: int
 
 
 class MatrixResponse(BaseModel):
-    """경로 행렬 응답"""
-
-    matrix: list[list[int]]  # 분 단위 이동시간 [from][to]
-    distances: list[list[int]]  # 미터 단위 거리 [from][to]
-    cached: bool
+    matrix: dict[str, dict[str, MatrixLeg]]
 
 
 @router.post("/matrix", response_model=MatrixResponse)
-async def compute_matrix(request: MatrixRequest) -> MatrixResponse:
-    """
-    장소 간 이동 시간/거리 행렬 계산
-
-    Phase 0: stub — 빈 행렬 반환
-    Phase 2: TMAP API 연동 + route_matrix_cache 활용
-    """
-    raise HTTPException(
-        status_code=501,
-        detail={
-            "code": "NOT_IMPLEMENTED",
-            "message": "Matrix API는 Phase 2에서 구현됩니다.",
-            "phase": "2",
-        },
+async def compute_matrix(_request: MatrixRequest) -> MatrixResponse:
+    raise optimizer_error(
+        501,
+        "NOT_IMPLEMENTED",
+        "Matrix API is planned for Phase 2.",
+        {"phase": "2"},
     )
