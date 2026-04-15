@@ -33,7 +33,6 @@ async def compute_matrix(request: MatrixRequest) -> MatrixResponse:
     Phase 0: stub — 빈 행렬 반환
     Phase 2: TMAP API 연동 + route_matrix_cache 활용
     """
-    n = len(request.place_ids)
     raise HTTPException(
         status_code=501,
         detail={

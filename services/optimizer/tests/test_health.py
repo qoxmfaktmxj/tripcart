@@ -3,6 +3,7 @@ Phase 0 최소 테스트 — /health 엔드포인트 동작 확인
 """
 
 from fastapi.testclient import TestClient
+
 from main import app
 
 client = TestClient(app)
