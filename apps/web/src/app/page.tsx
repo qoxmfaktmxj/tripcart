@@ -198,7 +198,6 @@ export default function HomePage(): React.JSX.Element {
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/18 text-white">
                 <CartIcon />
               </span>
-              담은 여행지
               <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-white/90 px-2 text-xs font-bold text-[#2f6f73]">
                 {savedLoading ? '…' : savedPlaces.length}
               </span>
@@ -440,9 +439,9 @@ export default function HomePage(): React.JSX.Element {
           <aside className="relative z-10 flex h-full w-full max-w-[380px] flex-col border-l border-white/70 bg-white/96 px-6 py-6 shadow-[-24px_0_48px_rgba(15,23,42,0.16)] backdrop-blur">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-[2rem] font-bold tracking-tight text-primary-900">담은 여행지</h2>
+                <h2 className="text-[2rem] font-bold tracking-tight text-primary-900">장바구니</h2>
                 <p className="mt-1 text-sm text-neutral-500">
-                  {savedPlaces.length > 0 ? `${savedPlaces.length}곳을 담아 두었습니다.` : '아직 담아 둔 여행지가 없습니다.'}
+                  {savedPlaces.length > 0 ? `` : '담아 둔 여행지가 없습니다.'}
                 </p>
               </div>
               <button

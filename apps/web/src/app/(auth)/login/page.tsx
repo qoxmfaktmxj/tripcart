@@ -55,9 +55,6 @@ function LoginForm(): React.JSX.Element {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-primary-900">TripCart</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          로그인하면 비로그인 상태에서 담아둔 장소와 초안 플랜을 이어서 관리할 수 있습니다.
-        </p>
       </div>
 
       {error ? (

@@ -172,13 +172,6 @@ export default function PlaceDetailPage(): React.JSX.Element {
           </div>
         </div>
 
-        {!user && !authLoading ? (
-          <section className="rounded-2xl border border-plum-300 bg-plum-50 p-5 text-sm text-plum-700">
-            비로그인 상태에서는 이 장소가 브라우저에 임시 저장됩니다. 로그인하면 계정으로
-            가져옵니다.
-          </section>
-        ) : null}
-
         {actionError ? (
           <section className="rounded-2xl border border-coral-500 bg-white p-5 text-sm text-coral-500">
             {actionError}

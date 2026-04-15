@@ -474,12 +474,6 @@ export default function PlacesPage(): React.JSX.Element {
               </form>
             </div>
 
-            {!user && !authLoading ? (
-              <div className="border-b border-plum-100 bg-[#f7eef4] px-6 py-4 text-sm text-plum-700">
-                로그인 없이도 담아둘 수 있고, 로그인하면 계정으로 이어집니다.
-              </div>
-            ) : null}
-
             {actionError ? (
               <div className="border-b border-coral-500/20 bg-coral-50 px-6 py-4 text-sm text-coral-500">
                 {actionError}
@@ -570,7 +564,7 @@ export default function PlacesPage(): React.JSX.Element {
             </div>
           </section>
 
-          <aside className="relative min-h-[760px] overflow-hidden rounded-[2rem] border border-white/90 bg-white/82 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
+          <aside className="hidden xl:flex relative min-h-[760px] overflow-hidden rounded-[2rem] border border-white/90 bg-white/82 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
             <MapIllustration count={items.length} />
             <Link
               href="/plans"

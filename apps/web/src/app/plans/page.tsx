@@ -160,6 +160,7 @@ export default function PlansPage(): React.JSX.Element {
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isMounted, setIsMounted] = useState(false)
   const [showComposer, setShowComposer] = useState(false)
   const [editingGuestPlanId, setEditingGuestPlanId] = useState<string | null>(null)
   const [title, setTitle] = useState('')
@@ -186,6 +187,10 @@ export default function PlansPage(): React.JSX.Element {
     } finally {
       setLoading(false)
     }
+  }, [])
+
+  useEffect(() => {
+    setIsMounted(true)
   }, [])
 
   useEffect(() => {
@@ -323,7 +328,7 @@ export default function PlansPage(): React.JSX.Element {
   }
 
   const visibleItems = user ? items : guestPlans
-  const showLoading = authLoading || (user ? loading : guestLoading)
+  const showLoading = isMounted && (authLoading || (user ? loading : guestLoading))
   const cards = useMemo<PlanCard[]>(() => {
     const actualCards: PlanCard[] = visibleItems.map((item, index) => {
       const fallbackImage =
@@ -496,7 +501,7 @@ export default function PlansPage(): React.JSX.Element {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-primary-900">
-                  {editingGuestPlanId ? '브라우저 초안 수정' : '새 계획 만들기'}
+                  {editingGuestPlanId ? '브라우저 수정' : '새 계획 만들기'}
                 </h2>
                 <p className="mt-2 text-sm text-neutral-500">
                   {editingGuestPlanId
@@ -584,7 +589,7 @@ export default function PlansPage(): React.JSX.Element {
                   {submitting
                     ? '저장 중...'
                     : editingGuestPlanId
-                      ? '초안 수정'
+                      ? '수정'
                       : '생성'}
                 </button>
                 {editingGuestPlanId ? (
@@ -593,7 +598,7 @@ export default function PlansPage(): React.JSX.Element {
                     onClick={handleDeleteGuestDraft}
                     className="inline-flex h-12 items-center justify-center rounded-2xl border border-coral-500 px-4 text-sm font-semibold text-coral-500 transition hover:bg-coral-50"
                   >
-                    초안 삭제
+                    삭제
                   </button>
                 ) : null}
               </div>

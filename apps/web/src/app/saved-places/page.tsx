@@ -35,11 +35,6 @@ export default function SavedPlacesPage(): React.JSX.Element {
             <h1 className="text-4xl font-bold tracking-tight text-primary-900 sm:text-5xl">
               여행 장바구니
             </h1>
-            <p className="mt-3 max-w-2xl text-lg text-neutral-600">
-              {user
-                ? '계정에 저장한 장소를 한 화면에서 정리하고 플랜으로 넘깁니다.'
-                : '이 브라우저에 임시 저장된 장소입니다. 로그인하면 그대로 계정으로 가져옵니다.'}
-            </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <Link
