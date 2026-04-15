@@ -14,6 +14,7 @@ import {
   readGuestStateFromStorage,
   removeGuestPlan,
   removeGuestSavedPlace,
+  updateGuestPlan,
   upsertGuestSavedPlace,
   writeGuestStateToStorage,
   type GuestState,
@@ -138,6 +139,24 @@ describe('guest-state', () => {
 
     expect(first.plan.id).not.toBe(second.plan.id)
     expect(second.state.plans).toHaveLength(2)
+  })
+
+  it('게스트 초안 플랜을 수정하면 기존 id를 유지하고 updated_at을 갱신한다', () => {
+    const state = createSampleState()
+    const updated = updateGuestPlan(state, 'guest-plan-1', {
+      title: '부산 야경 드라이브',
+      region: 'busan',
+      transport_mode: 'walk',
+      start_at: '2026-04-12T09:00:00.000Z',
+      origin_name: '서면역',
+    })
+
+    expect(updated.plan?.id).toBe('guest-plan-1')
+    expect(updated.plan?.title).toBe('부산 야경 드라이브')
+    expect(updated.plan?.transport_mode).toBe('walk')
+    expect(updated.plan?.start_at).toBe('2026-04-12T09:00:00.000Z')
+    expect(updated.plan?.origin_name).toBe('서면역')
+    expect(updated.plan?.updated_at).not.toBe(state.plans[0]?.updated_at)
   })
 
   it('migration 결과에서 성공한 항목만 local 상태에서 제거한다', () => {

@@ -86,48 +86,26 @@ export async function addStop(
   return toStop(data as unknown as Record<string, unknown>)
 }
 
-// ── stop 삭제 + order 재정렬 ─────────────────────────────────────
+// ── stop 삭제 + order 재정렬 (RPC 호출) ─────────────────────────
 
 export async function removeStop(
   supabase: SupabaseClient,
   planId: string,
   stopId: string,
 ): Promise<boolean> {
-  // 삭제
-  const { data: deleted, error: deleteError } = await supabase
-    .from('trip_plan_stops')
-    .delete()
-    .eq('id', stopId)
-    .eq('plan_id', planId)
-    .select('id')
+  const { error } = await supabase.rpc('remove_plan_stop', {
+    p_plan_id: planId,
+    p_stop_id: stopId,
+  })
 
-  if (deleteError) throw deleteError
-  if (!deleted || deleted.length === 0) return false
-
-  // 남은 stops의 order를 연속으로 재정렬
-  const { data: remaining, error: fetchError } = await supabase
-    .from('trip_plan_stops')
-    .select('id')
-    .eq('plan_id', planId)
-    .order('stop_order', { ascending: true })
-
-  if (fetchError) throw fetchError
-
-  if (remaining && remaining.length > 0) {
-    // 음수 temp order로 UNIQUE 제약 회피
-    for (const row of remaining) {
-      await supabase
-        .from('trip_plan_stops')
-        .update({ stop_order: -((remaining.indexOf(row) + 1) + 1000) })
-        .eq('id', row.id)
+  if (error) {
+    if (error.message === 'PLAN_NOT_FOUND' || error.message === 'NOT_OWNER') {
+      return false
     }
-    // 최종 order 설정
-    for (let i = 0; i < remaining.length; i++) {
-      await supabase
-        .from('trip_plan_stops')
-        .update({ stop_order: i + 1, updated_at: new Date().toISOString() })
-        .eq('id', remaining[i]!.id)
+    if (error.message === 'STOP_NOT_FOUND') {
+      return false
     }
+    throw error
   }
 
   return true

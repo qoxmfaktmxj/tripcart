@@ -84,3 +84,13 @@ test-results/
 
 .gstack/
 infra/supabase/supabase/
+
+# Playwright CLI output (자동 생성, 버전 관리 불필요)
+.playwright-cli/
+
+# Playwright 테스트 출력 (스크린샷, 비디오 - 53MB+)
+output/
+
+# 임시 디자인 export 폴더 (Figma/AI 도구 출력, 버전 관리 불필요)
+tripcart_mobile_design/
+tripcart_web_desgin/

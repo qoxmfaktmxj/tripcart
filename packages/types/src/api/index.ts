@@ -69,7 +69,9 @@ export interface ReorderStopsRequest {
 }
 
 export interface OptimizePlanRequest {
-  plan_id: UUID
+  locked_stop_ids?: UUID[]
+  objective?: 'min_travel' | 'max_places' | 'balanced'
+  allow_alternatives?: boolean
 }
 
 export interface StartExecutionRequest {
@@ -93,14 +95,17 @@ export interface CreateSpendRequest {
 }
 
 export interface CreateShareRequest {
-  plan_id: UUID
-  visibility?: ShareVisibility
-  expires_in_days?: number
+  visibility: ShareVisibility
+  title?: string
+  description?: string
 }
 
 export interface ImportSharedRequest {
-  share_code: string
-  start_at?: string
+  start_at: string
+  transport_mode: 'car' | 'transit' | 'walk' | 'bicycle'
+  origin_lat: number
+  origin_lng: number
+  origin_name: string
 }
 
 export interface RegisterPushTokenRequest {

@@ -8,6 +8,7 @@ import {
   readGuestStateFromStorage,
   removeGuestPlan,
   removeGuestSavedPlace,
+  updateGuestPlan,
   upsertGuestSavedPlace,
   writeGuestStateToStorage,
   type GuestPlanInput,
@@ -79,6 +80,15 @@ export function useGuestState() {
     [commit, state],
   )
 
+  const replacePlan = useCallback(
+    (planId: string, input: GuestPlanInput) => {
+      const next = updateGuestPlan(state, planId, input)
+      commit(next.state)
+      return next.plan
+    },
+    [commit, state],
+  )
+
   const deletePlan = useCallback(
     (planId: string) => {
       commit(removeGuestPlan(state, planId))
@@ -94,6 +104,7 @@ export function useGuestState() {
     savePlace,
     removePlace,
     addPlan,
+    replacePlan,
     deletePlan,
     reload,
   }

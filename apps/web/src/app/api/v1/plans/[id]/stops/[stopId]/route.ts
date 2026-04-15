@@ -234,6 +234,7 @@ export async function DELETE(
       )
     }
 
+    // remove_plan_stop RPC가 소유권 확인 + stop 삭제 + order 재정렬 + draft reset을 원자적으로 처리
     const removed = await removeStop(supabase, planId, stopId)
 
     if (!removed) {
@@ -242,9 +243,6 @@ export async function DELETE(
         { status: 404 },
       )
     }
-
-    // plan status → draft, version++
-    await resetPlanToDraft(supabase, user.id, planId)
 
     return new NextResponse(null, { status: 204 })
   } catch (err) {

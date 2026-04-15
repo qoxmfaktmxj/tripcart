@@ -3,6 +3,10 @@
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
+import {
+  getFriendlyAuthErrorMessage,
+  validateLoginInput,
+} from '@/lib/auth-form'
 import { createClient } from '@/lib/supabase/client'
 
 function LoginForm(): React.JSX.Element {
@@ -17,6 +21,12 @@ function LoginForm(): React.JSX.Element {
   const [loading, setLoading] = useState(false)
 
   async function handleLogin() {
+    const validationError = validateLoginInput({ email, password })
+    if (validationError) {
+      setError(validationError)
+      return
+    }
+
     setLoading(true)
     setError(null)
 
@@ -27,7 +37,7 @@ function LoginForm(): React.JSX.Element {
     })
 
     if (error) {
-      setError(error.message)
+      setError(getFriendlyAuthErrorMessage(error.message))
       setLoading(false)
       return
     }
@@ -45,9 +55,6 @@ function LoginForm(): React.JSX.Element {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold text-primary-900">TripCart</h1>
-        <p className="mt-1 text-sm text-neutral-500">
-          로그인하면 비로그인 상태에서 담아둔 장소와 초안 플랜을 이어서 관리할 수 있습니다.
-        </p>
       </div>
 
       {error ? (
@@ -77,8 +84,7 @@ function LoginForm(): React.JSX.Element {
       />
 
       <button
-        type="button"
-        onClick={() => void handleLogin()}
+        type="submit"
         disabled={loading}
         className="w-full rounded-md bg-primary-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500"
       >

@@ -186,11 +186,15 @@ export async function getPlaceById(
     .filter((h) => h.day_of_week >= 0)
 
   const breakWindows: BreakWindow[] = (breaksResult.data ?? [])
-    .map((b) => ({
-      day_of_week: toDayNumber(b.day),
-      start_time: formatTime(b.break_start),
-      end_time: formatTime(b.break_end),
-    }))
+    .map((b) => {
+      const startTime = formatTime(b.break_start)
+      const endTime = formatTime(b.break_end)
+      return {
+        day_of_week: toDayNumber(b.day),
+        ...(startTime !== null && { start_time: startTime }),
+        ...(endTime !== null && { end_time: endTime }),
+      }
+    })
     .filter((b) => b.day_of_week >= 0)
 
   return {
@@ -216,8 +220,8 @@ export async function getPlaceById(
 // ── 유틸 ─────────────────────────────────────────────────────────
 
 /** time 타입 (HH:MM:SS) → HH:MM 포맷. null이면 null 반환 */
-function formatTime(t: string | null): string {
-  if (!t) return ''
+function formatTime(t: string | null): string | null {
+  if (!t) return null
   // PostgreSQL time은 "HH:MM:SS" 형태
   return t.slice(0, 5)
 }

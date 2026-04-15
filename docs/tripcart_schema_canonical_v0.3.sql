@@ -1880,6 +1880,73 @@ $$ language plpgsql security definer;
 
 comment on function public.seed_golden_scenarios(uuid) is '재실행 가능한 golden scenario 시드';
 
+-- ============================================================================
+-- RPC: remove_plan_stop
+-- (also in infra/supabase/migrations/20260415000000_remove_stop_rpc.sql)
+-- Atomic stop removal + stop_order gap elimination + plan draft reset.
+-- Uses auth.uid() internally — no caller-supplied user id accepted.
+-- ============================================================================
+
+create or replace function public.remove_plan_stop(
+  p_plan_id   uuid,
+  p_stop_id   uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_plan_owner uuid;
+  v_caller     uuid;
+begin
+  v_caller := auth.uid();
+  if v_caller is null then
+    raise exception 'UNAUTHORIZED';
+  end if;
+
+  select user_id into v_plan_owner
+  from trip_plans
+  where id = p_plan_id and deleted_at is null;
+
+  if v_plan_owner is null then
+    raise exception 'PLAN_NOT_FOUND';
+  end if;
+
+  if v_plan_owner <> v_caller then
+    raise exception 'NOT_OWNER';
+  end if;
+
+  delete from trip_plan_stops
+  where id = p_stop_id and plan_id = p_plan_id;
+
+  if not found then
+    raise exception 'STOP_NOT_FOUND';
+  end if;
+
+  -- Two-step renumber to avoid UNIQUE(plan_id, stop_order) mid-update collision
+  update trip_plan_stops
+  set stop_order = stop_order + 100000, updated_at = now()
+  where plan_id = p_plan_id;
+
+  update trip_plan_stops tps
+  set stop_order = sub.new_order, updated_at = now()
+  from (
+    select id, row_number() over (order by stop_order asc) as new_order
+    from trip_plan_stops
+    where plan_id = p_plan_id
+  ) sub
+  where tps.id = sub.id;
+
+  update trip_plans
+  set status = 'draft', version = version + 1, updated_at = now()
+  where id = p_plan_id;
+end;
+$$;
+
+revoke all on function public.remove_plan_stop(uuid, uuid) from public;
+grant execute on function public.remove_plan_stop(uuid, uuid) to authenticated;
+
 -- 6) schema version mark
 insert into public._schema_migrations (version, description)
 values ('0.3.0', 'Hardening: unique active execution, explicit RLS style, idempotent golden seed')
