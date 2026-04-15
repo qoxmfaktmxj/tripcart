@@ -92,12 +92,10 @@ export async function removeStop(
   supabase: SupabaseClient,
   planId: string,
   stopId: string,
-  userId: string,
 ): Promise<boolean> {
   const { error } = await supabase.rpc('remove_plan_stop', {
     p_plan_id: planId,
     p_stop_id: stopId,
-    p_user_id: userId,
   })
 
   if (error) {
