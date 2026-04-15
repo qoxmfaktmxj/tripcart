@@ -149,7 +149,7 @@ function buildSections(item: PlanDetail): DisplaySection[] {
     if (candidate) {
       const parsed = new Date(candidate)
       if (!Number.isNaN(parsed.getTime())) {
-        key = parsed.toISOString().slice(0, 10)
+        key = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul' }).format(parsed)
         date = parsed
       }
     }

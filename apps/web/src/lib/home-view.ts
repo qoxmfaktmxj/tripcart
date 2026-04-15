@@ -84,6 +84,7 @@ function formatPlanDateTime(value: string | null): string {
   const formatter = new Intl.DateTimeFormat('ko-KR', {
     dateStyle: 'medium',
     timeStyle: 'short',
+    timeZone: 'Asia/Seoul',
   })
 
   return formatter.format(start)

@@ -49,10 +49,10 @@ begin
 
   -- 3. 남은 stop_order 재정렬 (gap 없애기)
   --    UNIQUE 제약(plan_id, stop_order) 충돌 방지:
-  --    Step A — 임시 음수 order로 먼저 이동 (충돌 회피)
-  --    Step B — 최종 order로 설정
+  --    Step A — 양수 큰 offset으로 이동 (충돌 회피, ASC 순서 보존)
+  --    Step B — 최종 연속 order로 설정
   update trip_plan_stops
-  set stop_order = -(stop_order + 10000),
+  set stop_order = stop_order + 100000,
       updated_at = now()
   where plan_id = p_plan_id;
 

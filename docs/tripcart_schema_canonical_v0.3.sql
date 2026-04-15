@@ -1926,7 +1926,7 @@ begin
 
   -- Two-step renumber to avoid UNIQUE(plan_id, stop_order) mid-update collision
   update trip_plan_stops
-  set stop_order = -(stop_order + 10000), updated_at = now()
+  set stop_order = stop_order + 100000, updated_at = now()
   where plan_id = p_plan_id;
 
   update trip_plan_stops tps
