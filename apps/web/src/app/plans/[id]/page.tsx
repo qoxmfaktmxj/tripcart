@@ -273,7 +273,7 @@ function TimelineIcon({ name }: { name: IconName }): React.JSX.Element {
   )
 }
 
-function ActionIcon({ kind }: { kind: 'edit' | 'api' | 'delete' }): React.JSX.Element {
+function ActionIcon({ kind }: { kind: 'edit' | 'delete' }): React.JSX.Element {
   if (kind === 'edit') {
     return (
       <svg
@@ -287,23 +287,6 @@ function ActionIcon({ kind }: { kind: 'edit' | 'api' | 'delete' }): React.JSX.El
       >
         <path d="M4 20h4l9-9-4-4-9 9Z" />
         <path d="m13 7 4 4" />
-      </svg>
-    )
-  }
-  if (kind === 'api') {
-    return (
-      <svg
-        viewBox="0 0 24 24"
-        className="h-[1rem] w-[1rem]"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.9"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M8 4 4 12l4 8" />
-        <path d="m16 4 4 8-4 8" />
-        <path d="M14 6 10 18" />
       </svg>
     )
   }
@@ -393,7 +376,7 @@ function MapPreview({ stopCount }: { stopCount: number }): React.JSX.Element {
         />
         {visibleMarkers.map((marker) => (
           <g key={marker.n}>
-            <circle cx={marker.x} cy={marker.y} r="19" fill="#2f8a88" />
+            <circle cx={marker.x} cy={marker.y} r="19" fill="var(--color-primary-500)" />
             <text
               x={marker.x}
               y={marker.y + 6}
@@ -537,7 +520,7 @@ export default function PlanDetailPage(): React.JSX.Element {
   if (loading) {
     return (
       <main className="min-h-screen bg-neutral-50 px-6 py-10 sm:px-8">
-        <div className="mx-auto max-w-5xl rounded-[2rem] border border-primary-300 bg-white px-5 py-4 text-sm text-primary-700 shadow-sm">
+        <div className="mx-auto max-w-5xl rounded-3xl border border-primary-300 bg-white px-5 py-4 text-sm text-primary-700 shadow-sm">
           플랜을 불러오는 중입니다...
         </div>
       </main>
@@ -547,7 +530,7 @@ export default function PlanDetailPage(): React.JSX.Element {
   if (error || !item) {
     return (
       <main className="min-h-screen bg-neutral-50 px-6 py-10 sm:px-8">
-        <div className="mx-auto max-w-5xl rounded-[2rem] border border-coral-500 bg-white px-5 py-4 text-sm text-coral-500 shadow-sm">
+        <div className="mx-auto max-w-5xl rounded-3xl border border-coral-500 bg-white px-5 py-4 text-sm text-coral-500 shadow-sm">
           {error ?? '플랜을 찾을 수 없습니다.'}
         </div>
       </main>
@@ -571,7 +554,7 @@ export default function PlanDetailPage(): React.JSX.Element {
         </div>
 
         <section className="grid gap-4 xl:grid-cols-[0.92fr_1.44fr_0.88fr]">
-          <aside className="rounded-[2rem] border border-white/90 bg-white/92 p-6 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
+          <aside className="rounded-3xl border border-white/90 bg-white/92 p-6 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
             {sections.length === 0 ? (
               <div className="rounded-[1.6rem] border border-dashed border-neutral-300 bg-neutral-50 px-5 py-6 text-sm text-neutral-500">
                 <p className="font-semibold text-primary-900">아직 추가한 장소가 없습니다.</p>
@@ -580,7 +563,7 @@ export default function PlanDetailPage(): React.JSX.Element {
                 </p>
                 <Link
                   href="/places"
-                  className="mt-4 inline-flex h-11 items-center justify-center rounded-full bg-[#2f8a88] px-5 text-sm font-semibold text-white transition hover:bg-[#2a7674]"
+                  className="mt-4 inline-flex h-11 items-center justify-center rounded-full bg-primary-500 px-5 text-sm font-semibold text-white transition hover:bg-primary-700"
                 >
                   장소 둘러보기로 이동
                 </Link>
@@ -603,7 +586,7 @@ export default function PlanDetailPage(): React.JSX.Element {
                           </div>
                           <div className="relative flex min-h-14 justify-center">
                             <div className="absolute top-0 h-full w-[4px] rounded-full bg-[#7ad2c6]/55" />
-                            <span className="relative z-10 mt-1.5 flex h-[0.95rem] w-[0.95rem] rounded-full bg-[#2f8a88] ring-[4px] ring-[#ecfaf7]" />
+                            <span className="relative z-10 mt-1.5 flex h-[0.95rem] w-[0.95rem] rounded-full bg-primary-500 ring-[4px] ring-[#ecfaf7]" />
                           </div>
                           <div>
                             <div className="flex items-start gap-2.5">
@@ -629,8 +612,8 @@ export default function PlanDetailPage(): React.JSX.Element {
             )}
           </aside>
 
-          <section className="overflow-hidden rounded-[2rem] border border-white/90 bg-white/92 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
-            <div className="overflow-hidden rounded-t-[2rem]">
+          <section className="overflow-hidden rounded-3xl border border-white/90 bg-white/92 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
+            <div className="overflow-hidden rounded-t-3xl">
               <div
                 className="relative h-[320px]"
                 style={{
@@ -666,19 +649,11 @@ export default function PlanDetailPage(): React.JSX.Element {
                 <button
                   type="button"
                   onClick={() => setEditing((current) => !current)}
-                  className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-[#2f8a88] px-5 text-[1rem] font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.2)] transition hover:bg-[#2a7674]"
+                  className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-primary-500 px-5 text-[1rem] font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.2)] transition hover:bg-primary-700"
                 >
                   <ActionIcon kind="edit" />
                   {editing ? '수정 닫기' : '플랜 수정'}
                 </button>
-                <Link
-                  href={`/api/v1/plans/${id}`}
-                  prefetch={false}
-                  className="inline-flex h-14 items-center justify-center gap-2 rounded-full border border-neutral-300 px-5 text-[1rem] font-semibold text-neutral-700 transition hover:bg-neutral-50"
-                >
-                  <ActionIcon kind="api" />
-                  API 보기
-                </Link>
                 <button
                   type="button"
                   onClick={handleDelete}
@@ -692,7 +667,7 @@ export default function PlanDetailPage(): React.JSX.Element {
             </div>
           </section>
 
-          <aside className="rounded-[2rem] border border-white/90 bg-white/92 p-5 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
+          <aside className="rounded-3xl border border-white/90 bg-white/92 p-5 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
             <h2 className="text-[2.25rem] font-bold tracking-tight text-primary-900">
               여행 요약
             </h2>
@@ -709,7 +684,7 @@ export default function PlanDetailPage(): React.JSX.Element {
         </section>
 
         {editing ? (
-          <section className="rounded-[2rem] border border-white/90 bg-white/92 p-6 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
+          <section className="rounded-3xl border border-white/90 bg-white/92 p-6 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
             <h2 className="text-3xl font-bold text-primary-900">플랜 수정</h2>
             <form className="mt-6 grid gap-4 md:grid-cols-2" onSubmit={handleSave}>
               <label>
@@ -719,7 +694,7 @@ export default function PlanDetailPage(): React.JSX.Element {
                 <input
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-[#2f8a88]"
+                  className="h-12 w-full rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-primary-500"
                 />
               </label>
               <label>
@@ -729,7 +704,7 @@ export default function PlanDetailPage(): React.JSX.Element {
                 <select
                   value={transportMode}
                   onChange={(event) => setTransportMode(event.target.value as TravelMode)}
-                  className="h-12 w-full rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-[#2f8a88]"
+                  className="h-12 w-full rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-primary-500"
                 >
                   {TRANSPORT_MODES.map((mode) => (
                     <option key={mode} value={mode}>
@@ -746,7 +721,7 @@ export default function PlanDetailPage(): React.JSX.Element {
                   type="datetime-local"
                   value={startAt}
                   onChange={(event) => setStartAt(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-[#2f8a88]"
+                  className="h-12 w-full rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-primary-500"
                 />
               </label>
               <label>
@@ -756,7 +731,7 @@ export default function PlanDetailPage(): React.JSX.Element {
                 <input
                   value={originName}
                   onChange={(event) => setOriginName(event.target.value)}
-                  className="h-12 w-full rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-[#2f8a88]"
+                  className="h-12 w-full rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-primary-500"
                   placeholder="예: 부산역"
                 />
               </label>
@@ -764,7 +739,7 @@ export default function PlanDetailPage(): React.JSX.Element {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#2f8a88] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.22)] transition hover:bg-[#2a7674] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-primary-500 px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.22)] transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {saving ? '저장 중...' : '변경사항 저장'}
                 </button>

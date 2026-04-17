@@ -58,14 +58,14 @@ export default function SavedPlacesPage(): React.JSX.Element {
               {Array.from({ length: 2 }).map((_, index) => (
                 <div
                   key={`saved-skeleton-${index}`}
-                  className="h-[260px] rounded-[1.75rem] bg-white/80"
+                  className="h-[260px] rounded-3xl bg-white/80"
                 />
               ))}
             </div>
-            <div className="h-[260px] rounded-[1.75rem] bg-white/80" />
+            <div className="h-[260px] rounded-3xl bg-white/80" />
           </section>
         ) : error ? (
-          <section className="rounded-[1.75rem] border border-coral-500/30 bg-coral-50 px-5 py-4 text-sm text-coral-500">
+          <section className="rounded-3xl border border-coral-500/30 bg-coral-50 px-5 py-4 text-sm text-coral-500">
             {error}
           </section>
         ) : (
@@ -73,7 +73,7 @@ export default function SavedPlacesPage(): React.JSX.Element {
             <div>
               {items.length === 0 ? (
                 <div className="grid gap-4 md:grid-cols-2">
-                  <article className="rounded-[1.85rem] border border-white/80 bg-white/90 p-6 shadow-[0_18px_48px_rgba(38,70,83,0.12)]">
+                  <article className="rounded-3xl border border-white/80 bg-white/90 p-6 shadow-[0_18px_48px_rgba(38,70,83,0.12)]">
                     <p className="text-sm font-semibold tracking-[0.18em] text-primary-700">
                       EMPTY CART
                     </p>
@@ -99,7 +99,7 @@ export default function SavedPlacesPage(): React.JSX.Element {
                       </Link>
                     </div>
                   </article>
-                  <article className="rounded-[1.85rem] border border-dashed border-neutral-300 bg-white/72 p-6">
+                  <article className="rounded-3xl border border-dashed border-neutral-300 bg-white/72 p-6">
                     <p className="text-sm font-semibold tracking-[0.18em] text-primary-700">
                       QUICK FLOW
                     </p>
@@ -115,7 +115,7 @@ export default function SavedPlacesPage(): React.JSX.Element {
                   {items.map((item, index) => (
                     <article
                       key={item.id}
-                      className="overflow-hidden rounded-[1.85rem] border border-white/80 bg-white/88 shadow-[0_18px_48px_rgba(38,70,83,0.12)]"
+                      className="overflow-hidden rounded-3xl border border-white/80 bg-white/88 shadow-[0_18px_48px_rgba(38,70,83,0.12)]"
                     >
                       <div
                         className="relative min-h-[190px] bg-cover bg-center"
@@ -123,7 +123,7 @@ export default function SavedPlacesPage(): React.JSX.Element {
                           backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.36) 100%), url(${item.place.thumbnail_url ?? SAVED_IMAGES[index % SAVED_IMAGES.length]})`,
                         }}
                       >
-                        <span className="absolute right-4 top-4 rounded-full border border-[#6ca8a2] bg-[#eaf8f5] px-3 py-1 text-xs font-semibold text-primary-700 shadow-sm">
+                        <span className="absolute right-4 top-4 rounded-full border border-primary-300 bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700 shadow-sm">
                           {storageMode === 'guest' ? '브라우저에 담음' : '저장됨'}
                         </span>
                       </div>
@@ -171,7 +171,7 @@ export default function SavedPlacesPage(): React.JSX.Element {
               )}
             </div>
 
-            <aside className="rounded-[1.85rem] border border-white/80 bg-white/90 p-6 shadow-[0_18px_48px_rgba(38,70,83,0.12)]">
+            <aside className="rounded-3xl border border-white/80 bg-white/90 p-6 shadow-[0_18px_48px_rgba(38,70,83,0.12)]">
               <p className="text-sm font-semibold tracking-[0.18em] text-primary-700">
                 SUMMARY
               </p>

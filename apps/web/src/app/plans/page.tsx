@@ -406,7 +406,7 @@ export default function PlansPage(): React.JSX.Element {
         </header>
 
         {submitError ? (
-          <section className="rounded-[1.75rem] border border-coral-500 bg-white px-5 py-4 text-sm text-coral-500 shadow-sm">
+          <section className="rounded-3xl border border-coral-500 bg-white px-5 py-4 text-sm text-coral-500 shadow-sm">
             {submitError}
           </section>
         ) : null}
@@ -416,14 +416,14 @@ export default function PlansPage(): React.JSX.Element {
             const visibleTitle = compactTitle(card.title)
             const body = (
               <div
-                className="relative flex min-h-[220px] items-end overflow-hidden rounded-[1.9rem] border border-white/85 px-5 pb-5 pt-5 text-left text-white shadow-[0_18px_42px_rgba(38,70,83,0.12)]"
+                className="relative flex min-h-[220px] items-end overflow-hidden rounded-3xl border border-white/85 px-5 pb-5 pt-5 text-left text-white shadow-[0_18px_42px_rgba(38,70,83,0.12)]"
                 style={{
                   backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.58) 100%), url(${card.image})`,
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}
               >
-                <span className="absolute right-4 top-4 rounded-full border border-[#6ca8a2] bg-[#eaf8f5] px-3 py-[0.35rem] text-[0.82rem] font-semibold text-[#2f6f73] shadow-sm">
+                <span className="absolute right-4 top-4 rounded-full border border-primary-300 bg-primary-50 px-3 py-[0.35rem] text-[0.82rem] font-semibold text-primary-700 shadow-sm">
                   {card.statusLabel}
                 </span>
                 <div className="max-w-[88%] drop-shadow-[0_8px_18px_rgba(0,0,0,0.28)]">
@@ -488,9 +488,9 @@ export default function PlansPage(): React.JSX.Element {
                 editingGuestPlanId: null,
               })
             }
-            className="flex min-h-[220px] flex-col items-center justify-center rounded-[1.9rem] border border-white/85 bg-white shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 xl:col-start-1"
+            className="flex min-h-[220px] flex-col items-center justify-center rounded-3xl border border-white/85 bg-white shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 xl:col-start-1"
           >
-            <span className="text-[#2f6f73]">
+            <span className="text-primary-700">
               <AddIcon />
             </span>
             <span className="mt-4 text-[2.45rem] font-bold tracking-tight text-primary-900">
@@ -500,7 +500,7 @@ export default function PlansPage(): React.JSX.Element {
         </section>
 
         {showComposer ? (
-          <section className="rounded-[2rem] border border-white/70 bg-white/86 p-6 shadow-[0_20px_50px_rgba(38,70,83,0.12)] backdrop-blur">
+          <section className="rounded-3xl border border-white/70 bg-white/86 p-6 shadow-[0_20px_50px_rgba(38,70,83,0.12)] backdrop-blur">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h2 className="text-3xl font-bold text-primary-900">
@@ -543,7 +543,7 @@ export default function PlansPage(): React.JSX.Element {
                   value={title}
                   onChange={(event) => setTitle(event.target.value)}
                   placeholder="예: 부산 주말 드라이브"
-                  className="h-12 rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-[#2f8a88]"
+                  className="h-12 rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-primary-500"
                 />
               </label>
 
@@ -552,7 +552,7 @@ export default function PlansPage(): React.JSX.Element {
                 <select
                   value={region}
                   onChange={(event) => setRegion(event.target.value)}
-                  className="h-12 rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-[#2f8a88]"
+                  className="h-12 rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-primary-500"
                 >
                   <option value={DEFAULT_REGION}>부산</option>
                 </select>
@@ -563,7 +563,7 @@ export default function PlansPage(): React.JSX.Element {
                 <select
                   value={transportMode}
                   onChange={(event) => setTransportMode(event.target.value as TravelMode)}
-                  className="h-12 rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-[#2f8a88]"
+                  className="h-12 rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-primary-500"
                 >
                   {TRANSPORT_MODES.map((mode) => (
                     <option key={mode} value={mode}>
@@ -579,7 +579,7 @@ export default function PlansPage(): React.JSX.Element {
                   type="datetime-local"
                   value={startAt}
                   onChange={(event) => setStartAt(event.target.value)}
-                  className="h-12 rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-[#2f8a88]"
+                  className="h-12 rounded-2xl border border-neutral-300 px-4 text-base font-medium text-primary-900 outline-none transition focus:border-primary-500"
                 />
               </label>
 
@@ -587,7 +587,7 @@ export default function PlansPage(): React.JSX.Element {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-[#2f8a88] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.22)] transition hover:bg-[#2a7674] disabled:cursor-not-allowed disabled:opacity-60"
+                  className="inline-flex h-12 items-center justify-center rounded-2xl bg-primary-500 px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.22)] transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {submitting
                     ? '저장 중...'
@@ -610,13 +610,13 @@ export default function PlansPage(): React.JSX.Element {
         ) : null}
 
         {showLoading ? (
-          <section className="rounded-[1.75rem] border border-primary-300 bg-white px-5 py-4 text-sm text-primary-700 shadow-sm">
+          <section className="rounded-3xl border border-primary-300 bg-white px-5 py-4 text-sm text-primary-700 shadow-sm">
             플랜을 불러오는 중입니다...
           </section>
         ) : null}
 
         {error ? (
-          <section className="rounded-[1.75rem] border border-coral-500 bg-white px-5 py-4 text-sm text-coral-500 shadow-sm">
+          <section className="rounded-3xl border border-coral-500 bg-white px-5 py-4 text-sm text-coral-500 shadow-sm">
             {error}
           </section>
         ) : null}

@@ -459,7 +459,7 @@ export default function HomePage(): React.JSX.Element {
                   key={item.id}
                   href={`/places/${item.place.id}`}
                   onClick={() => setDrawerOpen(false)}
-                  className="flex items-center gap-3 rounded-[1.2rem] border border-neutral-200 bg-white px-3 py-3 shadow-sm transition hover:border-[#2f8a88]"
+                  className="flex items-center gap-3 rounded-[1.2rem] border border-neutral-200 bg-white px-3 py-3 shadow-sm transition hover:border-primary-500"
                 >
                   <div
                     className="h-16 w-16 shrink-0 rounded-[1rem] bg-neutral-100 bg-cover bg-center"
