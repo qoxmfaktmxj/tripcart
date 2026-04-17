@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { PlanStatus, TravelMode, TripPlan } from '@tripcart/types'
+import type { TravelMode, TripPlan } from '@tripcart/types'
 import { StatusBadge } from '@/components/status-badge'
 
 type PlanDetail = TripPlan
@@ -85,18 +85,6 @@ function getHeroImage(title: string): string {
   return 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80'
 }
 
-const PLAN_STATUS_LABELS: Record<PlanStatus, string> = {
-  draft: '초안',
-  optimized: '최적화 완료',
-  confirmed: '예정',
-  in_progress: '진행 중',
-  completed: '완료',
-  cancelled: '취소됨',
-}
-
-function getStatusLabel(status: PlanStatus): string {
-  return PLAN_STATUS_LABELS[status]
-}
 
 function buildSections(item: PlanDetail): DisplaySection[] {
   if (item.stops.length === 0) return []
