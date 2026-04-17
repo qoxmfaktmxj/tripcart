@@ -28,10 +28,6 @@ type PlaceDetail = {
   }>
 }
 
-type PlaceDetailResponse = {
-  data: PlaceDetail
-}
-
 const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const KOREAN_DAY_LABELS = ['일', '월', '화', '수', '목', '금', '토']
 const CATEGORY_LABELS: Record<string, string> = {
@@ -76,9 +72,9 @@ export default function PlaceDetailPage(): React.JSX.Element {
           throw new Error(`장소를 불러오지 못했습니다. (${response.status})`)
         }
 
-        const payload = (await response.json()) as PlaceDetailResponse
+        const payload = (await response.json()) as PlaceDetail
         if (!cancelled) {
-          setPlace(payload.data ?? null)
+          setPlace(payload ?? null)
         }
       } catch (err) {
         if (!cancelled) {

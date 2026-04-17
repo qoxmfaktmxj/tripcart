@@ -4,6 +4,7 @@
  */
 
 import type {
+  ApiError,
   ExecutionStatus,
   ISODateString,
   LocationPoint,
@@ -18,6 +19,23 @@ import type {
   UUID,
   Warning,
 } from '../domain/index.js'
+
+export type ApiEndpointPhase = 'implemented' | 'stub'
+
+export interface NotImplementedErrorDetails {
+  [key: string]: unknown
+  endpoint: string
+  method: string
+  phase: Extract<ApiEndpointPhase, 'stub'>
+}
+
+export interface NotImplementedErrorResponse extends ApiError {
+  error: {
+    code: 'NOT_IMPLEMENTED'
+    message: string
+    details: NotImplementedErrorDetails
+  }
+}
 
 export interface GetPlacesParams {
   region?: string
@@ -58,10 +76,10 @@ export interface UpdatePlanRequest {
   transport_mode?: TransportMode
   origin_lat?: number
   origin_lng?: number
-  origin_name?: string
+  origin_name?: string | null
   dest_lat?: number
   dest_lng?: number
-  dest_name?: string
+  dest_name?: string | null
 }
 
 export interface AddStopRequest {

@@ -71,6 +71,19 @@ TripCart는 여행 기록, 위치, 지출, 영수증, 사진을 다루므로
   - service role
   - OCR provider key
   - TMAP/Naver privileged keys
+  - OpenAI API key
+  - Anthropic API key
+
+## 5.1 AI provider key policy
+
+- AI provider keys are server-only secrets.
+- Supported server env names:
+  - `OPENAI_API_KEY`
+  - `ANTHROPIC_API_KEY`
+  - `AI_PROVIDER` (`openai` or `anthropic`, optional)
+- `NEXT_PUBLIC_*` and `EXPO_PUBLIC_*` must never contain AI provider keys.
+- If both OpenAI and Anthropic keys exist, `AI_PROVIDER` selects the active provider.
+- If no AI provider key exists, AI-backed features must fail closed with a standard configuration error or remain disabled.
   - internal optimizer token
 
 ## 8. 네이버 데이터 수집 정책

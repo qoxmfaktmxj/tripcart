@@ -211,8 +211,17 @@ export async function getPlaceById(
     naver_place_id: place.naver_place_id ?? null,
     kakao_place_id: place.kakao_place_id ?? null,
     data_quality_score: place.data_quality_score ?? 0,
+    hours: openHours,
     open_hours: openHours,
     break_windows: breakWindows,
+    visit_profile: profileResult.data
+      ? {
+          dwell_minutes: profileResult.data.dwell_minutes,
+          min_dwell: profileResult.data.min_dwell,
+          max_dwell: profileResult.data.max_dwell,
+          parking_needed: profileResult.data.parking_needed,
+        }
+      : null,
     typical_dwell_minutes: profileResult.data?.dwell_minutes ?? null,
   }
 }

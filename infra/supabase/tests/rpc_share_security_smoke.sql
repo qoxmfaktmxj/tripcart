@@ -95,6 +95,44 @@ values (
   'confirmed'
 );
 
+insert into public.trip_plans (
+  id,
+  user_id,
+  title,
+  region,
+  start_at,
+  transport_mode,
+  status
+)
+values (
+  '30000000-0000-4000-8000-000000000003',
+  '10000000-0000-4000-8000-000000000001',
+  'Remove Smoke Plan',
+  'busan',
+  '2026-05-04T09:00:00+09:00',
+  'car',
+  'confirmed'
+);
+
+insert into public.trip_plans (
+  id,
+  user_id,
+  title,
+  region,
+  start_at,
+  transport_mode,
+  status
+)
+values (
+  '30000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000001',
+  'Mutation Smoke Plan',
+  'busan',
+  '2026-05-03T09:00:00+09:00',
+  'car',
+  'confirmed'
+);
+
 insert into public.trip_plan_stops (
   id,
   plan_id,
@@ -109,6 +147,29 @@ values (
   1,
   60
 );
+
+insert into public.trip_plan_stops (
+  id,
+  plan_id,
+  place_id,
+  stop_order,
+  dwell_minutes
+)
+values
+  (
+    '40000000-0000-4000-8000-000000000002',
+    '30000000-0000-4000-8000-000000000003',
+    '20000000-0000-4000-8000-000000000001',
+    1,
+    60
+  ),
+  (
+    '40000000-0000-4000-8000-000000000003',
+    '30000000-0000-4000-8000-000000000003',
+    '20000000-0000-4000-8000-000000000001',
+    2,
+    45
+  );
 
 insert into public.shared_itineraries (
   id,
@@ -171,6 +232,184 @@ begin
   end;
 end;
 $$;
+
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '10000000-0000-4000-8000-000000000001';
+set local request.jwt.claim.role = 'authenticated';
+
+do $$
+declare
+  v_payload jsonb;
+  v_status trip_status;
+begin
+  v_payload := public.add_plan_stop(
+    '30000000-0000-4000-8000-000000000002'::uuid,
+    '20000000-0000-4000-8000-000000000001'::uuid,
+    45,
+    true
+  );
+
+  if v_payload->>'stop_order' <> '1' then
+    raise exception 'add_plan_stop returned unexpected stop_order: %', v_payload;
+  end if;
+
+  select status into v_status
+  from public.trip_plans
+  where id = '30000000-0000-4000-8000-000000000002'::uuid;
+
+  if v_status <> 'draft' then
+    raise exception 'add_plan_stop did not reset plan to draft: %', v_status;
+  end if;
+end;
+$$;
+
+do $$
+declare
+  v_remaining_order smallint;
+  v_status trip_status;
+begin
+  perform public.remove_plan_stop(
+    '30000000-0000-4000-8000-000000000003'::uuid,
+    '40000000-0000-4000-8000-000000000002'::uuid
+  );
+
+  select stop_order into v_remaining_order
+  from public.trip_plan_stops
+  where id = '40000000-0000-4000-8000-000000000003'::uuid;
+
+  if v_remaining_order <> 1 then
+    raise exception 'remove_plan_stop did not compact stop_order, got %', v_remaining_order;
+  end if;
+
+  select status into v_status
+  from public.trip_plans
+  where id = '30000000-0000-4000-8000-000000000003'::uuid;
+
+  if v_status <> 'draft' then
+    raise exception 'remove_plan_stop did not reset plan to draft: %', v_status;
+  end if;
+end;
+$$;
+
+do $$
+declare
+  v_stop_id uuid;
+begin
+  select id into v_stop_id
+  from public.trip_plan_stops
+  where plan_id = '30000000-0000-4000-8000-000000000002'::uuid
+  limit 1;
+
+  begin
+    perform public.update_plan_stop(
+      '30000000-0000-4000-8000-000000000002'::uuid,
+      v_stop_id,
+      '{"dwell_minutes":-5}'::jsonb
+    );
+    raise exception 'update_plan_stop allowed invalid dwell_minutes';
+  exception
+    when others then
+      if sqlerrm not like '%INVALID_FIELD: dwell_minutes%' then
+        raise;
+      end if;
+  end;
+end;
+$$;
+
+insert into public.trip_executions (
+  id,
+  plan_id,
+  user_id,
+  status
+)
+values (
+  '60000000-0000-4000-8000-000000000001',
+  '30000000-0000-4000-8000-000000000002',
+  '10000000-0000-4000-8000-000000000001',
+  'active'
+);
+
+do $$
+begin
+  begin
+    perform public.reset_plan_to_draft('30000000-0000-4000-8000-000000000002'::uuid);
+    raise exception 'reset_plan_to_draft allowed active execution mutation';
+  exception
+    when others then
+      if sqlerrm not like '%PLAN_IN_PROGRESS%' then
+        raise;
+      end if;
+  end;
+end;
+$$;
+
+do $$
+declare
+  v_stop_id uuid;
+begin
+  select id into v_stop_id
+  from public.trip_plan_stops
+  where plan_id = '30000000-0000-4000-8000-000000000002'::uuid
+  limit 1;
+
+  begin
+    perform public.update_plan_stop(
+      '30000000-0000-4000-8000-000000000002'::uuid,
+      v_stop_id,
+      '{"dwell_minutes":60}'::jsonb
+    );
+    raise exception 'update_plan_stop allowed active execution mutation';
+  exception
+    when others then
+      if sqlerrm not like '%PLAN_IN_PROGRESS%' then
+        raise;
+      end if;
+  end;
+end;
+$$;
+
+do $$
+declare
+  v_stop_id uuid;
+begin
+  select id into v_stop_id
+  from public.trip_plan_stops
+  where plan_id = '30000000-0000-4000-8000-000000000002'::uuid
+  limit 1;
+
+  begin
+    perform public.remove_plan_stop(
+      '30000000-0000-4000-8000-000000000002'::uuid,
+      v_stop_id
+    );
+    raise exception 'remove_plan_stop allowed active execution mutation';
+  exception
+    when others then
+      if sqlerrm not like '%PLAN_IN_PROGRESS%' then
+        raise;
+      end if;
+  end;
+
+  begin
+    perform public.reorder_plan_stops(
+      '30000000-0000-4000-8000-000000000002'::uuid,
+      array[v_stop_id]::uuid[]
+    );
+    raise exception 'reorder_plan_stops allowed active execution mutation';
+  exception
+    when others then
+      if sqlerrm not like '%PLAN_IN_PROGRESS%' then
+        raise;
+      end if;
+  end;
+end;
+$$;
+
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '10000000-0000-4000-8000-000000000002';
+set local request.jwt.claim.role = 'authenticated';
 
 do $$
 declare

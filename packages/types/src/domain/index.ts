@@ -253,6 +253,7 @@ export interface PaginatedResponse<T> {
 }
 
 export const ERROR_CODES = {
+  NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
   TOKEN_EXPIRED: 'TOKEN_EXPIRED',
   NOT_OWNER: 'NOT_OWNER',
   PLAN_NOT_FOUND: 'PLAN_NOT_FOUND',

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useGuestState } from '@/hooks/use-guest-state'
 import { useSavedPlaces } from '@/hooks/use-saved-places'
@@ -134,6 +134,9 @@ export default function HomePage(): React.JSX.Element {
   const { items: savedPlaces, loading: savedLoading } = useSavedPlaces()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [accountPlans, setAccountPlans] = useState<HomePlanResponse['data']>([])
+  const cartButtonRef = useRef<HTMLButtonElement>(null)
+  const closeButtonRef = useRef<HTMLButtonElement>(null)
+  const wasDrawerOpenRef = useRef(false)
 
   useEffect(() => {
     if (authLoading || !user) return
@@ -163,6 +166,33 @@ export default function HomePage(): React.JSX.Element {
       cancelled = true
     }
   }, [authLoading, user])
+
+  useEffect(() => {
+    if (!drawerOpen) return
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setDrawerOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [drawerOpen])
+
+  useEffect(() => {
+    if (drawerOpen) {
+      closeButtonRef.current?.focus()
+    } else if (wasDrawerOpenRef.current) {
+      cartButtonRef.current?.focus()
+    }
+
+    wasDrawerOpenRef.current = drawerOpen
+  }, [drawerOpen])
 
   const myTrips = useMemo(
     () => buildHomeTripCards(user ? accountPlans : guestPlans),
@@ -199,8 +229,10 @@ export default function HomePage(): React.JSX.Element {
           <span className="text-[0.68rem] font-bold tracking-[0.24em] text-white/60 uppercase">TripCart</span>
           <button
             type="button"
+            ref={cartButtonRef}
+            aria-label={`장바구니 ${savedLoading ? '불러오는 중' : `${savedPlaces.length}개`}`}
             onClick={() => setDrawerOpen(true)}
-            className="inline-flex items-center gap-2.5 rounded-full border border-white/35 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/12"
+            className="inline-flex items-center gap-2.5 rounded-full border border-white/35 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/12 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
           >
             <CartIcon />
             <span className="font-mono tabular-nums">
@@ -503,18 +535,24 @@ export default function HomePage(): React.JSX.Element {
             className="absolute inset-0"
             onClick={() => setDrawerOpen(false)}
           />
-          <aside className="relative z-10 flex h-full w-full max-w-[380px] flex-col border-l border-white/70 bg-white/96 px-6 py-6 shadow-[-24px_0_48px_rgba(15,23,42,0.16)] backdrop-blur">
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cart-drawer-title"
+            className="relative z-10 flex h-full w-full max-w-[380px] flex-col border-l border-white/70 bg-white/96 px-6 py-6 shadow-[-24px_0_48px_rgba(15,23,42,0.16)] backdrop-blur"
+          >
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-[2rem] font-black tracking-tight text-primary-900">장바구니</h2>
+                <h2 id="cart-drawer-title" className="text-[2rem] font-black tracking-tight text-primary-900">장바구니</h2>
                 <p className="mt-1 text-sm text-neutral-500">
                   {savedPlaces.length === 0 ? '담아 둔 여행지가 없습니다.' : ''}
                 </p>
               </div>
               <button
                 type="button"
+                ref={closeButtonRef}
                 onClick={() => setDrawerOpen(false)}
-                className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50"
+                className="rounded-full border border-neutral-300 px-3 py-1.5 text-sm font-semibold text-neutral-700 transition hover:bg-neutral-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
               >
                 닫기
               </button>

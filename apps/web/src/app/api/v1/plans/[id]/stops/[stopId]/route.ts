@@ -9,7 +9,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { verifyPlanOwnership, hasActiveExecution, resetPlanToDraft } from '@/lib/supabase/queries/plans'
+import { verifyPlanOwnership, hasActiveExecution } from '@/lib/supabase/queries/plans'
 import { updateStop, removeStop } from '@/lib/supabase/queries/plan-stops'
 import { UUID_RE } from '@/lib/utils/validation'
 
@@ -97,12 +97,18 @@ export async function PATCH(
     const { dwell_minutes, locked, user_note } = body as Record<string, unknown>
 
     // 검증
-    if (dwell_minutes !== undefined && (typeof dwell_minutes !== 'number' || dwell_minutes < 1)) {
+    if (
+      dwell_minutes !== undefined &&
+      (typeof dwell_minutes !== 'number' ||
+        !Number.isFinite(dwell_minutes) ||
+        dwell_minutes < 1 ||
+        dwell_minutes > 1440)
+    ) {
       return NextResponse.json(
         {
           error: {
             code: 'INVALID_FIELD',
-            message: 'dwell_minutes must be a positive number',
+            message: 'dwell_minutes must be a number between 1 and 1440',
             details: { field: 'dwell_minutes' },
           },
         },
@@ -150,11 +156,16 @@ export async function PATCH(
       )
     }
 
-    // plan status → draft, version++
-    await resetPlanToDraft(supabase, user.id, planId)
-
     return NextResponse.json({ data: stop })
   } catch (err) {
+    const message = err instanceof Error ? err.message : ''
+    if (message.includes('PLAN_IN_PROGRESS')) {
+      return NextResponse.json(
+        { error: { code: 'PLAN_IN_PROGRESS', message: 'Cannot modify plan with active execution' } },
+        { status: 409 },
+      )
+    }
+
     console.error('[PATCH /plans/:id/stops/:stopId]', err)
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to update stop' } },
@@ -246,6 +257,14 @@ export async function DELETE(
 
     return new NextResponse(null, { status: 204 })
   } catch (err) {
+    const message = err instanceof Error ? err.message : ''
+    if (message.includes('PLAN_IN_PROGRESS')) {
+      return NextResponse.json(
+        { error: { code: 'PLAN_IN_PROGRESS', message: 'Cannot modify plan with active execution' } },
+        { status: 409 },
+      )
+    }
+
     console.error('[DELETE /plans/:id/stops/:stopId]', err)
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to remove stop' } },

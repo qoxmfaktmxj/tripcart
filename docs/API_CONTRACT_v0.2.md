@@ -1,5 +1,5 @@
 ﻿# TripCart API Contract v0.2
-업데이트: 2026-03-24  
+업데이트: 2026-04-17
 상태: **Canonical**
 
 ## 0. Base URLs
@@ -49,6 +49,30 @@
   }
 }
 ```
+
+### 1.6 Phase stub 응답
+계약은 존재하지만 현재 phase에서 구현 전인 endpoint는 404 대신 HTTP `501`과 표준 error envelope를 반환한다.
+
+```json
+{
+  "error": {
+    "code": "NOT_IMPLEMENTED",
+    "message": "Endpoint is documented but not implemented in this phase.",
+    "details": {
+      "endpoint": "/api/v1/plans/{id}/optimize",
+      "method": "POST",
+      "phase": "stub"
+    }
+  }
+}
+```
+
+현재 App API stub endpoint:
+
+| Method | Endpoint | Phase |
+|---|---|---|
+| POST | `/plans/:id/optimize` | stub |
+| POST | `/executions/:id/reoptimize` | stub |
 
 ## 2. 주요 공통 타입
 
@@ -102,6 +126,7 @@
 
 | Code | 의미 |
 |---|---|
+| NOT_IMPLEMENTED | 계약은 있으나 현재 phase에서 구현 전 |
 | TOKEN_EXPIRED | 인증 토큰 만료 |
 | NOT_OWNER | 소유권 없음 |
 | PLAN_NOT_FOUND | 계획 없음 |

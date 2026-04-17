@@ -120,6 +120,13 @@ export async function PATCH(
     const pgError = err as { message?: string }
     const msg = pgError.message ?? ''
 
+    if (msg.includes('PLAN_IN_PROGRESS')) {
+      return NextResponse.json(
+        { error: { code: 'PLAN_IN_PROGRESS', message: 'Cannot modify plan with active execution' } },
+        { status: 409 },
+      )
+    }
+
     if (msg.includes('NOT_OWNER')) {
       return NextResponse.json(
         { error: { code: 'NOT_OWNER', message: 'Not the plan owner' } },

@@ -10,14 +10,6 @@ import type { PlanStop, PlaceSummary } from '@tripcart/types'
 
 // ── 공통 ─────────────────────────────────────────────────────────
 
-const STOP_SELECT = `
-  id, plan_id, place_id, stop_order, locked, locked_position,
-  dwell_minutes, arrive_at, leave_at,
-  travel_from_prev_minutes, travel_from_prev_meters,
-  warnings, user_note,
-  places:place_id (id, name, category, lat, lng, region, images)
-`
-
 function toStop(row: Record<string, unknown>): PlanStop {
   const p = row.places as unknown as Record<string, unknown> | null
   const place: PlaceSummary = {
@@ -57,29 +49,12 @@ export async function addStop(
     locked?: boolean
   },
 ): Promise<PlanStop> {
-  // max stop_order 가져오기
-  const { data: maxRow } = await supabase
-    .from('trip_plan_stops')
-    .select('stop_order')
-    .eq('plan_id', planId)
-    .order('stop_order', { ascending: false })
-    .limit(1)
-    .single()
-
-  const nextOrder = ((maxRow?.stop_order as number) ?? 0) + 1
-
-  const { data, error } = await supabase
-    .from('trip_plan_stops')
-    .insert({
-      plan_id: planId,
-      place_id: input.place_id,
-      stop_order: nextOrder,
-      dwell_minutes: input.dwell_minutes ?? 60,
-      locked: input.locked ?? false,
-      locked_position: input.locked ? nextOrder : null,
-    })
-    .select(STOP_SELECT)
-    .single()
+  const { data, error } = await supabase.rpc('add_plan_stop', {
+    p_plan_id: planId,
+    p_place_id: input.place_id,
+    p_dwell_minutes: input.dwell_minutes ?? 60,
+    p_locked: input.locked ?? false,
+  })
 
   if (error) throw error
 
@@ -123,40 +98,19 @@ export async function updateStop(
     user_note?: string | null
   },
 ): Promise<PlanStop | null> {
-  const updateData: Record<string, unknown> = {
-    updated_at: new Date().toISOString(),
-  }
+  const patch: Record<string, unknown> = {}
+  if (input.dwell_minutes !== undefined) patch.dwell_minutes = input.dwell_minutes
+  if (input.locked !== undefined) patch.locked = input.locked
+  if (input.user_note !== undefined) patch.user_note = input.user_note
 
-  if (input.dwell_minutes !== undefined) updateData.dwell_minutes = input.dwell_minutes
-  if (input.locked !== undefined) {
-    updateData.locked = input.locked
-    // locked=true면 현재 stop_order를 locked_position으로 설정
-    if (input.locked) {
-      const { data: currentStop } = await supabase
-        .from('trip_plan_stops')
-        .select('stop_order')
-        .eq('id', stopId)
-        .eq('plan_id', planId)
-        .single()
-      if (currentStop) {
-        updateData.locked_position = currentStop.stop_order
-      }
-    } else {
-      updateData.locked_position = null
-    }
-  }
-  if (input.user_note !== undefined) updateData.user_note = input.user_note
-
-  const { data, error } = await supabase
-    .from('trip_plan_stops')
-    .update(updateData)
-    .eq('id', stopId)
-    .eq('plan_id', planId)
-    .select(STOP_SELECT)
-    .single()
+  const { data, error } = await supabase.rpc('update_plan_stop', {
+    p_plan_id: planId,
+    p_stop_id: stopId,
+    p_patch: patch,
+  })
 
   if (error) {
-    if (error.code === 'PGRST116') return null
+    if (error.message?.includes('STOP_NOT_FOUND')) return null
     throw error
   }
 

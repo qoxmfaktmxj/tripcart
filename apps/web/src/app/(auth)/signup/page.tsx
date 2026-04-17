@@ -67,43 +67,59 @@ function SignupForm(): React.JSX.Element {
       </div>
 
       {error ? (
-        <div className="rounded-md bg-coral-50 px-4 py-2 text-sm text-coral-500">
+        <div id="auth-error" role="alert" className="rounded-md bg-coral-50 px-4 py-2 text-sm font-medium text-coral-900">
           {error}
         </div>
       ) : null}
 
-      <input
-        type="email"
-        placeholder="이메일"
-        autoComplete="email"
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-        required
-        className="w-full rounded-md border border-neutral-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-      />
+      <div className="space-y-1.5">
+        <label htmlFor="email" className="block text-sm font-semibold text-neutral-900">
+          이메일
+        </label>
+        <input
+          id="email"
+          type="email"
+          placeholder="이메일"
+          autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          required
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? 'auth-error' : undefined}
+          className="w-full rounded-md border border-neutral-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+        />
+      </div>
 
-      <input
-        type="password"
-        placeholder="비밀번호 (6자 이상)"
-        autoComplete="new-password"
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-        required
-        minLength={6}
-        className="w-full rounded-md border border-neutral-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-      />
+      <div className="space-y-1.5">
+        <label htmlFor="password" className="block text-sm font-semibold text-neutral-900">
+          비밀번호 (6자 이상)
+        </label>
+        <input
+          id="password"
+          type="password"
+          placeholder="비밀번호 (6자 이상)"
+          autoComplete="new-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+          minLength={6}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? 'auth-error' : undefined}
+          className="w-full rounded-md border border-neutral-300 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
+        />
+      </div>
 
       <button
         type="submit"
         disabled={loading}
-        className="w-full rounded-md bg-primary-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500"
+        className="w-full rounded-md bg-primary-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700 disabled:bg-neutral-300 disabled:text-neutral-500"
       >
         {loading ? '계정 생성 중...' : '계정 만들기'}
       </button>
 
       <p className="text-center text-sm text-neutral-500">
         이미 계정이 있나요?{' '}
-        <Link href={`/login?next=${encodeURIComponent(next)}`} className="text-primary-500 hover:underline">
+        <Link href={`/login?next=${encodeURIComponent(next)}`} className="font-semibold text-primary-700 hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700">
           로그인
         </Link>
       </p>

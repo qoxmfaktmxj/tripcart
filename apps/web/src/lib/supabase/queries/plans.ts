@@ -17,7 +17,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 
 const PLAN_SELECT = `
   id, user_id, title, start_at, region, transport_mode, status,
-  origin_lat, origin_lng, origin_name, version, optimization_meta,
+  origin_lat, origin_lng, origin_name, dest_lat, dest_lng, dest_name, version, optimization_meta,
   created_at, updated_at
 `
 
@@ -89,6 +89,22 @@ function toPlan(
     region: (row.region as string) ?? null,
     transport_mode: (row.transport_mode as TravelMode) ?? 'car',
     status: row.status as TripPlan['status'],
+    origin:
+      row.origin_lat != null && row.origin_lng != null
+        ? {
+            lat: Number(row.origin_lat),
+            lng: Number(row.origin_lng),
+            name: (row.origin_name as string) ?? null,
+          }
+        : null,
+    destination:
+      row.dest_lat != null && row.dest_lng != null
+        ? {
+            lat: Number(row.dest_lat),
+            lng: Number(row.dest_lng),
+            name: (row.dest_name as string) ?? null,
+          }
+        : null,
     origin_lat: row.origin_lat != null ? Number(row.origin_lat) : null,
     origin_lng: row.origin_lng != null ? Number(row.origin_lng) : null,
     origin_name: (row.origin_name as string) ?? null,
@@ -145,8 +161,34 @@ export async function getPlans(
     nextCursor = `${last.updated_at}|${last.id}`
   }
 
-  // 목록에서는 stops를 포함하지 않고, 경량 응답 반환
-  const mapped = items.map((row) => ({
+  const planIds = items.map((row) => row.id)
+  const stopStats = new Map<string, { stop_count: number; warning_count: number }>()
+
+  if (planIds.length > 0) {
+    const { data: stops, error: stopsError } = await supabase
+      .from('trip_plan_stops')
+      .select('plan_id, warnings')
+      .in('plan_id', planIds)
+
+    if (stopsError) throw stopsError
+
+    for (const stop of stops ?? []) {
+      const planId = stop.plan_id as string
+      const current = stopStats.get(planId) ?? { stop_count: 0, warning_count: 0 }
+      const warnings = Array.isArray(stop.warnings) ? stop.warnings : []
+      stopStats.set(planId, {
+        stop_count: current.stop_count + 1,
+        warning_count: current.warning_count + warnings.length,
+      })
+    }
+  }
+
+  // 목록에서는 stop 상세를 포함하지 않고, contract summary 필드만 반환
+  const mapped = items.map((row) => {
+    const optimizationMeta = (row.optimization_meta ?? null) as Record<string, unknown> | null
+    const stats = stopStats.get(row.id) ?? { stop_count: 0, warning_count: 0 }
+
+    return {
     id: row.id,
     user_id: row.user_id,
     title: row.title,
@@ -158,9 +200,19 @@ export async function getPlans(
     origin_lng: row.origin_lng != null ? Number(row.origin_lng) : null,
     origin_name: row.origin_name ?? null,
     version: row.version ?? 1,
+    stop_count: stats.stop_count,
+    total_travel_minutes:
+      typeof optimizationMeta?.total_travel_minutes === 'number'
+        ? optimizationMeta.total_travel_minutes
+        : null,
+    warning_count:
+      typeof optimizationMeta?.warning_count === 'number'
+        ? optimizationMeta.warning_count
+        : stats.warning_count,
     created_at: row.created_at,
     updated_at: row.updated_at,
-  }))
+    }
+  })
 
   return { data: mapped, cursor: nextCursor, hasMore }
 }
@@ -267,34 +319,28 @@ export async function updatePlan(
     transport_mode?: TravelMode
     origin_lat?: number
     origin_lng?: number
-    origin_name?: string
+    origin_name?: string | null
   },
 ): Promise<TripPlan | null> {
-  // 필드 업데이트 (version 제외)
-  const updateData: Record<string, unknown> = {
-    updated_at: new Date().toISOString(),
+  const patch: Record<string, unknown> = {}
+  if (input.title !== undefined) patch.title = input.title
+  if (input.start_at !== undefined) patch.start_at = input.start_at
+  if (input.transport_mode !== undefined) patch.transport_mode = input.transport_mode
+  if (input.origin_lat !== undefined) patch.origin_lat = input.origin_lat
+  if (input.origin_lng !== undefined) patch.origin_lng = input.origin_lng
+  if (input.origin_name !== undefined) patch.origin_name = input.origin_name
+
+  const { error } = await supabase.rpc('update_trip_plan', {
+    p_plan_id: planId,
+    p_patch: patch,
+  })
+
+  if (error) {
+    if (error.message?.includes('PLAN_NOT_FOUND') || error.message?.includes('NOT_OWNER')) {
+      return null
+    }
+    throw error
   }
-
-  if (input.title !== undefined) updateData.title = input.title
-  if (input.start_at !== undefined) updateData.start_at = input.start_at
-  if (input.transport_mode !== undefined) updateData.transport_mode = input.transport_mode
-  if (input.origin_lat !== undefined) updateData.origin_lat = input.origin_lat
-  if (input.origin_lng !== undefined) updateData.origin_lng = input.origin_lng
-  if (input.origin_name !== undefined) updateData.origin_name = input.origin_name
-
-  const { data: updated, error: updateError } = await supabase
-    .from('trip_plans')
-    .update(updateData)
-    .eq('id', planId)
-    .eq('user_id', userId)
-    .is('deleted_at', null)
-    .select('id')
-
-  if (updateError) throw updateError
-  if (!updated || updated.length === 0) return null
-
-  // 원자적 status→draft + version++ (race condition 방지)
-  await resetPlanToDraft(supabase, userId, planId)
 
   // 변경된 plan 전체 반환
   return getPlanById(supabase, userId, planId)

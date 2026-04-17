@@ -38,6 +38,7 @@ type PlanCard = {
   source: 'sample' | 'guest' | 'account'
   sourcePlanId?: string
   subtitle: string
+  stopCount: number
 }
 
 const DEFAULT_REGION = 'busan'
@@ -54,7 +55,7 @@ const REGION_LABELS: Record<string, string> = {
   sokcho: '속초',
 }
 const SHOWCASE_PLANS: Array<
-  Pick<PlanCard, 'id' | 'title' | 'start_at' | 'region' | 'transport_mode' | 'image' | 'subtitle'> & {
+  Pick<PlanCard, 'id' | 'title' | 'start_at' | 'region' | 'transport_mode' | 'image' | 'subtitle' | 'stopCount'> & {
     statusLabel: string
   }
 > = [
@@ -68,6 +69,7 @@ const SHOWCASE_PLANS: Array<
     image:
       'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80',
     subtitle: '부산 • 이동 수단: 자동차',
+    stopCount: 4,
   },
   {
     id: 'showcase-seorak',
@@ -79,6 +81,7 @@ const SHOWCASE_PLANS: Array<
     image:
       'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1600&q=80',
     subtitle: '속초 • 이동 수단: 자동차',
+    stopCount: 4,
   },
   {
     id: 'showcase-seoul',
@@ -90,6 +93,7 @@ const SHOWCASE_PLANS: Array<
     image:
       'https://images.unsplash.com/photo-1538485399081-7c89798d8b0c?auto=format&fit=crop&w=1600&q=80',
     subtitle: '서울 • 이동 수단: 자동차',
+    stopCount: 4,
   },
 ]
 
@@ -272,6 +276,13 @@ export default function PlansPage(): React.JSX.Element {
       }
 
       const startAtIso = parsedStartAt.toISOString()
+      const draftStops = guestSavedPlaces.map((place) => ({
+        place_id: place.id,
+        place_name: place.name,
+        category: place.category,
+        region: place.region,
+        thumbnail_url: place.thumbnail_url,
+      }))
 
       if (!user) {
         if (editingGuestPlanId) {
@@ -280,6 +291,7 @@ export default function PlansPage(): React.JSX.Element {
             region: normalizedRegion,
             transport_mode: transportMode,
             start_at: startAtIso,
+            stops: draftStops,
           })
         } else {
           addGuestPlan({
@@ -287,6 +299,7 @@ export default function PlansPage(): React.JSX.Element {
             region: normalizedRegion,
             transport_mode: transportMode,
             start_at: startAtIso,
+            stops: draftStops,
           })
         }
 
@@ -337,6 +350,7 @@ export default function PlansPage(): React.JSX.Element {
       const fallbackImage =
         SHOWCASE_PLANS[index % SHOWCASE_PLANS.length] ?? SHOWCASE_PLANS[0]!
       const regionLabel = item.region ? REGION_LABELS[item.region] ?? item.region : '지역 미정'
+      const stops = (item as { stops?: unknown }).stops
 
       return {
         id: `actual-${item.id}`,
@@ -348,6 +362,7 @@ export default function PlansPage(): React.JSX.Element {
         image: fallbackImage.image,
         source: user ? 'account' : 'guest',
         sourcePlanId: item.id,
+        stopCount: Array.isArray(stops) ? stops.length : 0,
         subtitle: `${regionLabel} • 이동 수단: ${TRANSPORT_LABELS[item.transport_mode]}`,
       }
     })
@@ -441,6 +456,9 @@ export default function PlansPage(): React.JSX.Element {
                   </p>
                   <p className="mt-4 text-[0.95rem] font-medium text-white/88">
                     {card.subtitle}
+                  </p>
+                  <p className="mt-1 font-mono text-[0.82rem] font-semibold text-white/82">
+                    담은 장소 {card.stopCount}곳
                   </p>
                 </div>
               </div>

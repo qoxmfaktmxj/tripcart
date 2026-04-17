@@ -9,6 +9,7 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { validateUpdatePlanRequest } from '@/lib/plan-api'
 import {
   getPlanById,
   updatePlan,
@@ -17,9 +18,6 @@ import {
   verifyPlanOwnership,
 } from '@/lib/supabase/queries/plans'
 import { UUID_RE } from '@/lib/utils/validation'
-import type { TravelMode } from '@tripcart/types'
-
-const VALID_TRAVEL_MODES: TravelMode[] = ['car', 'transit', 'walk', 'bicycle']
 
 // ── GET ──────────────────────────────────────────────────────────
 
@@ -110,14 +108,6 @@ export async function PATCH(
       )
     }
 
-    // active execution 체크
-    if (await hasActiveExecution(supabase, id)) {
-      return NextResponse.json(
-        { error: { code: 'PLAN_IN_PROGRESS', message: 'Cannot modify plan with active execution' } },
-        { status: 409 },
-      )
-    }
-
     let body: unknown
     try {
       body = await request.json()
@@ -128,48 +118,12 @@ export async function PATCH(
       )
     }
 
-    const { title, start_at, transport_mode, origin_lat, origin_lng, origin_name } =
-      body as Record<string, unknown>
-
-    // 검증
-    if (title !== undefined && (typeof title !== 'string' || title.trim().length === 0)) {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'INVALID_FIELD',
-            message: 'title must be a non-empty string',
-            details: { field: 'title' },
-          },
-        },
-        { status: 400 },
-      )
+    const validation = validateUpdatePlanRequest(body)
+    if (!validation.ok) {
+      return NextResponse.json({ error: validation.error }, { status: 400 })
     }
 
-    if (
-      transport_mode !== undefined &&
-      !VALID_TRAVEL_MODES.includes(transport_mode as TravelMode)
-    ) {
-      return NextResponse.json(
-        {
-          error: {
-            code: 'INVALID_FIELD',
-            message: `Invalid transport_mode. Allowed: ${VALID_TRAVEL_MODES.join(', ')}`,
-            details: { field: 'transport_mode' },
-          },
-        },
-        { status: 400 },
-      )
-    }
-
-    const updateInput: Parameters<typeof updatePlan>[3] = {}
-    if (title !== undefined) updateInput.title = (title as string).trim()
-    if (start_at !== undefined) updateInput.start_at = start_at as string | null
-    if (transport_mode !== undefined) updateInput.transport_mode = transport_mode as TravelMode
-    if (origin_lat !== undefined) updateInput.origin_lat = origin_lat as number
-    if (origin_lng !== undefined) updateInput.origin_lng = origin_lng as number
-    if (origin_name !== undefined) updateInput.origin_name = origin_name as string
-
-    const plan = await updatePlan(supabase, user.id, id, updateInput)
+    const plan = await updatePlan(supabase, user.id, id, validation.value)
 
     if (!plan) {
       return NextResponse.json(
@@ -186,6 +140,14 @@ export async function PATCH(
       updated_at: plan.updated_at,
     })
   } catch (err) {
+    const message = err instanceof Error ? err.message : ''
+    if (message.includes('PLAN_IN_PROGRESS')) {
+      return NextResponse.json(
+        { error: { code: 'PLAN_IN_PROGRESS', message: 'Cannot modify plan with active execution' } },
+        { status: 409 },
+      )
+    }
+
     console.error('[PATCH /plans/:id]', err)
     return NextResponse.json(
       { error: { code: 'INTERNAL_ERROR', message: 'Failed to update plan' } },

@@ -48,7 +48,7 @@ export async function GET(
       )
     }
 
-    return NextResponse.json({ data: place })
+    return NextResponse.json(place)
   } catch (err) {
     console.error('[GET /places/:id]', err)
     return NextResponse.json(

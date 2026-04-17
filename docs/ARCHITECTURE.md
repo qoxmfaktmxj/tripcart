@@ -130,7 +130,21 @@ Plain PostgreSQL still has value for optimizer-only experiments and SQL sandboxi
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `SUPABASE_DB_URL`
 - `OPTIMIZER_INTERNAL_TOKEN`
+- `AI_PROVIDER` (`openai`, `anthropic`, or unset for auto-detect)
+- `OPENAI_API_KEY`
+- `ANTHROPIC_API_KEY`
 - provider and OCR secrets
+
+### AI provider selection
+
+TripCart server code must not assume one AI vendor. Server-side AI features choose a provider from available keys:
+
+- `AI_PROVIDER=openai` uses `OPENAI_API_KEY`
+- `AI_PROVIDER=anthropic` uses `ANTHROPIC_API_KEY`
+- if `AI_PROVIDER` is unset, OpenAI is preferred when `OPENAI_API_KEY` exists, otherwise Anthropic is used when `ANTHROPIC_API_KEY` exists
+- if neither key exists, AI-backed endpoints must stay disabled or return a standard missing-configuration error
+
+These keys are server-only. They are never exposed through `NEXT_PUBLIC_*` or `EXPO_PUBLIC_*`.
 
 ## Locked stack versions
 

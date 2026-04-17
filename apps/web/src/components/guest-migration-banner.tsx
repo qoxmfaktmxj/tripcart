@@ -28,7 +28,12 @@ export function GuestMigrationBanner(): React.JSX.Element | null {
   }
 
   return (
-    <div className="sticky top-0 z-50 border-b border-primary-300 bg-primary-50/95 px-4 py-3 backdrop-blur">
+    <div
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      className="sticky top-0 z-50 border-b border-primary-300 bg-primary-50/95 px-4 py-3 backdrop-blur"
+    >
       <div className="mx-auto flex w-full max-w-6xl items-start justify-between gap-4 text-sm text-primary-900">
         <p className="font-medium">{message}</p>
         <button
@@ -37,7 +42,7 @@ export function GuestMigrationBanner(): React.JSX.Element | null {
             window.sessionStorage.removeItem(GUEST_MIGRATION_FLASH_KEY)
             setMessage(null)
           }}
-          className="shrink-0 rounded-md border border-primary-300 px-3 py-1 text-xs font-semibold text-primary-700 transition hover:bg-primary-100"
+          className="shrink-0 rounded-md border border-primary-300 px-3 py-1 text-xs font-semibold text-primary-700 transition hover:bg-primary-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-700"
         >
           닫기
         </button>

@@ -22,6 +22,28 @@ export type GuestSavedPlace = {
 
 export type GuestSavedPlaceInput = Omit<GuestSavedPlace, 'saved_at'>
 
+export type GuestPlanStop = {
+  id: string
+  place_id: string
+  place_name: string
+  category: string
+  region: string
+  thumbnail_url: string | null
+  stop_order: number
+  locked: boolean
+  dwell_minutes: number
+}
+
+export type GuestPlanStopInput = {
+  place_id: string
+  place_name: string
+  category: string
+  region: string
+  thumbnail_url: string | null
+  locked?: boolean
+  dwell_minutes?: number
+}
+
 export type GuestPlan = {
   id: string
   title: string
@@ -31,6 +53,7 @@ export type GuestPlan = {
   origin_name: string | null
   status: 'draft'
   version: number
+  stops: GuestPlanStop[]
   created_at: string
   updated_at: string
 }
@@ -41,6 +64,7 @@ export type GuestPlanInput = {
   transport_mode: TravelMode
   start_at?: string | null
   origin_name?: string | null
+  stops?: GuestPlanStopInput[]
 }
 
 export type GuestState = {
@@ -141,6 +165,7 @@ export function normalizeGuestState(raw: unknown): GuestState {
               typeof item.version === 'number' && Number.isFinite(item.version)
                 ? item.version
                 : 1,
+            stops: normalizeGuestPlanStops(item.stops),
             created_at: typeof item.created_at === 'string' ? item.created_at : nowIso(),
             updated_at: typeof item.updated_at === 'string' ? item.updated_at : nowIso(),
           },
@@ -153,6 +178,37 @@ export function normalizeGuestState(raw: unknown): GuestState {
     saved_places: savedPlaces,
     plans,
   }
+}
+
+function normalizeGuestPlanStops(raw: unknown): GuestPlanStop[] {
+  if (!Array.isArray(raw)) return []
+  return raw.flatMap((entry, index) => {
+    if (!entry || typeof entry !== 'object') return []
+    const item = entry as Record<string, unknown>
+    if (typeof item.place_id !== 'string' || typeof item.place_name !== 'string') return []
+    return [
+      {
+        id:
+          typeof item.id === 'string'
+            ? item.id
+            : `guest_stop_${item.place_id}`,
+        place_id: item.place_id,
+        place_name: item.place_name,
+        category: typeof item.category === 'string' ? item.category : 'other',
+        region: typeof item.region === 'string' ? item.region : 'unknown',
+        thumbnail_url: typeof item.thumbnail_url === 'string' ? item.thumbnail_url : null,
+        stop_order:
+          typeof item.stop_order === 'number' && Number.isFinite(item.stop_order)
+            ? item.stop_order
+            : index + 1,
+        locked: typeof item.locked === 'boolean' ? item.locked : false,
+        dwell_minutes:
+          typeof item.dwell_minutes === 'number' && Number.isFinite(item.dwell_minutes)
+            ? item.dwell_minutes
+            : 60,
+      },
+    ]
+  })
 }
 
 export function readGuestStateFromStorage(storage?: StorageLike): GuestState {
@@ -237,6 +293,17 @@ export function createGuestPlan(
     origin_name: input.origin_name?.trim() || null,
     status: 'draft',
     version: 1,
+    stops: (input.stops ?? []).map((stop, index) => ({
+      id: `guest_stop_${stop.place_id}`,
+      place_id: stop.place_id,
+      place_name: stop.place_name,
+      category: stop.category,
+      region: stop.region,
+      thumbnail_url: stop.thumbnail_url,
+      stop_order: index + 1,
+      locked: stop.locked ?? false,
+      dwell_minutes: stop.dwell_minutes ?? 60,
+    })),
     created_at: timestamp,
     updated_at: timestamp,
   }
@@ -268,6 +335,20 @@ export function updateGuestPlan(
       transport_mode: input.transport_mode,
       start_at: input.start_at ?? null,
       origin_name: input.origin_name?.trim() || null,
+      stops:
+        input.stops !== undefined
+          ? input.stops.map((stop, index) => ({
+              id: `guest_stop_${stop.place_id}`,
+              place_id: stop.place_id,
+              place_name: stop.place_name,
+              category: stop.category,
+              region: stop.region,
+              thumbnail_url: stop.thumbnail_url,
+              stop_order: index + 1,
+              locked: stop.locked ?? false,
+              dwell_minutes: stop.dwell_minutes ?? 60,
+            }))
+          : plan.stops,
       updated_at: timestamp,
     }
 
@@ -375,6 +456,26 @@ export async function migrateGuestStateWithFetch(
       })
 
       if (response.ok || response.status === 409) {
+        const payload = (await response.json().catch(() => null)) as
+          | { data?: { id?: string } }
+          | null
+        const accountPlanId = payload?.data?.id
+        if (accountPlanId && plan.stops.length > 0) {
+          for (const stop of plan.stops) {
+            const stopResponse = await fetchImpl(`/api/v1/plans/${accountPlanId}/stops`, {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify({
+                place_id: stop.place_id,
+                dwell_minutes: stop.dwell_minutes,
+                locked: stop.locked,
+              }),
+            })
+            if (!stopResponse.ok && stopResponse.status !== 409) {
+              throw new Error('Failed to migrate guest stop')
+            }
+          }
+        }
         result.migratedPlanIds.push(plan.id)
       } else {
         result.failedPlanIds.push(plan.id)

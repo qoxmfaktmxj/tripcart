@@ -67,6 +67,7 @@ function createSampleState(): GuestState {
         origin_name: '부전역',
         status: 'draft',
         version: 1,
+        stops: [],
         created_at: '2026-04-09T00:00:00.000Z',
         updated_at: '2026-04-09T00:00:00.000Z',
       },
@@ -130,6 +131,15 @@ describe('guest-state', () => {
       title: '첫 일정',
       region: 'busan',
       transport_mode: 'car',
+      stops: [
+        {
+          place_id: 'place-1',
+          place_name: '해운대',
+          category: 'attraction',
+          region: 'busan',
+          thumbnail_url: null,
+        },
+      ],
     })
     const second = createGuestPlan(first.state, {
       title: '두 번째 일정',
@@ -138,6 +148,19 @@ describe('guest-state', () => {
     })
 
     expect(first.plan.id).not.toBe(second.plan.id)
+    expect(first.plan.stops).toEqual([
+      {
+        id: 'guest_stop_place-1',
+        place_id: 'place-1',
+        place_name: '해운대',
+        category: 'attraction',
+        region: 'busan',
+        thumbnail_url: null,
+        stop_order: 1,
+        locked: false,
+        dwell_minutes: 60,
+      },
+    ])
     expect(second.state.plans).toHaveLength(2)
   })
 
@@ -260,6 +283,46 @@ describe('guest-state', () => {
       failedSavedPlaceIds: [],
       migratedPlanIds: ['guest-plan-1'],
       failedPlanIds: [],
+    })
+  })
+
+  it('migration fetch는 plan 생성 후 guest stops를 계정 plan stops로 이관한다', async () => {
+    const state = createGuestPlan(createSampleState(), {
+      title: '스톱 포함 플랜',
+      region: 'busan',
+      transport_mode: 'car',
+      start_at: '2026-04-21T10:15:00.000Z',
+      stops: [
+        {
+          place_id: 'place-1',
+          place_name: '해운대',
+          category: 'attraction',
+          region: 'busan',
+          thumbnail_url: null,
+        },
+      ],
+    }).state
+    const createdPlan = state.plans[0]!
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response('{}', { status: 201 }))
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ data: { id: 'account-plan-1' } }), { status: 201 }),
+      )
+      .mockResolvedValueOnce(new Response('{}', { status: 201 }))
+      .mockResolvedValueOnce(new Response('{}', { status: 409 }))
+
+    const result = await migrateGuestStateWithFetch(state, fetchImpl)
+
+    expect(result.migratedPlanIds).toContain(createdPlan.id)
+    expect(fetchImpl).toHaveBeenCalledWith('/api/v1/plans/account-plan-1/stops', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        place_id: 'place-1',
+        dwell_minutes: 60,
+        locked: false,
+      }),
     })
   })
 
