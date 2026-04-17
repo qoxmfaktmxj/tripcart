@@ -23,7 +23,12 @@ export default function PlansScreen() {
           ))}
         </View>
 
-        <Pressable style={styles.floatingButton}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="새 여행 계획 만들기"
+          hitSlop={8}
+          style={styles.floatingButton}
+        >
           <Text style={styles.floatingButtonText}>＋ 새 계획 만들기</Text>
         </Pressable>
       </ScrollView>

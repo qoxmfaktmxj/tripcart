@@ -8,6 +8,12 @@
     "./api": "./src/api/index.ts",
     "./domain": "./src/domain/index.ts"
   },
+  "scripts": {
+    "build": "pnpm exec tsc -p tsconfig.json",
+    "lint": "pnpm exec tsc -p tsconfig.json --noEmit",
+    "typecheck": "pnpm exec tsc -p tsconfig.json --noEmit",
+    "test": "echo \"No tests for @tripcart/types\""
+  },
   "devDependencies": {
     "typescript": "^5.8.0"
   }

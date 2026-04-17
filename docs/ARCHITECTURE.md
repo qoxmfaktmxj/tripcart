@@ -1,6 +1,6 @@
 ﻿# TripCart Architecture
 
-Updated: 2026-04-08
+Updated: 2026-04-15
 Status: Canonical
 
 ## Goals
@@ -139,7 +139,7 @@ Plain PostgreSQL still has value for optimizer-only experiments and SQL sandboxi
 | Node.js | 22.x |
 | pnpm | 10.x |
 | Turborepo | 2.x |
-| TypeScript | 5.9.x |
+| TypeScript | 5.8.x |
 | Next.js | 16.x |
 | React (web) | 19.2.x |
 | Expo | SDK 54 |

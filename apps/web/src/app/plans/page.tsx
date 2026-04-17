@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useAuth } from '@/hooks/use-auth'
 import { useGuestState } from '@/hooks/use-guest-state'
 import { GUEST_MIGRATION_EVENT } from '@/lib/guest-state'
-import type { TravelMode } from '@tripcart/types'
+import type { PlanStatus, TravelMode } from '@tripcart/types'
 
 type PlanListItem = {
   id: string
@@ -13,7 +13,7 @@ type PlanListItem = {
   start_at: string | null
   region: string | null
   transport_mode: TravelMode
-  status: string
+  status: PlanStatus
   version: number
   created_at: string
   updated_at: string
@@ -119,14 +119,17 @@ function compactTitle(title: string): string {
   return title.length > 14 ? `${title.slice(0, 13)}…` : title
 }
 
-function getStatusLabel(status: string): string {
-  if (status === 'draft') return '초안'
-  if (status === 'ready' || status === 'confirmed') return '예정'
-  if (status === 'optimized') return '최적화 완료'
-  if (status === 'in_progress') return '진행 중'
-  if (status === 'completed') return '완료'
-  if (status === 'cancelled' || status === 'archived') return '보관됨'
-  return status
+const PLAN_STATUS_LABELS: Record<PlanStatus, string> = {
+  draft: '초안',
+  optimized: '최적화 완료',
+  confirmed: '예정',
+  in_progress: '진행 중',
+  completed: '완료',
+  cancelled: '취소됨',
+}
+
+function getStatusLabel(status: PlanStatus): string {
+  return PLAN_STATUS_LABELS[status]
 }
 
 function AddIcon(): React.JSX.Element {

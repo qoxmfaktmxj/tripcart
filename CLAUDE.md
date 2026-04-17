@@ -3,29 +3,30 @@
 이 파일은 canonical docs의 **projection**이다. 정본은 `docs/` 폴더다.
 Claude의 역할은 **분석/설계/리뷰**다. 구현은 Codex 또는 executor 에이전트가 한다.
 
-## 현재 상태 (2026-03-27)
+## 현재 상태 (2026-04-15)
 
 ```
 Phase 0: 완료 — monorepo scaffolding, pnpm, Supabase init, canonical schema migration
-Phase 1: 완료 (API only) — Auth, Places, Saved Places, Plans CRUD (15 endpoints)
-Phase 2: 다음 — optimizer integration, alternatives, share/import
+Phase 1: 구현됨; audit hardening pending — Auth, Places, Saved Places, Plans CRUD, Plan Stops
+Phase 1.5: 구현됨; QA/docs alignment pending — guest-first trial, public landing, login migration, mobile tab nav
+Phase 2: P0/P1 audit 정리 후 진입 — optimizer integration, alternatives, share/import
 ```
 
-- **품질 Band: D (8/15)** — R0/R1 자동, R2 분석 필수, R3 승인 필수
-- **Typecheck**: 전체 monorepo 통과
-- **테스트**: 아직 없음 (Test Confidence 0)
-- **Supabase 로컬**: init 완료, `supabase start` + schema 적용은 미실행
+- **품질 Band: C (10/15)** — R0/R1 자동, R2는 분석/검증 포함 실행, R3 승인 필수
+- **통과한 게이트**: `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, `pnpm --filter @tripcart/web e2e`, `uv run --extra dev pytest`, `uv run --extra dev ruff check .`, `pnpm audit --prod --audit-level high`, local Supabase `rpc_share_security_smoke.sql`
+- **남은 보안 주의**: local `.env.local` secret hygiene and hosted key rotation 여부는 수동 확인 필요
 
 ## Phase 2 진입 전 필수 TODO
 
-1. **API types drift 수정** (R1) — `packages/types/src/api/index.ts`의 Phase 2+ DTO가 API_CONTRACT와 불일치:
-   - `OptimizeRequest`: 현재 `plan_id/travel_date/start_time` → Contract: `locked_stop_ids/objective/allow_alternatives`
-   - `CreateShareRequest`: 현재 `access_level/expires_in_days` → Contract: `visibility/title/description`
-   - `ImportSharedRequest`: 현재 `share_token/travel_date` → Contract: `start_at/transport_mode/origin_*`
-2. **formatTime 동작 통일** (LOW) — `places.ts` formatTime이 null에 빈 문자열 반환. `string | null` 또는 throw로 통일
-3. **removeStop RPC화** (MEDIUM) — 현재 row-by-row update, `reorder_plan_stops`처럼 DB 함수로
+1. **DB/RLS 보안 정리** (R3) — SECURITY DEFINER RPC가 caller-supplied `p_user_id`를 신뢰하지 않게 하고, owner mismatch 테스트를 추가한다.
+2. **공유 visibility 정리** (R3/R2) — `link_only` 직접 select를 막고 share_code 검증 경로를 확정한다.
+3. **API 계약 정렬** (R2) — `API_CONTRACT_v0.2.md`, `packages/types`, route response shape, optimizer DTO를 한 기준으로 맞춘다.
+4. **optimizer internal auth** (R2) — `/v1/optimize`, `/v1/matrix`에 internal bearer token 검증을 붙이고 prod docs/redoc 비활성화 정책을 둔다.
+5. **품질 게이트 유지** (R1/R2) — optimizer ruff와 `pnpm audit --prod --audit-level high`를 릴리스 차단 게이트로 유지한다.
 
-## 구현된 API Endpoints (Phase 1)
+## 구현된 API Endpoints (Phase 1 implemented slice)
+
+아래는 현재 route가 존재하는 범위다. `API_CONTRACT_v0.2.md`의 optimizer/share/import/execution/spend/media/push/receipt/AI assist 전체가 구현됐다는 의미가 아니다.
 
 ```
 # Auth

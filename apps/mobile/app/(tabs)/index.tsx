@@ -53,7 +53,12 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <Pressable style={styles.primaryButton}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="새 여행 계획 만들기"
+          hitSlop={8}
+          style={styles.primaryButton}
+        >
           <Text style={styles.primaryButtonText}>새 계획 만들기</Text>
         </Pressable>
       </ScrollView>

@@ -31,7 +31,12 @@ export default function SearchScreen() {
                   ))}
                 </View>
               </View>
-              <Pressable style={styles.addButton}>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={`${place.name} 여행 장바구니에 담기`}
+                hitSlop={8}
+                style={styles.addButton}
+              >
                 <Text style={styles.addButtonText}>담기</Text>
               </Pressable>
             </View>

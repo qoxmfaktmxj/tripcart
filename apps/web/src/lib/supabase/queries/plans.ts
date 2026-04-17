@@ -225,7 +225,7 @@ export async function createPlan(
   userId: string,
   input: {
     title: string
-    start_at?: string
+    start_at: string
     region: string
     transport_mode?: TravelMode
     origin_lat?: number
@@ -238,7 +238,7 @@ export async function createPlan(
     .insert({
       user_id: userId,
       title: input.title,
-      start_at: input.start_at ?? null,
+      start_at: input.start_at,
       region: input.region,
       transport_mode: input.transport_mode ?? 'car',
       origin_lat: input.origin_lat ?? null,

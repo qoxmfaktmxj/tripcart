@@ -15,9 +15,9 @@ The product principle is simple: planning and execution are not the same thing.
 | Phase | Scope | Status |
 |---|---|---|
 | Phase 0 | Monorepo, local Supabase, shared packages, web/mobile bootstrap | Complete |
-| Phase 1 | Auth, Places, Saved Places, Plans CRUD, Plan Stops | Complete |
-| Phase 1.5 | Guest-first trial, login migration, public landing, mobile tab nav | Complete |
-| Phase 2 | Optimizer integration, share/import, alternatives | Next |
+| Phase 1 | Auth, Places, Saved Places, Plans CRUD, Plan Stops | Implemented; audit hardening pending |
+| Phase 1.5 | Guest-first trial, login migration, public landing, mobile tab nav | Implemented; QA/docs alignment pending |
+| Phase 2 | Optimizer integration, share/import, alternatives | Next after Supabase RLS smoke |
 | Phase 3 | Execution, spends, media | Planned |
 | Phase 4 | Receipt OCR, gap suggest, smart alert | Planned |
 
@@ -35,8 +35,7 @@ The product principle is simple: planning and execution are not the same thing.
 - `remove_plan_stop` RPC 추가 (atomic stop 삭제 + stop_order 재정렬, SECURITY DEFINER + `auth.uid()` 기반 권한 확인)
 - stop_order 재정렬 순서 역전 버그 수정 (음수 offset → 양수 offset으로 ASC 순서 보존)
 - KST 타임존 처리 통일 (`home-view.ts`, `plans/[id]/page.tsx` 날짜 그룹 키)
-- API type drift 해소 (`OptimizeRequest`, `CreateShareRequest`, `ImportSharedRequest`가 API_CONTRACT v0.2와 일치)
-- CI 복구: pnpm 버전 중복 제거, ruff 린터 오류(F841, I001) 수정
+- audit 기준 문서 상태 재정렬: Phase 상태, 품질 게이트, Node/TS/RN 버전, 보안 TODO 갱신
 - Phase 1.5 mobile tab navigation (home/browse/plans/plan-detail/search) 완료
 
 ### 2026-04-09
@@ -51,11 +50,15 @@ The product principle is simple: planning and execution are not the same thing.
 - web home, `/places`, `/saved-places`, `/plans` respond with HTTP `200` for guest users
 - web `/plans/[id]` responds with HTTP `200` for authenticated users
 - guest save -> guest plan create -> login migration flow passes in browser QA
-- `pnpm lint` passes (warnings only)
+- `pnpm lint` passes with warnings only
 - `pnpm typecheck` passes
-- `pnpm --filter @tripcart/web test` — 25 tests passing
+- `pnpm test` passes
 - `pnpm build` passes
-- CI workflows (JS/TS + Python) pass on main
+- `pnpm --filter @tripcart/web e2e` passes with 2 Playwright tests
+- `uv run --extra dev pytest` passes with 8 optimizer tests
+- `uv run --extra dev ruff check .` passes
+- `pnpm audit --prod --audit-level high` passes with no high vulnerabilities
+- local Supabase `rpc_share_security_smoke.sql` passes
 
 ## Current implemented slice
 
@@ -67,7 +70,9 @@ The product principle is simple: planning and execution are not the same thing.
 - login/signup migration orchestrated on the web client
 - mobile tab navigation (home / browse / plans / plan-detail / search)
 
-### API endpoints (Phase 1 complete, 15 endpoints)
+### API endpoints (Phase 1 implemented slice, 15 endpoints)
+
+The routes below exist in the current web app. They do not mean the full `API_CONTRACT_v0.2.md` surface is implemented; optimizer, share/import, execution, spend, media, push, receipt, and AI assist remain Phase 2+ work or audit cleanup.
 
 ```
 # Auth
@@ -114,7 +119,7 @@ PATCH  /api/v1/plans/[id]/stops/reorder
 | Backend platform | Supabase | PostgreSQL 17 |
 | Optimizer | FastAPI + OR-Tools | Python 3.14 |
 | Monorepo | pnpm workspaces + Turborepo | 10.x / 2.x |
-| Language | TypeScript | 5.9.x |
+| Language | TypeScript | 5.8.x |
 
 ## Repository layout
 
@@ -130,7 +135,7 @@ PATCH  /api/v1/plans/[id]/stops/reorder
 
 ### Prerequisites
 
-- `Node.js 24.x`
+- `Node.js 22.x LTS`
 - `pnpm 10.x`
 - `Supabase CLI`
 - `Python 3.14`
@@ -181,10 +186,15 @@ uv run uvicorn main:app --reload --port 8100
 pnpm lint
 pnpm typecheck
 pnpm build
+pnpm test
 pnpm --filter @tripcart/web test
 pnpm --filter @tripcart/web e2e
+pnpm audit --prod --audit-level high
 pnpm --filter @tripcart/web dev
 pnpm --filter @tripcart/mobile dev
+cd services/optimizer
+uv run --extra dev pytest
+uv run --extra dev ruff check .
 ```
 
 ## Key documents

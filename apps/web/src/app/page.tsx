@@ -198,7 +198,7 @@ export default function HomePage(): React.JSX.Element {
               <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/18 text-white">
                 <CartIcon />
               </span>
-              <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-white/90 px-2 text-xs font-bold text-[#2f6f73]">
+              <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-white/90 px-2 text-xs font-bold text-primary-700">
                 {savedLoading ? '…' : savedPlaces.length}
               </span>
             </button>
@@ -220,7 +220,7 @@ export default function HomePage(): React.JSX.Element {
               className="mt-10 flex w-full max-w-[760px] items-center justify-between rounded-full border border-white/65 bg-white/24 px-7 py-[1.05rem] text-left text-xl font-medium text-white shadow-[0_18px_50px_rgba(15,23,42,0.16)] backdrop-blur-md transition hover:bg-white/30"
             >
               <span className="text-[1.1rem] sm:text-[1.2rem]">어디로 떠나시나요?</span>
-              <span className="flex h-[3.7rem] w-[3.7rem] items-center justify-center rounded-full bg-[#2f8a88] text-white shadow-[0_12px_24px_rgba(42,157,143,0.28)]">
+              <span className="flex h-[3.7rem] w-[3.7rem] items-center justify-center rounded-full bg-primary-500 text-white shadow-[0_12px_24px_rgba(42,157,143,0.28)]">
                 <SearchIcon />
               </span>
             </Link>
@@ -228,7 +228,7 @@ export default function HomePage(): React.JSX.Element {
             <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/places"
-                className="inline-flex h-11 items-center justify-center rounded-full bg-[#2f8a88] px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.24)] transition hover:bg-[#2a7674]"
+                className="inline-flex h-11 items-center justify-center rounded-full bg-primary-500 px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.24)] transition hover:bg-primary-700"
               >
                 바로 담아보기
               </Link>
@@ -250,9 +250,9 @@ export default function HomePage(): React.JSX.Element {
             <Link
               key={action.label}
               href={action.href}
-              className="inline-flex items-center gap-2.5 border-b-[4px] border-transparent px-1 pb-3 text-[1.38rem] font-semibold text-neutral-800 transition hover:border-[#2f8a88] hover:text-[#2f5f6c] sm:text-[1.82rem]"
+              className="inline-flex items-center gap-2.5 border-b-[4px] border-transparent px-1 pb-3 text-[1.38rem] font-semibold text-neutral-800 transition hover:border-primary-500 hover:text-primary-900 sm:text-[1.82rem]"
             >
-              <span className="inline-flex h-7 w-7 items-center justify-center text-[#2f6f73] sm:h-8 sm:w-8">
+              <span className="inline-flex h-7 w-7 items-center justify-center text-primary-700 sm:h-8 sm:w-8">
                 <NavIcon name={action.icon} />
               </span>
               <span>{action.label}</span>
@@ -279,7 +279,7 @@ export default function HomePage(): React.JSX.Element {
                     <Link
                       key={card.id}
                       href={card.href}
-                      className="group block w-[84vw] max-w-[336px] shrink-0 overflow-hidden rounded-[1.85rem] border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
+                      className="group block w-[84vw] max-w-[336px] shrink-0 overflow-hidden rounded-2xl border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
                     >
                       <div
                         className="relative flex min-h-[228px] items-end px-6 pb-6 pt-7 text-white"
@@ -289,7 +289,7 @@ export default function HomePage(): React.JSX.Element {
                           backgroundPosition: 'center',
                         }}
                       >
-                        <span className="absolute right-5 top-5 rounded-full border border-[#6ca8a2] bg-[#eaf8f5] px-3 py-[0.35rem] text-[0.82rem] font-semibold text-[#2f6f73] shadow-sm">
+                        <span className="absolute right-5 top-5 rounded-full border border-primary-300 bg-primary-50 px-3 py-[0.35rem] text-[0.82rem] font-semibold text-primary-700 shadow-sm">
                           {card.statusLabel}
                         </span>
                         <div className="drop-shadow-[0_8px_18px_rgba(0,0,0,0.28)]">
@@ -302,9 +302,9 @@ export default function HomePage(): React.JSX.Element {
                     <Link
                       key={card.id}
                       href={card.href}
-                      className="flex min-h-[228px] w-[84vw] max-w-[336px] shrink-0 flex-col items-center justify-center rounded-[1.9rem] border border-white/85 bg-white shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1"
+                      className="flex min-h-[228px] w-[84vw] max-w-[336px] shrink-0 flex-col items-center justify-center rounded-2xl border border-white/85 bg-white shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1"
                     >
-                      <span className="text-[#2f6f73]">
+                      <span className="text-primary-700">
                         <PlusIcon />
                       </span>
                       <span className="mt-4 text-[2rem] font-bold tracking-tight text-primary-900">{card.title}</span>
@@ -321,7 +321,7 @@ export default function HomePage(): React.JSX.Element {
                 <Link
                   key={card.id}
                   href={card.href}
-                  className="group overflow-hidden rounded-[1.85rem] border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
+                  className="group overflow-hidden rounded-2xl border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
                 >
                   <div
                     className="relative flex min-h-[236px] items-end px-6 pb-6 pt-7 text-white"
@@ -331,7 +331,7 @@ export default function HomePage(): React.JSX.Element {
                       backgroundPosition: 'center',
                     }}
                   >
-                    <span className="absolute right-5 top-5 rounded-full border border-[#6ca8a2] bg-[#eaf8f5] px-3 py-[0.35rem] text-[0.82rem] font-semibold text-[#2f6f73] shadow-sm">
+                    <span className="absolute right-5 top-5 rounded-full border border-primary-300 bg-primary-50 px-3 py-[0.35rem] text-[0.82rem] font-semibold text-primary-700 shadow-sm">
                       {card.statusLabel}
                     </span>
                     <div className="drop-shadow-[0_8px_18px_rgba(0,0,0,0.28)]">
@@ -344,9 +344,9 @@ export default function HomePage(): React.JSX.Element {
                 <Link
                   key={card.id}
                   href={card.href}
-                  className="flex min-h-[236px] flex-col items-center justify-center rounded-[1.9rem] border border-white/85 bg-white shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1"
+                  className="flex min-h-[236px] flex-col items-center justify-center rounded-2xl border border-white/85 bg-white shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1"
                 >
-                  <span className="text-[#2f6f73]">
+                  <span className="text-primary-700">
                     <PlusIcon />
                   </span>
                   <span className="mt-4 text-[2.3rem] font-bold tracking-tight text-primary-900">{card.title}</span>
@@ -373,7 +373,7 @@ export default function HomePage(): React.JSX.Element {
                   <Link
                     key={place.id}
                     href={place.href}
-                    className="group block w-[84vw] max-w-[336px] shrink-0 overflow-hidden rounded-[1.85rem] border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
+                    className="group block w-[84vw] max-w-[336px] shrink-0 overflow-hidden rounded-2xl border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
                   >
                     <div
                       className="min-h-[236px] bg-cover bg-center"
@@ -381,7 +381,7 @@ export default function HomePage(): React.JSX.Element {
                     >
                       <div className="flex min-h-[236px] flex-col justify-end px-7 pb-8 pt-8 text-white">
                         <div className="mb-3 flex gap-2">
-                          <span className="rounded-full bg-white/88 px-3 py-1 text-xs font-semibold text-[#2f6f73]">
+                          <span className="rounded-full bg-white/88 px-3 py-1 text-xs font-semibold text-primary-700">
                             {place.region}
                           </span>
                           <span className="rounded-full bg-white/18 px-3 py-1 text-xs font-semibold text-white">
@@ -403,7 +403,7 @@ export default function HomePage(): React.JSX.Element {
               <Link
                 key={place.id}
                 href={place.href}
-                className="group overflow-hidden rounded-[1.85rem] border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
+                className="group overflow-hidden rounded-2xl border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
               >
                 <div
                   className="min-h-[248px] bg-cover bg-center"
@@ -411,7 +411,7 @@ export default function HomePage(): React.JSX.Element {
                 >
                   <div className="flex min-h-[248px] flex-col justify-end px-7 pb-8 pt-8 text-white">
                     <div className="mb-3 flex gap-2">
-                      <span className="rounded-full bg-white/88 px-3 py-1 text-xs font-semibold text-[#2f6f73]">
+                      <span className="rounded-full bg-white/88 px-3 py-1 text-xs font-semibold text-primary-700">
                         {place.region}
                       </span>
                       <span className="rounded-full bg-white/18 px-3 py-1 text-xs font-semibold text-white">
@@ -468,7 +468,7 @@ export default function HomePage(): React.JSX.Element {
                   <div className="min-w-0">
                     <p className="truncate text-[1.1rem] font-semibold text-primary-900">{item.place.name}</p>
                     <p className="mt-1 text-sm text-neutral-500">{item.place.region}</p>
-                    <p className="mt-1 text-xs font-medium text-[#2f6f73]">{categoryLabel(item.place.category)}</p>
+                    <p className="mt-1 text-xs font-medium text-primary-700">{categoryLabel(item.place.category)}</p>
                   </div>
                 </Link>
               ))}
@@ -491,7 +491,7 @@ export default function HomePage(): React.JSX.Element {
               <Link
                 href="/plans"
                 onClick={() => setDrawerOpen(false)}
-                className="inline-flex h-12 items-center justify-center rounded-full bg-[#2f8a88] px-5 text-base font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.18)] transition hover:bg-[#2a7674]"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-primary-500 px-5 text-base font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.18)] transition hover:bg-primary-700"
               >
                 플랜 만들기
               </Link>

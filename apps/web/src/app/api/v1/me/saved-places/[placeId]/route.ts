@@ -13,7 +13,7 @@ import { removeSavedPlace } from '@/lib/supabase/queries/saved-places'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ placeId: string }> },
 ) {
   try {
@@ -32,7 +32,7 @@ export async function DELETE(
       )
     }
 
-    const supabase = await createClient()
+    const supabase = await createClient(request)
     const {
       data: { user },
       error: authError,

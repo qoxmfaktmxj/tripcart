@@ -119,7 +119,7 @@ function MapIllustration({ count }: { count: number }): React.JSX.Element {
   )
 
   return (
-    <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
+    <div className="absolute inset-0 overflow-hidden rounded-2xl">
       <svg viewBox="0 0 700 860" className="h-full w-full" aria-hidden="true">
         <defs>
           <linearGradient id="sea" x1="0" x2="0" y1="0" y2="1">
@@ -166,7 +166,7 @@ function MapIllustration({ count }: { count: number }): React.JSX.Element {
           const cy = (top / 100) * 860
           return (
             <g key={`${point.top}-${point.left}`}>
-              <circle cx={cx} cy={cy} r="18" fill="#2f8a88" />
+              <circle cx={cx} cy={cy} r="18" fill="var(--color-primary-500)" />
               <text
                 x={cx}
                 y={cy + 5}
@@ -219,7 +219,7 @@ export default function PlacesPage(): React.JSX.Element {
     useState<CategoryFilter>(DEFAULT_CATEGORY)
   const [openMenu, setOpenMenu] = useState<'region' | 'category' | null>(null)
   const [actionError, setActionError] = useState<string | null>(null)
-  const { user, authLoading, isSaved, isMutating, save, remove } = useSavedPlaces()
+  const { authLoading, isSaved, isMutating, save, remove } = useSavedPlaces()
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
@@ -329,14 +329,14 @@ export default function PlacesPage(): React.JSX.Element {
           </h1>
           <Link
             href="/"
-            className="inline-flex h-10 items-center justify-center rounded-full bg-neutral-100 px-4 text-sm font-semibold text-neutral-500 transition hover:bg-neutral-200"
+            className="inline-flex h-11 items-center justify-center rounded-full bg-neutral-100 px-4 text-sm font-semibold text-neutral-500 transition hover:bg-neutral-200"
           >
             홈으로
           </Link>
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[0.93fr_1.02fr]">
-          <section className="overflow-hidden rounded-[2rem] border border-white/90 bg-white/92 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
+          <section className="overflow-hidden rounded-2xl border border-white/90 bg-white/92 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
             <div className="border-b border-neutral-200 px-6 py-5">
               <form
                 className="flex flex-col gap-4"
@@ -356,12 +356,12 @@ export default function PlacesPage(): React.JSX.Element {
                       value={query}
                       onChange={(event) => setQuery(event.target.value)}
                       placeholder="장소 이름이나 키워드를 검색하세요"
-                      className="h-14 w-full rounded-[1.2rem] border border-neutral-300 bg-white pl-14 pr-5 text-[1.05rem] text-primary-900 outline-none transition focus:border-[#2f8a88]"
+                      className="h-14 w-full rounded-xl border border-neutral-300 bg-white pl-14 pr-5 text-[1.05rem] text-primary-900 outline-none transition focus:border-primary-500"
                     />
                   </label>
                   <button
                     type="submit"
-                    className="inline-flex h-14 items-center justify-center rounded-[1.2rem] bg-[#2f8a88] px-5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.18)] transition hover:bg-[#2a7674]"
+                    className="inline-flex h-14 items-center justify-center rounded-xl bg-primary-500 px-5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.18)] transition hover:bg-primary-700"
                   >
                     검색
                   </button>
@@ -377,7 +377,7 @@ export default function PlacesPage(): React.JSX.Element {
                     }
                     className={`inline-flex h-11 items-center justify-center gap-2 rounded-full border px-5 text-[0.98rem] font-medium transition ${
                       openMenu === 'region'
-                        ? 'border-[#2f8a88] bg-[#e8f4ef] text-[#2f6f73]'
+                        ? 'border-primary-500 bg-primary-50 text-primary-700'
                         : 'border-neutral-300 bg-white text-neutral-700'
                     }`}
                   >
@@ -393,7 +393,7 @@ export default function PlacesPage(): React.JSX.Element {
                     }
                     className={`inline-flex h-11 items-center justify-center gap-2 rounded-full border px-5 text-[0.98rem] font-medium transition ${
                       openMenu === 'category'
-                        ? 'border-[#2f8a88] bg-[#e8f4ef] text-[#2f6f73]'
+                        ? 'border-primary-500 bg-primary-50 text-primary-700'
                         : 'border-neutral-300 bg-white text-neutral-700'
                     }`}
                   >
@@ -410,13 +410,13 @@ export default function PlacesPage(): React.JSX.Element {
                 </div>
 
                 {selectedCategoryLabel ? (
-                  <div className="inline-flex items-center rounded-full bg-[#e8f4ef] px-4 py-2 text-sm font-semibold text-[#2f6f73]">
+                  <div className="inline-flex items-center rounded-full bg-primary-50 px-4 py-2 text-sm font-semibold text-primary-700">
                     현재 카테고리: {selectedCategoryLabel}
                   </div>
                 ) : null}
 
                 {openMenu === 'region' ? (
-                  <div className="rounded-[1.4rem] border border-neutral-200 bg-neutral-50 p-3">
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
                     <p className="mb-3 text-sm font-semibold text-neutral-600">
                       지역 선택
                     </p>
@@ -431,7 +431,7 @@ export default function PlacesPage(): React.JSX.Element {
                           }}
                           className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                             selectedRegion === region
-                              ? 'bg-[#2f8a88] text-white'
+                              ? 'bg-primary-500 text-white'
                               : 'bg-white text-neutral-700'
                           }`}
                         >
@@ -446,7 +446,7 @@ export default function PlacesPage(): React.JSX.Element {
                 ) : null}
 
                 {openMenu === 'category' ? (
-                  <div className="rounded-[1.4rem] border border-neutral-200 bg-neutral-50 p-3">
+                  <div className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
                     <p className="mb-3 text-sm font-semibold text-neutral-600">
                       카테고리 선택
                     </p>
@@ -461,7 +461,7 @@ export default function PlacesPage(): React.JSX.Element {
                           }}
                           className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                             selectedCategory === category
-                              ? 'bg-[#2f8a88] text-white'
+                              ? 'bg-primary-500 text-white'
                               : 'bg-white text-neutral-700'
                           }`}
                         >
@@ -490,30 +490,30 @@ export default function PlacesPage(): React.JSX.Element {
                 Array.from({ length: 4 }).map((_, index) => (
                   <div
                     key={`place-skeleton-${index}`}
-                    className="h-[130px] rounded-[1.65rem] border border-neutral-200 bg-neutral-50"
+                    className="h-[130px] rounded-2xl border border-neutral-200 bg-neutral-50"
                   />
                 ))
               ) : error ? (
-                <div className="rounded-[1.65rem] border border-coral-500/30 bg-coral-50 px-5 py-4 text-sm text-coral-500">
+                <div className="rounded-2xl border border-coral-500/30 bg-coral-50 px-5 py-4 text-sm text-coral-500">
                   {error}
                 </div>
               ) : items.length === 0 ? (
-                <div className="rounded-[1.65rem] border border-neutral-200 bg-neutral-50 px-5 py-4 text-sm text-neutral-500">
+                <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-5 py-4 text-sm text-neutral-500">
                   현재 조건에 맞는 장소가 없습니다.
                 </div>
               ) : (
                 items.map((item, index) => (
                   <article
                     key={item.id}
-                    className="flex flex-col gap-4 rounded-[1.6rem] border border-neutral-200 bg-white px-4 py-4 shadow-[0_4px_14px_rgba(38,70,83,0.04)] sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-4 rounded-2xl border border-neutral-200 bg-white px-4 py-4 shadow-[0_4px_14px_rgba(38,70,83,0.04)] sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <div className="flex min-w-0 items-center gap-4">
+                    <div className="flex min-w-0 flex-col gap-4 sm:flex-1 sm:flex-row sm:items-center">
                       <div
-                        className="h-28 w-[10.5rem] shrink-0 rounded-[1rem] bg-cover bg-center"
+                        className="h-36 w-full shrink-0 rounded-xl bg-cover bg-center sm:h-28 sm:w-40"
                         style={{ backgroundImage: `url(${getPlaceImage(item, index)})` }}
                       />
-                      <div className="min-w-0">
-                        <h2 className="text-[2rem] font-bold tracking-tight text-primary-900">
+                      <div className="min-w-0 flex-1">
+                        <h2 className="break-keep text-2xl font-bold leading-tight tracking-tight text-primary-900 sm:text-3xl">
                           {item.name}
                         </h2>
                         <p className="mt-1 text-[1rem] text-neutral-500">
@@ -527,7 +527,7 @@ export default function PlacesPage(): React.JSX.Element {
                             .map((tag) => (
                               <span
                                 key={`${item.id}-${tag}`}
-                                className="rounded-full bg-[#e8f4ef] px-3 py-1 text-sm font-medium text-[#2f6f73]"
+                                className="rounded-full bg-primary-50 px-3 py-1 text-sm font-medium text-primary-700"
                               >
                                 #{tag}
                               </span>
@@ -541,7 +541,7 @@ export default function PlacesPage(): React.JSX.Element {
                         type="button"
                         onClick={() => void handleSaveToggle(item)}
                         disabled={authLoading || isMutating(item.id)}
-                        className="inline-flex h-12 items-center justify-center rounded-full bg-[#2f8a88] px-7 text-[1.02rem] font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.18)] transition hover:bg-[#2a7674] disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex h-12 items-center justify-center rounded-full bg-primary-500 px-7 text-[1.02rem] font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.18)] transition hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         {authLoading
                           ? '확인 중'
@@ -564,11 +564,11 @@ export default function PlacesPage(): React.JSX.Element {
             </div>
           </section>
 
-          <aside className="hidden xl:flex relative min-h-[760px] overflow-hidden rounded-[2rem] border border-white/90 bg-white/82 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
+          <aside className="hidden xl:flex relative min-h-[760px] overflow-hidden rounded-2xl border border-white/90 bg-white/82 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
             <MapIllustration count={items.length} />
             <Link
               href="/plans"
-              className="absolute bottom-6 right-6 inline-flex h-14 items-center justify-center rounded-full bg-[#2f8a88] px-6 text-xl font-semibold text-white shadow-[0_16px_28px_rgba(42,157,143,0.24)] transition hover:bg-[#2a7674]"
+              className="absolute bottom-6 right-6 inline-flex h-14 items-center justify-center rounded-full bg-primary-500 px-6 text-xl font-semibold text-white shadow-[0_16px_28px_rgba(42,157,143,0.24)] transition hover:bg-primary-700"
             >
               + 새 계획 만들기
             </Link>

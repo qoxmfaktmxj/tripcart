@@ -1,5 +1,5 @@
 # TripCart Security and Data Policy v1.0
-업데이트: 2026-03-24  
+업데이트: 2026-04-15
 상태: **Canonical**
 
 ## 1. 보안 목표
@@ -85,6 +85,21 @@ TripCart는 여행 기록, 위치, 지출, 영수증, 사진을 다루므로
 - private / link_only / public visibility 를 구분
 - 공유 링크는 원본 plan 자체가 아니라 공유 snapshot 을 노출
 - import 는 새 plan 을 생성하며 원본을 직접 편집하지 않는다
+- `link_only`는 테이블 직접 select로 열거 가능하면 안 된다.
+- `link_only` 조회는 share_code, visibility, expires_at을 검증하는 서버/RPC 경로로 제한한다.
+
+## 9.1 2026-04 audit hardening 상태
+
+아래 항목은 2026-04-15 hardening 기준이다.
+
+- SECURITY DEFINER RPC는 `auth.uid()` 존재와 소유권을 함수 내부에서 확인한다.
+- SECURITY DEFINER RPC에는 `SET search_path = public`을 명시한다.
+- PUBLIC/anon/authenticated 기본 EXECUTE 권한은 최소 권한으로 재부여한다.
+- `link_only` 공유 일정 직접 select는 차단하고 share_code 검증 RPC로 조회한다.
+- optimizer `/v1/optimize`, `/v1/matrix`는 internal bearer token을 요구한다.
+- production dependency audit high 취약점은 릴리스 차단으로 본다.
+- owner mismatch와 `link_only` 직접 select 차단은 local Supabase smoke로 검증한다.
+- 남은 수동 확인: `.env.local` hosted secret rotation 여부.
 
 ## 10. 운영 보안 체크리스트
 
@@ -94,6 +109,9 @@ TripCart는 여행 기록, 위치, 지출, 영수증, 사진을 다루므로
 - storage bucket policy 확인
 - signed URL expiration 확인
 - optimizer internal auth 확인
+- SECURITY DEFINER RPC owner mismatch 테스트 통과
+- `link_only` 공유 visibility 테스트 통과
+- production dependency audit high 없음
 
 ### 기능 릴리스 전
 - receipt retention 정책 확인

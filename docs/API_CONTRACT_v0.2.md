@@ -294,24 +294,26 @@ Response:
 Response:
 ```json
 {
-  "id": "uuid",
-  "title": "부산 당일치기",
-  "region": "busan",
-  "status": "confirmed",
-  "transport_mode": "car",
-  "start_at": "2026-05-02T09:00:00+09:00",
-  "origin": { "lat": 35.1152, "lng": 129.0422, "name": "부산역" },
-  "destination": null,
-  "version": 1,
-  "stops": [],
-  "optimization_meta": {
-    "total_travel_minutes": 98,
-    "score": 92.3,
-    "warning_count": 0,
-    "optimized_at": "2026-03-24T11:00:00+09:00"
-  },
-  "alternatives_count": 3,
-  "has_active_execution": false
+  "data": {
+    "id": "uuid",
+    "title": "부산 당일치기",
+    "region": "busan",
+    "status": "confirmed",
+    "transport_mode": "car",
+    "start_at": "2026-05-02T09:00:00+09:00",
+    "origin": { "lat": 35.1152, "lng": 129.0422, "name": "부산역" },
+    "destination": null,
+    "version": 1,
+    "stops": [],
+    "optimization_meta": {
+      "total_travel_minutes": 98,
+      "score": 92.3,
+      "warning_count": 0,
+      "optimized_at": "2026-03-24T11:00:00+09:00"
+    },
+    "alternatives_count": 3,
+    "has_active_execution": false
+  }
 }
 ```
 
@@ -338,7 +340,79 @@ Response:
 - 수정되면 status 는 `draft` 로 되돌린다
 - active execution 이 있으면 409 `PLAN_IN_PROGRESS`
 
-### 6.5 `PATCH /plans/:id/stops/reorder`
+### 6.5 `POST /plans/:id/stops`
+계획에 경유지 추가.
+
+Request:
+```json
+{
+  "place_id": "uuid",
+  "dwell_minutes": 60,
+  "locked": false
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "id": "uuid",
+    "place_id": "uuid",
+    "stop_order": 1,
+    "locked": false,
+    "dwell_minutes": 60,
+    "arrive_at": null,
+    "leave_at": null,
+    "warnings": []
+  }
+}
+```
+
+규칙:
+- 추가되면 plan status 는 `draft` 로 되돌린다
+- active execution 이 있으면 409 `PLAN_IN_PROGRESS`
+
+### 6.6 `PATCH /plans/:id/stops/:stop_id`
+계획 경유지 수정.
+
+Request:
+```json
+{
+  "dwell_minutes": 75,
+  "locked": true,
+  "user_note": "점심 고정"
+}
+```
+
+Response:
+```json
+{
+  "data": {
+    "id": "uuid",
+    "place_id": "uuid",
+    "stop_order": 2,
+    "locked": true,
+    "dwell_minutes": 75,
+    "arrive_at": null,
+    "leave_at": null,
+    "warnings": []
+  }
+}
+```
+
+### 6.7 `DELETE /plans/:id/stops/:stop_id`
+계획 경유지 삭제.
+
+Response:
+```http
+204 No Content
+```
+
+규칙:
+- 삭제와 `stop_order` 재정렬은 DB RPC에서 원자적으로 처리한다
+- active execution 이 있으면 409 `PLAN_IN_PROGRESS`
+
+### 6.8 `PATCH /plans/:id/stops/reorder`
 경유지 순서 변경.
 
 Request:
@@ -358,7 +432,7 @@ Response:
 }
 ```
 
-### 6.6 `POST /plans/:id/optimize`
+### 6.9 `POST /plans/:id/optimize`
 최적화 실행.
 
 Request:
@@ -381,7 +455,7 @@ Response:
 }
 ```
 
-### 6.7 `GET /plans/:id/alternatives`
+### 6.10 `GET /plans/:id/alternatives`
 대안 일정안 목록.
 
 Response:
@@ -403,7 +477,7 @@ Response:
 }
 ```
 
-### 6.8 `POST /plans/:id/alternatives/:idx/select`
+### 6.11 `POST /plans/:id/alternatives/:idx/select`
 대안 확정.
 
 Response:
@@ -415,7 +489,7 @@ Response:
 }
 ```
 
-### 6.9 `POST /plans/:id/share`
+### 6.12 `POST /plans/:id/share`
 공유 링크 생성.
 
 Request:
@@ -432,7 +506,8 @@ Response:
 {
   "shared_id": "uuid",
   "share_code": "a1b2c3d4e5f6",
-  "share_url": "https://tripcart.kr/trip/a1b2c3d4e5f6"
+  "share_url": "https://tripcart.kr/trip/a1b2c3d4e5f6",
+  "expires_at": null
 }
 ```
 
@@ -440,6 +515,10 @@ Response:
 
 ### 7.1 `GET /shared/:code`
 공유 일정 미리보기.
+
+Rules:
+- `link_only` 공유 일정은 테이블 직접 select로 노출하지 않는다.
+- 서버/RPC 계층에서 `share_code`, `visibility`, `expires_at`을 검증한 뒤 snapshot만 반환한다.
 
 Response:
 ```json
@@ -749,6 +828,8 @@ Response:
 ## 12. Optimizer Internal API
 
 > 이 API는 클라이언트가 직접 호출하지 않는다. App API / server-side orchestration 에서만 호출한다.
+> 모든 요청은 `Authorization: Bearer <OPTIMIZER_INTERNAL_TOKEN>`을 요구한다.
+> Phase 2 구현 전 stub은 아래 request shape를 검증한 뒤 표준 error envelope의 `501 NOT_IMPLEMENTED`를 반환한다.
 
 ### 12.1 `POST /optimize`
 Request:

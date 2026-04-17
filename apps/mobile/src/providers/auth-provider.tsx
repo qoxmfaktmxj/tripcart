@@ -1,8 +1,3 @@
-/**
- * Mobile Auth Provider
- * onAuthStateChange로 인증 상태를 전역 관리
- */
-
 import {
   createContext,
   useContext,
@@ -10,8 +5,9 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { Text, View } from 'react-native'
 import type { Session, User } from '@supabase/supabase-js'
-import { supabase } from '../lib/supabase'
+import { supabase, supabaseConfigError } from '../lib/supabase'
 
 interface AuthContextValue {
   user: User | null
@@ -32,31 +28,93 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // getUser()로 서버 검증 — getSession()은 로컬 토큰만 읽어 위변조에 취약
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-          setSession(session)
-          setLoading(false)
-        })
-      } else {
-        setSession(null)
-        setLoading(false)
-      }
-    })
+    const client = supabase
 
-    // 실시간 상태 변경 구독
+    if (!client) {
+      setLoading(false)
+      return
+    }
+
+    const authClient = client.auth
+    let mounted = true
+
+    async function loadInitialSession() {
+      try {
+        const {
+          data: { user },
+        } = await authClient.getUser()
+
+        if (!mounted) return
+
+        if (!user) {
+          setSession(null)
+          return
+        }
+
+        const {
+          data: { session },
+        } = await authClient.getSession()
+
+        if (mounted) setSession(session)
+      } catch {
+        if (mounted) setSession(null)
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    }
+
+    void loadInitialSession()
+
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
+    } = authClient.onAuthStateChange((_event, nextSession) => {
+      if (mounted) setSession(nextSession)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signOut = async () => {
+    if (!supabase) return
     await supabase.auth.signOut()
+  }
+
+  if (supabaseConfigError) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+          backgroundColor: '#F8FAFB',
+        }}
+      >
+        <Text
+          style={{
+            color: '#264653',
+            fontSize: 18,
+            fontWeight: '700',
+            textAlign: 'center',
+          }}
+        >
+          Supabase configuration is missing
+        </Text>
+        <Text
+          style={{
+            marginTop: 8,
+            color: '#64748B',
+            fontSize: 14,
+            textAlign: 'center',
+          }}
+        >
+          Set EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY.
+        </Text>
+      </View>
+    )
   }
 
   return (

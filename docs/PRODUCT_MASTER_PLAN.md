@@ -1,5 +1,5 @@
 ﻿# TripCart Product Master Plan v1.1
-업데이트: 2026-03-24  
+업데이트: 2026-04-15
 상태: **Canonical**
 
 ## 1. 제품 한 줄 정의
@@ -129,7 +129,7 @@ TripCart는 “여행 콘텐츠 플랫폼”보다 “여행 운영 도구”에
 | Web | Next.js | **16.x** | 공유 페이지, 웹앱, 운영/관리도구 |
 | Web Runtime | React | **19.2.x** | Next.js 16 내장 |
 | Web Styling | Tailwind CSS | **4.1.x** | CSS-first @theme 방식 |
-| Mobile | Expo (React Native) | **SDK 54** (RN 0.76) | iOS/Android 동시 대응, 빠른 반복 |
+| Mobile | Expo (React Native) | **SDK 54** (RN 0.81.x) | iOS/Android 동시 대응, 빠른 반복 |
 | DB/Auth/Storage | Supabase | PostgreSQL **17** | Auth + RLS + Storage + local stack 일체화 |
 | Supabase JS | @supabase/supabase-js | **2.80.x** | 공식 JS 클라이언트 |
 | Optimizer | Python FastAPI + OR-Tools | FastAPI **0.115.x+** / OR-Tools **9.12.x+** | time-window routing / scheduling 핵심 |
@@ -141,7 +141,7 @@ TripCart는 “여행 콘텐츠 플랫폼”보다 “여행 운영 도구”에
 | Linter | ESLint | **9.x** (flat config) | eslint.config.js 방식 |
 | Formatter | Prettier | **3.5.x+** | 코드 포맷 일관성 |
 | Test (Unit/통합) | Vitest | **3.x** | 빠른 단위/통합 테스트 |
-| Test (E2E) | Playwright | **1.57.x+** | 핵심 사용자 흐름 E2E |
+| Test (E2E) | Playwright | **1.59.x+** | 핵심 사용자 흐름 E2E |
 | Shared UI | packages/ui | - | 디자인 토큰/컴포넌트 재사용 |
 | Shared Types | packages/types | - | API/DB 도메인 타입 일치 |
 | Background Jobs | 초기엔 최소화 | - | 과도한 서버복잡도 방지 |

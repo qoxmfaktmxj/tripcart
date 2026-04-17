@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const supabase = await createClient()
+    const supabase = await createClient(request)
 
     const queryParams: Record<string, string | number> = {}
     if (region) queryParams.region = region

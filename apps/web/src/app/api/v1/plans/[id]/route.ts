@@ -24,7 +24,7 @@ const VALID_TRAVEL_MODES: TravelMode[] = ['car', 'transit', 'walk', 'bicycle']
 // ── GET ──────────────────────────────────────────────────────────
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -43,7 +43,7 @@ export async function GET(
       )
     }
 
-    const supabase = await createClient()
+    const supabase = await createClient(request)
     const {
       data: { user },
       error: authError,
@@ -97,7 +97,7 @@ export async function PATCH(
       )
     }
 
-    const supabase = await createClient()
+    const supabase = await createClient(request)
     const {
       data: { user },
       error: authError,
@@ -197,7 +197,7 @@ export async function PATCH(
 // ── DELETE ────────────────────────────────────────────────────────
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -216,7 +216,7 @@ export async function DELETE(
       )
     }
 
-    const supabase = await createClient()
+    const supabase = await createClient(request)
     const {
       data: { user },
       error: authError,

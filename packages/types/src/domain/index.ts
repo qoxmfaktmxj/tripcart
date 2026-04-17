@@ -187,13 +187,16 @@ export interface TripPlan {
 
 export interface ExecutionStop {
   id: UUID
-  plan_stop_id: UUID
-  place: PlaceSummary
   stop_order: number
-  visit_status: StopVisitStatus
-  arrived_at: ISODateString | null
-  departed_at: ISODateString | null
-  note: string | null
+  place_id: UUID
+  place_name: string
+  planned_arrive_at: ISODateString | null
+  planned_leave_at: ISODateString | null
+  arrive_at: ISODateString | null
+  leave_at: ISODateString | null
+  skipped: boolean
+  skip_reason?: string | null
+  is_adhoc: boolean
 }
 
 export interface TripExecution {
@@ -201,19 +204,20 @@ export interface TripExecution {
   plan_id: UUID
   user_id: UUID
   status: ExecutionStatus
-  started_at: ISODateString
+  started_at: ISODateString | null
   ended_at: ISODateString | null
+  delay_minutes?: number
+  reopt_count?: number
   stops: ExecutionStop[]
 }
 
 export interface TripSpend {
   id: UUID
   execution_id: UUID
-  execution_stop_id: UUID | null
+  stop_id: UUID | null
   category: SpendCategory
   total_amount: number
-  note: string | null
-  spent_at: ISODateString
+  occurred_at: ISODateString
 }
 
 export interface SharedItinerary {
@@ -267,6 +271,9 @@ export const ERROR_CODES = {
   DUPLICATE_TOKEN: 'DUPLICATE_TOKEN',
   RECEIPT_PARSE_FAILED: 'RECEIPT_PARSE_FAILED',
   STORAGE_UPLOAD_FAILED: 'STORAGE_UPLOAD_FAILED',
+  GUEST_MIGRATION_PARTIAL: 'GUEST_MIGRATION_PARTIAL',
+  GUEST_MIGRATION_FAILED: 'GUEST_MIGRATION_FAILED',
+  DUPLICATE_PLAN_TITLE: 'DUPLICATE_PLAN_TITLE',
 } as const
 
 export type ErrorCode = (typeof ERROR_CODES)[keyof typeof ERROR_CODES]

@@ -12,9 +12,9 @@ import { getSavedPlaces, addSavedPlace } from '@/lib/supabase/queries/saved-plac
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = await createClient(request)
     const {
       data: { user },
       error: authError,
@@ -54,7 +54,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
+    const supabase = await createClient(request)
     const {
       data: { user },
       error: authError,

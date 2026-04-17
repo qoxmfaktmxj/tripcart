@@ -14,7 +14,7 @@ import { getPlaceById } from '@/lib/supabase/queries/places'
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
@@ -33,7 +33,7 @@ export async function GET(
       )
     }
 
-    const supabase = await createClient()
+    const supabase = await createClient(request)
     const place = await getPlaceById(supabase, id)
 
     if (!place) {

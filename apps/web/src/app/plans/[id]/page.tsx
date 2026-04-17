@@ -3,41 +3,9 @@
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { TravelMode } from '@tripcart/types'
+import type { PlanStatus, TravelMode, TripPlan } from '@tripcart/types'
 
-type PlanStop = {
-  id: string
-  stop_order: number
-  place_id: string | null
-  custom_name: string | null
-  locked: boolean
-  dwell_minutes: number | null
-  arrive_at: string | null
-  leave_at: string | null
-  place: {
-    id: string
-    name: string
-    category: string
-    lat: number
-    lng: number
-  } | null
-}
-
-type PlanDetail = {
-  id: string
-  title: string
-  start_at: string | null
-  region: string | null
-  transport_mode: TravelMode
-  status: string
-  version: number
-  origin_name: string | null
-  origin_lat: number | null
-  origin_lng: number | null
-  created_at: string
-  updated_at: string
-  stops: PlanStop[]
-}
+type PlanDetail = TripPlan
 
 type PlanDetailResponse = {
   data: PlanDetail
@@ -116,14 +84,17 @@ function getHeroImage(title: string): string {
   return 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80'
 }
 
-function getStatusLabel(status: string): string {
-  if (status === 'draft') return '초안'
-  if (status === 'ready' || status === 'confirmed') return '예정'
-  if (status === 'optimized') return '최적화 완료'
-  if (status === 'in_progress') return '진행 중'
-  if (status === 'completed') return '완료'
-  if (status === 'cancelled' || status === 'archived') return '보관됨'
-  return status
+const PLAN_STATUS_LABELS: Record<PlanStatus, string> = {
+  draft: '초안',
+  optimized: '최적화 완료',
+  confirmed: '예정',
+  in_progress: '진행 중',
+  completed: '완료',
+  cancelled: '취소됨',
+}
+
+function getStatusLabel(status: PlanStatus): string {
+  return PLAN_STATUS_LABELS[status]
 }
 
 function buildSections(item: PlanDetail): DisplaySection[] {
@@ -158,7 +129,6 @@ function buildSections(item: PlanDetail): DisplaySection[] {
     current.stops.push({
       id: stop.id,
       label:
-        stop.custom_name?.trim() ||
         stop.place?.name ||
         (stop.place_id ? `장소 ${stop.stop_order}` : `직접 입력 스톱 ${stop.stop_order}`),
       timeLabel: formatTimelineTime(stop.arrive_at ?? stop.leave_at),

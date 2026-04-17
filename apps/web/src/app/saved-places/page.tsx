@@ -19,7 +19,7 @@ const SAVED_IMAGES = [
 ]
 
 export default function SavedPlacesPage(): React.JSX.Element {
-  const { user, authLoading, loading, error, items, isMutating, remove, storageMode } =
+  const { authLoading, loading, error, items, isMutating, remove, storageMode } =
     useSavedPlaces()
 
   const handleRemove = async (placeId: string) => {
