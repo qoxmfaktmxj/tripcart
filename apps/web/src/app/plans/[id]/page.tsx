@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { PlanStatus, TravelMode, TripPlan } from '@tripcart/types'
+import { StatusBadge } from '@/components/status-badge'
 
 type PlanDetail = TripPlan
 
@@ -542,7 +543,7 @@ export default function PlanDetailPage(): React.JSX.Element {
   const regionLabel = item.region ? REGION_LABELS[item.region] ?? item.region : '지역 미정'
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(223,242,240,0.92),_rgba(248,250,251,1)_42%,_rgba(252,247,235,0.92)_100%)] px-6 py-8 sm:px-8 lg:px-10">
+    <main className="min-h-screen bg-neutral-50 px-6 py-8 sm:px-8 lg:px-10">
       <div className="mx-auto flex max-w-[1320px] flex-col gap-7">
         <div>
           <h1 className="text-[3.6rem] font-bold tracking-tight text-primary-900">
@@ -581,7 +582,7 @@ export default function PlanDetailPage(): React.JSX.Element {
                           key={stop.id}
                           className="grid grid-cols-[88px_18px_1fr] items-start gap-4"
                         >
-                          <div className="pt-1 text-right text-[1.02rem] font-medium text-neutral-800">
+                          <div className="pt-1 text-right font-mono tabular-nums text-[1.02rem] font-medium text-neutral-800">
                             {stop.timeLabel}
                           </div>
                           <div className="relative flex min-h-14 justify-center">
@@ -624,13 +625,11 @@ export default function PlanDetailPage(): React.JSX.Element {
               >
                 <div className="absolute inset-0 flex items-center justify-center text-center text-white">
                   <div className="px-8 drop-shadow-[0_8px_18px_rgba(0,0,0,0.28)]">
-                    <span className="inline-flex rounded-full bg-white/18 px-4 py-1 text-sm font-semibold backdrop-blur">
-                      {getStatusLabel(item.status)}
-                    </span>
-                    <h2 className="mt-4 text-[3.4rem] font-bold tracking-tight">
+                    <StatusBadge status={item.status} />
+                    <h2 className="mt-4 text-[3.4rem] font-black tracking-tight">
                       {item.title}
                     </h2>
-                    <p className="mt-3 text-[1.5rem] font-medium text-white/92">
+                    <p className="mt-3 font-mono tabular-nums text-[1.5rem] font-medium text-white/92">
                       {formatPlanDateTime(item.start_at)}
                     </p>
                   </div>
@@ -672,13 +671,33 @@ export default function PlanDetailPage(): React.JSX.Element {
               여행 요약
             </h2>
             <MapPreview stopCount={item.stops.length} />
-            <div className="mt-5 space-y-2 text-sm text-neutral-600">
-              <p>상태: {getStatusLabel(item.status)}</p>
-              <p>지역: {regionLabel}</p>
-              <p>이동 수단: {TRANSPORT_LABELS[item.transport_mode]}</p>
-              <p>출발 일시: {formatPlanDateTime(item.start_at)}</p>
-              <p>출발지: {item.origin_name ?? '미정'}</p>
-              <p>스톱 수: {item.stops.length}개</p>
+            <div className="mt-5 divide-y divide-neutral-100 text-sm">
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-neutral-500">상태</span>
+                <StatusBadge status={item.status} size="xs" />
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-neutral-500">지역</span>
+                <span className="font-medium text-neutral-800">{regionLabel}</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-neutral-500">이동 수단</span>
+                <span className="font-medium text-neutral-800">{TRANSPORT_LABELS[item.transport_mode]}</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-neutral-500">출발 일시</span>
+                <span className="font-mono tabular-nums font-medium text-neutral-800">{formatPlanDateTime(item.start_at)}</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-neutral-500">출발지</span>
+                <span className="font-medium text-neutral-800">{item.origin_name ?? '미정'}</span>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-neutral-500">스톱 수</span>
+                <span className="font-mono tabular-nums font-semibold text-primary-700">
+                  {item.stops.length}개
+                </span>
+              </div>
             </div>
           </aside>
         </section>

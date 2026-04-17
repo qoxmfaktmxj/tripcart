@@ -27,7 +27,7 @@ export default function SavedPlacesPage(): React.JSX.Element {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top,_rgba(205,237,233,0.82),_rgba(248,250,251,1)_38%,_rgba(252,247,235,0.88)_100%)] px-6 py-10 sm:px-8 lg:px-12">
+    <main className="min-h-screen overflow-x-hidden px-6 py-10 sm:px-8 lg:px-12" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(255,243,210,0.88), rgba(248,250,251,1) 40%, rgba(240,250,235,0.8) 100%)' }}>
       <div className="mx-auto flex max-w-6xl flex-col gap-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -74,8 +74,8 @@ export default function SavedPlacesPage(): React.JSX.Element {
               {items.length === 0 ? (
                 <div className="grid gap-4 md:grid-cols-2">
                   <article className="rounded-3xl border border-white/80 bg-white/90 p-6 shadow-[0_18px_48px_rgba(38,70,83,0.12)]">
-                    <p className="text-sm font-semibold tracking-[0.18em] text-primary-700">
-                      EMPTY CART
+                    <p className="text-[0.68rem] font-bold tracking-[0.22em] text-primary-700 uppercase">
+                      여행 장바구니
                     </p>
                     <h2 className="mt-4 text-3xl font-bold tracking-tight text-primary-900">
                       아직 저장한 장소가 없습니다
@@ -100,13 +100,13 @@ export default function SavedPlacesPage(): React.JSX.Element {
                     </div>
                   </article>
                   <article className="rounded-3xl border border-dashed border-neutral-300 bg-white/72 p-6">
-                    <p className="text-sm font-semibold tracking-[0.18em] text-primary-700">
-                      QUICK FLOW
+                    <p className="text-[0.68rem] font-bold tracking-[0.22em] text-neutral-500 uppercase">
+                      이렇게 사용하세요
                     </p>
-                    <ol className="mt-4 space-y-4 text-sm leading-6 text-neutral-600">
-                      <li>1. 장소를 담고</li>
-                      <li>2. 저장 목록에서 후보를 정리한 뒤</li>
-                      <li>3. 플랜 화면으로 넘겨 출발 시간과 이동 수단을 정합니다.</li>
+                    <ol className="mt-4 space-y-4 text-sm leading-7 text-neutral-600">
+                      <li className="flex gap-2.5"><span className="font-mono tabular-nums font-semibold text-primary-700">01</span><span>장소 둘러보기에서 후보를 담고</span></li>
+                      <li className="flex gap-2.5"><span className="font-mono tabular-nums font-semibold text-primary-700">02</span><span>여기서 후보를 정리한 뒤</span></li>
+                      <li className="flex gap-2.5"><span className="font-mono tabular-nums font-semibold text-primary-700">03</span><span>플랜 화면으로 넘겨 출발 시간과 이동 수단까지 확정합니다.</span></li>
                     </ol>
                   </article>
                 </div>
@@ -172,8 +172,8 @@ export default function SavedPlacesPage(): React.JSX.Element {
             </div>
 
             <aside className="rounded-3xl border border-white/80 bg-white/90 p-6 shadow-[0_18px_48px_rgba(38,70,83,0.12)]">
-              <p className="text-sm font-semibold tracking-[0.18em] text-primary-700">
-                SUMMARY
+              <p className="text-[0.68rem] font-bold tracking-[0.22em] text-primary-700 uppercase">
+                담은 장소 요약
               </p>
               <h2 className="mt-4 text-3xl font-bold tracking-tight text-primary-900">
                 {items.length === 0 ? '다음 후보를 담아 보세요' : `${items.length}곳이 담겨 있습니다`}

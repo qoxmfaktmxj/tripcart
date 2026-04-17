@@ -389,18 +389,24 @@ export default function PlansPage(): React.JSX.Element {
   }
 
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(223,242,240,0.92),_rgba(248,250,251,1)_42%,_rgba(252,247,235,0.92)_100%)] px-6 py-10 sm:px-8 lg:px-12">
+    <main className="min-h-screen px-6 py-10 sm:px-8 lg:px-12" style={{ background: 'radial-gradient(circle at 50% 0%, rgba(210,238,235,0.88), rgba(248,250,251,1) 42%, rgba(224,240,252,0.78) 100%)' }}>
       <div className="mx-auto flex max-w-7xl flex-col gap-8">
         <header className="text-center">
-          <h1 className="text-[4rem] font-bold tracking-tight text-primary-900 sm:text-[4.6rem]">
-            나의 여행
+          <h1
+            className="font-black tracking-tight text-primary-900"
+            style={{ fontSize: 'clamp(2.8rem, 6vw, 4.6rem)' }}
+          >
+            {user ? '내 여행' : '부산에서 하루를 짜 보세요'}
           </h1>
-          <p className="mt-4 text-[1.2rem] text-neutral-700">
-            다가오는 여행, 지난 여행 확인하기
+          <p className="mt-4 text-[1.15rem] text-neutral-600">
+            {user
+              ? '다가오는 여행, 지난 여행 확인하기'
+              : '마음에 드는 장소를 담고 — 출발 일시만 정하면 하루 일정이 완성됩니다.'}
           </p>
           {!user ? (
             <div className="mt-5 inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-primary-200 bg-white/82 px-5 py-3 text-sm font-medium text-primary-800 shadow-sm backdrop-blur">
-              담아둔 장소 {guestSavedPlaces.length}개는 로그인 시 계정에 연동됩니다.
+              담아둔 장소{' '}
+              <span className="font-mono tabular-nums font-semibold">{guestSavedPlaces.length}</span>개는 로그인 시 계정에 연동됩니다.
             </div>
           ) : null}
         </header>
@@ -427,10 +433,10 @@ export default function PlansPage(): React.JSX.Element {
                   {card.statusLabel}
                 </span>
                 <div className="max-w-[88%] drop-shadow-[0_8px_18px_rgba(0,0,0,0.28)]">
-                  <h2 className="text-[1.78rem] font-bold leading-[1.14] tracking-tight">
+                  <h2 className="text-[1.78rem] font-black leading-[1.14] tracking-tight">
                     {visibleTitle}
                   </h2>
-                  <p className="mt-2 text-[1.12rem] font-medium text-white/92">
+                  <p className="mt-2 font-mono tabular-nums text-[1.12rem] font-medium text-white/92">
                     {formatPlanDateTime(card.start_at)}
                   </p>
                   <p className="mt-4 text-[0.95rem] font-medium text-white/88">
@@ -446,7 +452,7 @@ export default function PlansPage(): React.JSX.Element {
                   key={card.id}
                   type="button"
                   onClick={() => openComposerWithSample(card)}
-                  className="transition hover:-translate-y-1"
+                  className="opacity-68 transition hover:-translate-y-1 hover:opacity-90"
                 >
                   {body}
                 </button>

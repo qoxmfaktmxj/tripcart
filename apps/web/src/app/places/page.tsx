@@ -50,14 +50,16 @@ const PLACE_IMAGES = [
   'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?auto=format&fit=crop&w=900&q=80',
   'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=900&q=80',
 ] as const
-const MAP_POINTS = [
-  { top: '27%', left: '38%' },
-  { top: '33%', left: '46%' },
-  { top: '41%', left: '49%' },
-  { top: '53%', left: '51%' },
-  { top: '64%', left: '54%' },
-  { top: '77%', left: '59%' },
-] as const
+
+const CATEGORY_FALLBACK_IMAGES: Partial<Record<string, string>> = {
+  restaurant: 'https://images.unsplash.com/photo-1533929736458-ca588d08c8be?auto=format&fit=crop&w=900&q=80',
+  cafe: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80',
+  attraction: 'https://images.unsplash.com/photo-1549692520-acc6669e2f0c?auto=format&fit=crop&w=900&q=80',
+  accommodation: 'https://images.unsplash.com/photo-1520201163981-8cc95007dd2e?auto=format&fit=crop&w=900&q=80',
+  activity: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=900&q=80',
+  shopping: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=900&q=80',
+}
+const BUSAN_AREAS = ['해운대', '광안리', '감천', '남포동', '기장', '서면'] as const
 const CATEGORY_OPTIONS: CategoryFilter[] = [
   'all',
   'restaurant',
@@ -72,6 +74,8 @@ const REGION_OPTIONS: RegionFilter[] = ['busan', 'all']
 
 function getPlaceImage(item: PlaceListItem, index: number): string {
   if (item.thumbnail_url) return item.thumbnail_url
+  const categoryImage = CATEGORY_FALLBACK_IMAGES[item.category]
+  if (categoryImage) return categoryImage
   return PLACE_IMAGES.at(index % PLACE_IMAGES.length) ?? PLACE_IMAGES[0] ?? ''
 }
 
@@ -112,98 +116,43 @@ function ChevronDownIcon(): React.JSX.Element {
   )
 }
 
-function MapIllustration({ count }: { count: number }): React.JSX.Element {
-  const visiblePoints = MAP_POINTS.slice(
-    0,
-    Math.max(3, Math.min(count, MAP_POINTS.length)),
-  )
-
+function BusanSummaryPanel({ count }: { count: number }): React.JSX.Element {
   return (
-    <div className="absolute inset-0 overflow-hidden rounded-2xl">
-      <svg viewBox="0 0 700 860" className="h-full w-full" aria-hidden="true">
-        <defs>
-          <linearGradient id="sea" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#8fc4ea" />
-            <stop offset="24%" stopColor="#b6d8ef" />
-            <stop offset="24%" stopColor="#f7f3e7" />
-            <stop offset="100%" stopColor="#f7f3e7" />
-          </linearGradient>
-        </defs>
-        <rect width="700" height="860" rx="32" fill="url(#sea)" />
-        <g opacity="0.18" stroke="#8c9aa8">
-          {Array.from({ length: 9 }).map((_, index) => (
-            <line
-              key={`v-${index}`}
-              x1={80 + index * 66}
-              x2={80 + index * 66}
-              y1={0}
-              y2={860}
-            />
+    <div className="absolute inset-0 flex flex-col justify-between p-8">
+      <div>
+        <p className="text-[0.68rem] font-bold tracking-[0.22em] text-primary-700 uppercase">
+          부산 · 지금
+        </p>
+        <p
+          className="mt-3 font-black leading-none tracking-tight text-primary-900"
+          style={{ fontSize: 'clamp(3rem, 5vw, 4.5rem)' }}
+        >
+          <span className="font-mono tabular-nums">{count}</span>
+          <span className="ml-2 text-[1.6rem] font-semibold text-neutral-600">개</span>
+        </p>
+        <p className="mt-1.5 text-base font-medium text-neutral-500">
+          현재 필터에 표시 중인 장소
+        </p>
+      </div>
+
+      <div>
+        <p className="mb-3 text-sm font-semibold text-neutral-700">부산 주요 구역</p>
+        <div className="flex flex-wrap gap-2">
+          {BUSAN_AREAS.map((area) => (
+            <span
+              key={area}
+              className="rounded-full bg-primary-50 px-3 py-1.5 text-sm font-medium text-primary-700"
+            >
+              {area}
+            </span>
           ))}
-          {Array.from({ length: 10 }).map((_, index) => (
-            <line
-              key={`h-${index}`}
-              x1={0}
-              x2={700}
-              y1={60 + index * 72}
-              y2={60 + index * 72}
-            />
-          ))}
-        </g>
-        <ellipse cx="455" cy="280" rx="88" ry="168" fill="#eef3e3" opacity="0.9" />
-        <ellipse cx="250" cy="610" rx="58" ry="110" fill="#eef3e3" opacity="0.85" />
-        <g stroke="#b1d0cf" strokeWidth="4" strokeLinecap="round">
-          <line x1="420" y1="240" x2="470" y2="240" />
-          <line x1="446" y1="320" x2="496" y2="320" />
-          <line x1="430" y1="436" x2="492" y2="436" />
-          <line x1="474" y1="580" x2="530" y2="580" />
-          <line x1="493" y1="700" x2="552" y2="700" />
-        </g>
-        {visiblePoints.map((point, index) => {
-          const top = Number.parseFloat(point.top)
-          const left = Number.parseFloat(point.left)
-          const cx = (left / 100) * 700
-          const cy = (top / 100) * 860
-          return (
-            <g key={`${point.top}-${point.left}`}>
-              <circle cx={cx} cy={cy} r="18" fill="var(--color-primary-500)" />
-              <text
-                x={cx}
-                y={cy + 5}
-                textAnchor="middle"
-                fontSize="14"
-                fontWeight="700"
-                fill="#ffffff"
-              >
-                {index + 1}
-              </text>
-            </g>
-          )
-        })}
-        <text x="392" y="262" fontSize="34" fontWeight="700" fill="#233a45">
-          부산역
-        </text>
-        <text x="530" y="436" fontSize="34" fontWeight="700" fill="#233a45">
-          해운대
-        </text>
-        <text x="366" y="564" fontSize="34" fontWeight="700" fill="#233a45">
-          감천문화마을
-        </text>
-        <path
-          d="M402 260 C 472 292, 520 330, 540 404"
-          stroke="#4f94d8"
-          strokeWidth="8"
-          fill="none"
-          strokeLinecap="round"
-        />
-        <path
-          d="M540 404 C 496 444, 470 486, 434 548"
-          stroke="#4f94d8"
-          strokeWidth="8"
-          fill="none"
-          strokeLinecap="round"
-        />
-      </svg>
+        </div>
+      </div>
+
+      <div className="space-y-1.5 text-sm text-neutral-500">
+        <p>현재 MVP 탐색 범위: 부산 중심</p>
+        <p>지도 연동은 추후 업데이트 예정입니다.</p>
+      </div>
     </div>
   )
 }
@@ -321,7 +270,7 @@ export default function PlacesPage(): React.JSX.Element {
   }
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top,_rgba(223,242,240,0.92),_rgba(248,250,251,1)_42%,_rgba(252,247,235,0.9)_100%)] px-6 py-6 sm:px-8 lg:px-10">
+    <main className="min-h-screen overflow-x-hidden px-6 py-6 sm:px-8 lg:px-10" style={{ background: 'radial-gradient(circle at 70% 0%, rgba(210,230,250,0.85), rgba(248,250,251,1) 42%, rgba(205,238,233,0.78) 100%)' }}>
       <div className="mx-auto flex max-w-[1380px] flex-col gap-5">
         <div className="flex items-center justify-between">
           <h1 className="text-[3.2rem] font-bold tracking-tight text-primary-900">
@@ -564,8 +513,8 @@ export default function PlacesPage(): React.JSX.Element {
             </div>
           </section>
 
-          <aside className="hidden xl:flex relative min-h-[760px] overflow-hidden rounded-2xl border border-white/90 bg-white/82 shadow-[0_16px_40px_rgba(38,70,83,0.10)]">
-            <MapIllustration count={items.length} />
+          <aside className="relative hidden min-h-[760px] overflow-hidden rounded-2xl border border-white/90 bg-white/82 shadow-[0_16px_40px_rgba(38,70,83,0.10)] xl:flex">
+            <BusanSummaryPanel count={items.length} />
             <Link
               href="/plans"
               className="absolute bottom-6 right-6 inline-flex h-14 items-center justify-center rounded-full bg-primary-500 px-6 text-xl font-semibold text-white shadow-[0_16px_28px_rgba(42,157,143,0.24)] transition hover:bg-primary-700"

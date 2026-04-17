@@ -1,4 +1,4 @@
-﻿'use client'
+'use client'
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
@@ -14,6 +14,12 @@ import type { TravelMode } from '@tripcart/types'
 
 const HERO_IMAGE =
   'https://images.unsplash.com/photo-1504609813442-a8924e83f76e?auto=format&fit=crop&w=1800&q=80'
+
+const DEST_COPY: Record<string, string> = {
+  'popular-gamcheon': '새벽빛 골목, 담으면 하루가 채워집니다',
+  'popular-haeundae': '파도 소리 맞춰 하루 동선 시작',
+  'popular-momos': '원두 향으로 마무리하는 부산 일정',
+}
 
 type HomePlanResponse = {
   data: Array<{
@@ -81,15 +87,6 @@ function NavIcon({ name }: { name: HomeIconName }): React.JSX.Element {
       <path d="M12 3.8 7 6v5.2c0 4.2 2.7 7.8 5 9 2.3-1.2 5-4.8 5-9V6Z" />
       <path d="M12 8.4a1.6 1.6 0 1 1 0 3.2 1.6 1.6 0 0 1 0-3.2Z" />
       <path d="m10.2 13.9 1.8 1.5 1.8-1.5" />
-    </svg>
-  )
-}
-
-function SearchIcon(): React.JSX.Element {
-  return (
-    <svg viewBox="0 0 24 24" className="h-[2.16rem] w-[2.16rem]" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="11" cy="11" r="6.5" />
-      <path d="m16 16 4 4" />
     </svg>
   )
 }
@@ -179,122 +176,134 @@ export default function HomePage(): React.JSX.Element {
         : 'grid gap-6 xl:grid-cols-3'
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top,_rgba(223,242,240,0.88),_rgba(248,250,251,1)_42%,_rgba(252,247,235,0.92)_100%)] text-neutral-900">
+    <main
+      className="min-h-screen overflow-x-hidden pb-20 text-neutral-900 sm:pb-0"
+      style={{ background: 'radial-gradient(circle at 30% 0%, rgba(255,237,210,0.82), rgba(248,250,251,1) 45%, rgba(210,238,235,0.75) 100%)' }}
+    >
+      {/* ── HERO (A1) ── */}
       <section
-        className="relative min-h-[510px] overflow-hidden"
+        className="relative min-h-[600px] overflow-hidden lg:min-h-[680px]"
         style={{
-          backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.14) 0%, rgba(15, 23, 42, 0.42) 100%), url(${HERO_IMAGE})`,
+          backgroundImage: `url(${HERO_IMAGE})`,
           backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundPosition: 'center 35%',
         }}
       >
-        <div className="mx-auto flex min-h-[510px] max-w-7xl flex-col px-6 py-8 sm:px-8 lg:px-12">
-          <div className="flex items-center justify-end">
-            <button
-              type="button"
-              onClick={() => setDrawerOpen(true)}
-              className="inline-flex items-center gap-2 rounded-full border border-white/55 bg-white/18 px-4 py-2 text-sm font-semibold text-white backdrop-blur-sm transition hover:bg-white/28"
-            >
-              <span className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/18 text-white">
-                <CartIcon />
-              </span>
-              <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-white/90 px-2 text-xs font-bold text-primary-700">
-                {savedLoading ? '…' : savedPlaces.length}
-              </span>
-            </button>
-          </div>
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(135deg, rgba(15,23,42,0.80) 0%, rgba(38,70,83,0.54) 55%, rgba(15,23,42,0.18) 100%)' }}
+        />
 
-          <div className="flex flex-1 flex-col items-center justify-center text-center">
-            <span className="rounded-full border border-white/50 bg-white/18 px-4 py-1.5 text-[0.72rem] font-semibold tracking-[0.04em] text-white/92 backdrop-blur-sm">
-              담을수록 설레는 나만의 여행
+        {/* Nav bar */}
+        <div className="relative z-10 flex items-center justify-between px-6 py-7 sm:px-10 lg:px-14">
+          <span className="text-[0.68rem] font-bold tracking-[0.24em] text-white/60 uppercase">TripCart</span>
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="inline-flex items-center gap-2.5 rounded-full border border-white/35 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/12"
+          >
+            <CartIcon />
+            <span className="font-mono tabular-nums">
+              {savedLoading ? '…' : savedPlaces.length}
             </span>
-            <h1 className="mt-5 text-[4.2rem] font-bold tracking-tight text-white drop-shadow-[0_10px_24px_rgba(0,0,0,0.25)] sm:text-[5.2rem]">
-              TRIP CART
-            </h1>
-            <p className="mt-3 max-w-2xl text-lg font-medium text-white/92 sm:text-[1.35rem]">
-              여행 장소를 장바구니에 담고, 실행 가능한 일정으로 정리하세요.
+          </button>
+        </div>
+
+        {/* Hero content — left-anchored editorial */}
+        <div className="relative z-10 mx-auto flex max-w-[1400px] min-h-[480px] items-end px-6 pb-16 sm:px-10 lg:px-14 lg:pb-24">
+          <div className="max-w-[600px]">
+            <p className="mb-5 text-[0.68rem] font-bold tracking-[0.24em] text-primary-300 uppercase">
+              부산 · 여행 일정
             </p>
-
-            <Link
-              href="/places"
-              className="mt-10 flex w-full max-w-[760px] items-center justify-between rounded-full border border-white/65 bg-white/24 px-7 py-[1.05rem] text-left text-xl font-medium text-white shadow-[0_18px_50px_rgba(15,23,42,0.16)] backdrop-blur-md transition hover:bg-white/30"
+            <h1
+              className="font-black leading-[0.9] tracking-tight text-white"
+              style={{ fontSize: 'clamp(3.8rem, 8vw, 6.5rem)' }}
             >
-              <span className="text-[1.1rem] sm:text-[1.2rem]">어디로 떠나시나요?</span>
-              <span className="flex h-[3.7rem] w-[3.7rem] items-center justify-center rounded-full bg-primary-500 text-white shadow-[0_12px_24px_rgba(42,157,143,0.28)]">
-                <SearchIcon />
-              </span>
-            </Link>
-
-            <div className="mt-7 flex flex-wrap items-center justify-center gap-4">
+              담아두면<br />일정이 된다
+            </h1>
+            <p className="mt-6 max-w-[440px] text-[1.05rem] font-medium leading-relaxed text-white/78">
+              카페·맛집·명소를 담고 — 출발 시간을 정하면 영업시간과 동선까지 맞춰 정렬됩니다.
+            </p>
+            <div className="mt-9 flex items-center gap-7">
               <Link
                 href="/places"
-                className="inline-flex h-11 items-center justify-center rounded-full bg-primary-500 px-6 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(42,157,143,0.24)] transition hover:bg-primary-700"
+                className="inline-flex h-12 items-center justify-center rounded-full bg-primary-500 px-7 text-base font-semibold text-white shadow-[0_12px_32px_rgba(42,157,143,0.32)] transition hover:bg-primary-700"
               >
-                바로 담아보기
+                장소 탐색하기
               </Link>
               <Link
                 href="/plans"
-                className="inline-flex h-11 items-center justify-center rounded-full border border-white/70 bg-white/18 px-6 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/28"
+                className="text-sm font-semibold text-white/80 transition hover:text-white"
               >
-                플랜 보기
+                내 계획 보기 →
               </Link>
             </div>
           </div>
         </div>
       </section>
 
+      {/* ── Category nav ── */}
       <section className="border-b border-neutral-200 bg-white/96 px-6 py-5 sm:px-8 lg:px-12">
         <div className="-mx-6 overflow-x-auto px-6 sm:mx-0 sm:px-0">
           <div className="mx-auto flex w-max min-w-full items-center gap-8 whitespace-nowrap sm:w-auto sm:min-w-0 sm:flex-wrap sm:justify-center sm:gap-10">
-          {HOME_CATEGORIES.map((action) => (
-            <Link
-              key={action.label}
-              href={action.href}
-              className="inline-flex items-center gap-2.5 border-b-[4px] border-transparent px-1 pb-3 text-[1.38rem] font-semibold text-neutral-800 transition hover:border-primary-500 hover:text-primary-900 sm:text-[1.82rem]"
-            >
-              <span className="inline-flex h-7 w-7 items-center justify-center text-primary-700 sm:h-8 sm:w-8">
-                <NavIcon name={action.icon} />
-              </span>
-              <span>{action.label}</span>
-            </Link>
-          ))}
+            {HOME_CATEGORIES.map((action) => (
+              <Link
+                key={action.label}
+                href={action.href}
+                className="inline-flex items-center gap-2.5 border-b-[4px] border-transparent px-1 pb-3 text-[1.38rem] font-semibold text-neutral-800 transition hover:border-primary-500 hover:text-primary-900 sm:text-[1.82rem]"
+              >
+                <span className="inline-flex h-7 w-7 items-center justify-center text-primary-700 sm:h-8 sm:w-8">
+                  <NavIcon name={action.icon} />
+                </span>
+                <span>{action.label}</span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-10 sm:px-8 lg:px-12">
+      {/* ── My trips ── */}
+      <section className="tc-animate tc-delay-1 px-6 pb-8 pt-12 sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-7xl flex-col gap-7">
           <div>
-            <h2 className="text-[3.1rem] font-bold tracking-tight text-primary-900">내 여행</h2>
-            <p className="mt-2 text-lg text-neutral-600">
-              {user ? '계정에 연결된 플랜과 초안을 여기서 바로 확인할 수 있습니다.' : '비로그인 상태의 여행 초안도 브라우저에 유지됩니다.'}
+            <h2
+              className="font-black tracking-tight text-primary-900"
+              style={{ fontSize: 'clamp(2rem, 3.5vw, 2.8rem)' }}
+            >
+              {user ? '내 여행' : '여행 준비 중'}
+            </h2>
+            <p className="mt-2 text-base text-neutral-600">
+              {user
+                ? '계정에 연결된 플랜과 초안을 여기서 바로 확인할 수 있습니다.'
+                : '비로그인 상태의 여행 초안도 브라우저에 유지됩니다.'}
             </p>
           </div>
 
+          {/* Mobile horizontal swipe */}
           <div className="sm:hidden">
             <div className="-mx-6 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="flex gap-4">
+              <div className="flex snap-x snap-mandatory gap-4">
                 {myTrips.map((card) =>
                   card.kind === 'plan' ? (
                     <Link
                       key={card.id}
                       href={card.href}
-                      className="group block w-[84vw] max-w-[336px] shrink-0 overflow-hidden rounded-2xl border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
+                      className="group block w-[82vw] max-w-[320px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1"
                     >
                       <div
-                        className="relative flex min-h-[228px] items-end px-6 pb-6 pt-7 text-white"
+                        className="relative flex min-h-[200px] items-end px-5 pb-5 pt-6 text-white"
                         style={{
                           backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.08) 0%, rgba(15, 23, 42, 0.58) 100%), url(${card.image})`,
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
                         }}
                       >
-                        <span className="absolute right-5 top-5 rounded-full border border-primary-300 bg-primary-50 px-3 py-[0.35rem] text-[0.82rem] font-semibold text-primary-700 shadow-sm">
+                        <span className="absolute right-4 top-4 rounded-full border border-primary-300 bg-primary-50 px-3 py-1 text-xs font-semibold text-primary-700">
                           {card.statusLabel}
                         </span>
-                        <div className="drop-shadow-[0_8px_18px_rgba(0,0,0,0.28)]">
-                          <h3 className="text-[1.8rem] font-bold tracking-tight">{card.title}</h3>
-                          <p className="mt-2 text-[1.35rem] font-medium text-white/92">{card.period}</p>
+                        <div>
+                          <h3 className="text-[1.6rem] font-black tracking-tight">{card.title}</h3>
+                          <p className="mt-1.5 font-mono tabular-nums text-[1.1rem] font-medium text-white/88">{card.period}</p>
                         </div>
                       </div>
                     </Link>
@@ -302,12 +311,12 @@ export default function HomePage(): React.JSX.Element {
                     <Link
                       key={card.id}
                       href={card.href}
-                      className="flex min-h-[228px] w-[84vw] max-w-[336px] shrink-0 flex-col items-center justify-center rounded-2xl border border-white/85 bg-white shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1"
+                      className="flex min-h-[200px] w-[82vw] max-w-[320px] shrink-0 snap-start flex-col items-center justify-center rounded-2xl border border-white/85 bg-white shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1"
                     >
                       <span className="text-primary-700">
                         <PlusIcon />
                       </span>
-                      <span className="mt-4 text-[2rem] font-bold tracking-tight text-primary-900">{card.title}</span>
+                      <span className="mt-3 text-[1.8rem] font-black tracking-tight text-primary-900">{card.title}</span>
                     </Link>
                   ),
                 )}
@@ -315,6 +324,7 @@ export default function HomePage(): React.JSX.Element {
             </div>
           </div>
 
+          {/* Desktop grid */}
           <div className={`hidden sm:grid ${myTripsGridClass}`}>
             {myTrips.map((card) =>
               card.kind === 'plan' ? (
@@ -335,8 +345,8 @@ export default function HomePage(): React.JSX.Element {
                       {card.statusLabel}
                     </span>
                     <div className="drop-shadow-[0_8px_18px_rgba(0,0,0,0.28)]">
-                      <h3 className="text-[1.95rem] font-bold tracking-tight">{card.title}</h3>
-                      <p className="mt-2 text-[1.55rem] font-medium text-white/92">{card.period}</p>
+                      <h3 className="text-[1.95rem] font-black tracking-tight">{card.title}</h3>
+                      <p className="mt-2 font-mono tabular-nums text-[1.35rem] font-medium text-white/92">{card.period}</p>
                     </div>
                   </div>
                 </Link>
@@ -349,7 +359,7 @@ export default function HomePage(): React.JSX.Element {
                   <span className="text-primary-700">
                     <PlusIcon />
                   </span>
-                  <span className="mt-4 text-[2.3rem] font-bold tracking-tight text-primary-900">{card.title}</span>
+                  <span className="mt-4 text-[2.3rem] font-black tracking-tight text-primary-900">{card.title}</span>
                 </Link>
               ),
             )}
@@ -357,39 +367,41 @@ export default function HomePage(): React.JSX.Element {
         </div>
       </section>
 
-      <section className="px-6 pb-12 sm:px-8 lg:px-12">
-        <div className="mx-auto flex max-w-7xl flex-col gap-7">
+      {/* ── Popular destinations — asymmetric editorial grid (A2) ── */}
+      <section className="tc-animate tc-delay-2 px-6 pb-12 sm:px-8 lg:px-12">
+        <div className="mx-auto flex max-w-7xl flex-col gap-8">
           <div>
-            <h2 className="text-[3.1rem] font-bold tracking-tight text-primary-900">인기 여행지</h2>
-            <p className="mt-2 text-lg text-neutral-600">
-              바로 담아보고 플랜으로 이어가기 좋은 대표 여행지를 모았습니다.
-            </p>
+            <h2
+              className="font-black tracking-tight text-primary-900"
+              style={{ fontSize: 'clamp(2rem, 3.5vw, 2.8rem)' }}
+            >
+              인기 여행지
+            </h2>
+            <p className="mt-2 text-base text-neutral-600">담기 좋은 부산 대표 장소</p>
           </div>
 
+          {/* Mobile: slim snap-x swipe (C2) */}
           <div className="sm:hidden">
-            <div className="-mx-6 overflow-x-auto px-6 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="flex gap-4">
+            <div className="-mx-6 overflow-x-auto px-6 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex snap-x snap-mandatory gap-4">
                 {POPULAR_DESTINATIONS.map((place) => (
                   <Link
                     key={place.id}
                     href={place.href}
-                    className="group block w-[84vw] max-w-[336px] shrink-0 overflow-hidden rounded-2xl border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
+                    className="group w-[72vw] max-w-[260px] shrink-0 snap-start overflow-hidden rounded-2xl"
                   >
                     <div
-                      className="min-h-[236px] bg-cover bg-center"
-                      style={{ backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.06) 0%, rgba(15, 23, 42, 0.48) 100%), url(${place.image})` }}
+                      className="relative min-h-[220px] bg-cover bg-center"
+                      style={{ backgroundImage: `linear-gradient(to bottom, rgba(15,23,42,0.04), rgba(15,23,42,0.66)), url(${place.image})` }}
                     >
-                      <div className="flex min-h-[236px] flex-col justify-end px-7 pb-8 pt-8 text-white">
-                        <div className="mb-3 flex gap-2">
-                          <span className="rounded-full bg-white/88 px-3 py-1 text-xs font-semibold text-primary-700">
-                            {place.region}
-                          </span>
-                          <span className="rounded-full bg-white/18 px-3 py-1 text-xs font-semibold text-white">
-                            {place.categoryLabel}
-                          </span>
-                        </div>
-                        <h3 className="text-[1.85rem] font-bold tracking-tight">{place.title}</h3>
-                        <p className="mt-2 text-base font-medium text-white/88">둘러보고 바로 담아보세요.</p>
+                      <div className="absolute bottom-0 left-0 p-5 text-white">
+                        <p className="mb-1 text-[0.62rem] font-bold tracking-[0.22em] text-primary-300 uppercase">
+                          {place.region} · {place.categoryLabel}
+                        </p>
+                        <h3 className="text-[1.45rem] font-black tracking-tight">{place.title}</h3>
+                        <p className="mt-1 text-xs font-medium text-white/72">
+                          {DEST_COPY[place.id] ?? '지금 바로 담아보기'}
+                        </p>
                       </div>
                     </div>
                   </Link>
@@ -398,36 +410,91 @@ export default function HomePage(): React.JSX.Element {
             </div>
           </div>
 
-          <div className="hidden gap-6 xl:grid-cols-3 sm:grid">
-            {POPULAR_DESTINATIONS.map((place) => (
-              <Link
-                key={place.id}
-                href={place.href}
-                className="group overflow-hidden rounded-2xl border border-white/85 bg-white/92 shadow-[0_18px_42px_rgba(38,70,83,0.12)] transition hover:-translate-y-1 hover:shadow-[0_22px_52px_rgba(38,70,83,0.16)]"
+          {/* Desktop: 1 large feature + 2 small stacked */}
+          <div className="hidden gap-5 sm:grid sm:grid-cols-[1.4fr_1fr]">
+            {/* Large feature card */}
+            <Link
+              href={POPULAR_DESTINATIONS[0].href}
+              className="group relative overflow-hidden rounded-2xl"
+            >
+              <div
+                className="min-h-[400px] bg-cover bg-center"
+                style={{ backgroundImage: `linear-gradient(to bottom right, rgba(15,23,42,0.04), rgba(15,23,42,0.70)), url(${POPULAR_DESTINATIONS[0].image})` }}
               >
-                <div
-                  className="min-h-[248px] bg-cover bg-center"
-                  style={{ backgroundImage: `linear-gradient(180deg, rgba(15, 23, 42, 0.06) 0%, rgba(15, 23, 42, 0.48) 100%), url(${place.image})` }}
-                >
-                  <div className="flex min-h-[248px] flex-col justify-end px-7 pb-8 pt-8 text-white">
-                    <div className="mb-3 flex gap-2">
-                      <span className="rounded-full bg-white/88 px-3 py-1 text-xs font-semibold text-primary-700">
-                        {place.region}
-                      </span>
-                      <span className="rounded-full bg-white/18 px-3 py-1 text-xs font-semibold text-white">
-                        {place.categoryLabel}
-                      </span>
-                    </div>
-                    <h3 className="text-[2rem] font-bold tracking-tight">{place.title}</h3>
-                    <p className="mt-2 text-base font-medium text-white/88">둘러보고 바로 담아보세요.</p>
-                  </div>
+                <div className="flex min-h-[400px] flex-col justify-end p-8 text-white">
+                  <p className="mb-3 text-[0.66rem] font-bold tracking-[0.24em] text-primary-300 uppercase">
+                    {POPULAR_DESTINATIONS[0].region} · {POPULAR_DESTINATIONS[0].categoryLabel}
+                  </p>
+                  <h3
+                    className="font-black leading-tight tracking-tight"
+                    style={{ fontSize: 'clamp(1.8rem, 2.4vw, 2.6rem)' }}
+                  >
+                    {POPULAR_DESTINATIONS[0].title}
+                  </h3>
+                  <p className="mt-3 max-w-[280px] text-[0.95rem] font-medium leading-relaxed text-white/78">
+                    {DEST_COPY[POPULAR_DESTINATIONS[0].id] ?? '지금 바로 담아보기'}
+                  </p>
+                  <span className="mt-5 text-sm font-semibold text-primary-300 transition group-hover:text-primary-200">
+                    담아보기 →
+                  </span>
                 </div>
-              </Link>
-            ))}
+              </div>
+            </Link>
+
+            {/* Right column: 2 smaller */}
+            <div className="flex flex-col gap-5">
+              {([POPULAR_DESTINATIONS[1], POPULAR_DESTINATIONS[2]] as const).map((place) => (
+                <Link
+                  key={place.id}
+                  href={place.href}
+                  className="group relative flex-1 overflow-hidden rounded-2xl"
+                >
+                  <div
+                    className="relative min-h-[185px] bg-cover bg-center"
+                    style={{ backgroundImage: `linear-gradient(to bottom, rgba(15,23,42,0.04), rgba(15,23,42,0.66)), url(${place.image})` }}
+                  >
+                    <div className="flex min-h-[185px] flex-col justify-end p-6 text-white">
+                      <p className="mb-2 text-[0.62rem] font-bold tracking-[0.22em] text-primary-300 uppercase">
+                        {place.region} · {place.categoryLabel}
+                      </p>
+                      <h3 className="text-[1.65rem] font-black tracking-tight">{place.title}</h3>
+                      <p className="mt-1.5 text-sm font-medium text-white/75">
+                        {DEST_COPY[place.id] ?? '지금 바로 담아보기'}
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
+      {/* ── Mobile sticky bottom search bar (C1) ── */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-neutral-200 bg-white/96 px-4 py-3 sm:hidden"
+        style={{ paddingBottom: 'max(12px, env(safe-area-inset-bottom))' }}
+      >
+        <Link
+          href="/places"
+          className="flex h-12 w-full items-center gap-3 rounded-full bg-neutral-100 px-5"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-5 w-5 shrink-0 text-neutral-400"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          >
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+          </svg>
+          <span className="text-sm text-neutral-500">카페·맛집·명소 검색...</span>
+        </Link>
+      </div>
+
+      {/* ── Cart drawer ── */}
       {drawerOpen ? (
         <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/28 backdrop-blur-[1px]">
           <button
@@ -439,9 +506,9 @@ export default function HomePage(): React.JSX.Element {
           <aside className="relative z-10 flex h-full w-full max-w-[380px] flex-col border-l border-white/70 bg-white/96 px-6 py-6 shadow-[-24px_0_48px_rgba(15,23,42,0.16)] backdrop-blur">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-[2rem] font-bold tracking-tight text-primary-900">장바구니</h2>
+                <h2 className="text-[2rem] font-black tracking-tight text-primary-900">장바구니</h2>
                 <p className="mt-1 text-sm text-neutral-500">
-                  {savedPlaces.length > 0 ? `` : '담아 둔 여행지가 없습니다.'}
+                  {savedPlaces.length === 0 ? '담아 둔 여행지가 없습니다.' : ''}
                 </p>
               </div>
               <button
@@ -459,10 +526,10 @@ export default function HomePage(): React.JSX.Element {
                   key={item.id}
                   href={`/places/${item.place.id}`}
                   onClick={() => setDrawerOpen(false)}
-                  className="flex items-center gap-3 rounded-[1.2rem] border border-neutral-200 bg-white px-3 py-3 shadow-sm transition hover:border-primary-500"
+                  className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white px-3 py-3 shadow-sm transition hover:border-primary-500"
                 >
                   <div
-                    className="h-16 w-16 shrink-0 rounded-[1rem] bg-neutral-100 bg-cover bg-center"
+                    className="h-16 w-16 shrink-0 rounded-xl bg-neutral-100 bg-cover bg-center"
                     style={item.place.thumbnail_url ? { backgroundImage: `url(${item.place.thumbnail_url})` } : undefined}
                   />
                   <div className="min-w-0">
@@ -474,7 +541,7 @@ export default function HomePage(): React.JSX.Element {
               ))}
 
               {savedPlaces.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-dashed border-neutral-300 bg-neutral-50 px-5 py-6 text-sm text-neutral-500">
+                <div className="rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 px-5 py-6 text-sm text-neutral-500">
                   카페, 맛집, 명소, 숙소를 담아 두면 여기서 바로 확인할 수 있습니다.
                 </div>
               ) : null}
